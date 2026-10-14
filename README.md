@@ -7,7 +7,13 @@ Static HTML/CSS/vanilla JS, no build step, no API keys. GitHub Pages serves `ind
 Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each location gets one card with a snowpack panel (if it has a SNOTEL triplet) and a forecast panel, plus a row in the "At a glance" table.
 
 - **Snowpack:** NRCS SNOTEL AWDB REST API, hourly SNWD/WTEQ.
-- **Forecast:** Open-Meteo 16-day daily forecast, downscaled to each site's elevation.
+- **Forecast:** Open-Meteo 16-day daily forecast, downscaled to each site's elevation, from six global models
+  (ECMWF, GFS, ICON, GEM, UKMO, JMA) plus HRRR and NAM for the next 48 hours. Totals are the median of the models
+  that cover the whole window; ranges are the lowest and highest model.
+- **Chris Tomer:** `.github/workflows/tomer.yml` runs `scripts/tomer.py` each morning (14:15 and 15:15 UTC) and on
+  manual dispatch. It reads his channel RSS, tries to fetch the newest video's transcript, and writes `tomer.json`.
+  Optional repo secrets: `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` (AI summary instead of keyword extraction),
+  `YT_PROXY_URL` (residential proxy) or `YT_COOKIES` (cookies.txt) if YouTube blocks the runner.
 
 | Region | Location | SNOTEL |
 |---|---|---|
@@ -23,5 +29,6 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
 | Wyoming | Battle Mountain | 317:WY:SNTL |
 | Utah | Tony Grove Lake | 823:UT:SNTL |
 | Idaho | Deadwood Summit | 439:ID:SNTL |
+| Idaho | Brundage Mountain (summit forecast) | 370:ID:SNTL (Brundage Reservoir) |
 
 Units are read from Open-Meteo's `daily_units`; with `precipitation_unit=inch` snowfall already comes back in inches.

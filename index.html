@@ -139,6 +139,47 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .glance .na{color:var(--dim);font-weight:400}
 .glance .bad{color:var(--bad)}
 @media(min-width:760px){.glance td{font-size:15px}}
+.day .barbox{position:relative}
+.day .wh{position:absolute;left:50%;width:2px;margin-left:-1px;background:#ffffff38;border-radius:1px}
+.day.thin .bar{opacity:.6}
+.rng{font-size:12px;color:var(--muted);margin-top:1px;font-variant-numeric:tabular-nums}
+.agree{font-size:13px;line-height:1.4;background:#0b1330;border-radius:12px;padding:9px 11px;margin-bottom:10px}
+.agree b{color:var(--text)}
+.agree .hi{color:#f0abfc}.agree .lo{color:#93c5fd}
+.agree .sr{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+details.models{margin-top:10px;font-size:12.5px}
+details.models summary{cursor:pointer;color:var(--ice);font-weight:600;list-style:none}
+details.models summary::-webkit-details-marker{display:none}
+details.models summary:before{content:"▸ "}
+details.models[open] summary:before{content:"▾ "}
+details.models table{width:100%;border-collapse:collapse;margin-top:6px;font-variant-numeric:tabular-nums}
+details.models th{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;text-align:right;padding:4px 6px;font-weight:650}
+details.models td{text-align:right;padding:5px 6px;border-top:1px solid #ffffff0a;font-weight:600}
+details.models th:first-child,details.models td:first-child{text-align:left}
+details.models td.na{color:var(--dim);font-weight:400}
+.ext{display:inline-block;margin-top:10px;font-size:12.5px;color:var(--ice);text-decoration:none;font-weight:600}
+.tomer{margin-bottom:6px}
+.tomer .vid{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.tomer .vid img{width:112px;aspect-ratio:16/9;object-fit:cover;border-radius:10px;flex:none;background:#0b1330}
+.tomer .vid .t{font-weight:700;font-size:15px;line-height:1.25}
+.tomer .vid .d{font-size:12px;color:var(--muted);margin-top:3px}
+.tomer .vid a{color:inherit;text-decoration:none}
+.tomer .head{font-size:16px;font-weight:650;line-height:1.35;margin:2px 0 10px}
+.tomer ul{list-style:none;margin:0 0 10px;padding:0}
+.tomer li{background:#0b1330;border-radius:12px;padding:9px 11px;margin-bottom:6px;font-size:13.5px;line-height:1.4}
+.tomer li .w{display:inline-block;min-width:74px;font-weight:750;color:var(--ice)}
+.tomer .st{font-size:11.5px;color:var(--dim);display:block;margin-top:2px}
+.tomer .q{display:block;font-size:12px;color:var(--muted);font-style:italic;margin-top:4px}
+.tomer .amts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tomer .amt{background:#0b1330;border:1px solid var(--line);border-radius:10px;padding:6px 9px;font-size:12.5px}
+.tomer .amt b{font-size:15px;margin-left:4px}
+.tomer .conf{font-size:13px;color:var(--muted);margin-bottom:8px}
+.tomer .conf b{color:var(--text)}
+.tomer .src{font-size:11.5px;color:var(--dim);line-height:1.45}
+.tomer .src.warn{color:#fcd34d}
+.tomer details{font-size:11.5px;color:var(--dim);margin-top:4px}
+.tomer details summary{cursor:pointer}
+.tomer details code{display:block;white-space:pre-wrap;word-break:break-word;margin-top:4px;color:#fda4af}
 footer{color:var(--dim);font-size:12.5px;text-align:center;margin:26px 8px 6px;line-height:1.55}
 footer a{color:var(--muted)}
 footer .ask{color:var(--muted);margin-top:4px}
@@ -163,16 +204,24 @@ footer .ask{color:var(--muted);margin-top:4px}
     <div class="chips"></div>
   </div>
 
-  <nav class="jump" id="jump" aria-label="Jump to region"><a href="#glance">Overview</a></nav>
+  <section class="card tomer" id="tomer">
+    <div class="ptitle">Chris Tomer's daily forecast <span>auto · daily</span></div>
+    <div class="body"><div class="skel" style="height:140px"></div></div>
+  </section>
 
-  <h2 class="sec" id="glance">At a glance <small>Depth from SNOTEL · snow from Open-Meteo</small></h2>
+  <nav class="jump" id="jump" aria-label="Jump to region"><a href="#glance">Overview</a><a href="#tomer">Tomer</a></nav>
+
+  <h2 class="sec" id="glance">At a glance <small>Depth: SNOTEL · snow: model consensus</small></h2>
   <div class="glance"><table><thead><tr><th>Location</th><th>Depth</th><th>24h</th><th>1–5d</th><th>6–10d</th></tr></thead><tbody id="glance-body"></tbody></table></div>
 
   <div id="regions"></div>
 
   <footer>
     Data from <a href="https://www.nrcs.usda.gov/wps/portal/wcc/home/" rel="noopener">NRCS SNOTEL</a> and
-    <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a>. Snow and rain in inches, temperatures in °F.
+    <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a> (ECMWF, GFS, ICON, GEM, UKMO, JMA, HRRR, NAM).
+    Forecast numbers are the median of the global models; ranges show the lowest and highest model.
+    Daily video summary from <a href="https://www.youtube.com/@TheChristomer" rel="noopener">Chris Tomer</a>.
+    Snow and rain in inches, temperatures in °F.
     <div class="ask">Ask Homestar "check snotel" or "snow forecast" for a summary.</div>
   </footer>
 </div>
@@ -184,7 +233,7 @@ const REGIONS = [
   {id:"nco", name:"Northern Colorado", sub:"Park Range"},
   {id:"wy", name:"Wyoming", sub:"Snowy Range · Sierra Madre"},
   {id:"ut", name:"Utah", sub:"Bear River Range"},
-  {id:"id", name:"Idaho", sub:"West Central Mtns"},
+  {id:"id", name:"Idaho", sub:"West Central Mtns · McCall"},
 ];
 // Elevations come from the NRCS station metadata (feet); forecasts are downscaled to that elevation.
 const LOCATIONS = [
@@ -200,6 +249,8 @@ const LOCATIONS = [
   {id:"battle", region:"wy", name:"Battle Mountain", note:"Sierra Madre", ft:7460, lat:41.05402, lon:-107.26674, triplet:"317:WY:SNTL"},
   {id:"tonygrove", region:"ut", name:"Tony Grove Lake", note:"Logan Canyon", ft:8450, lat:41.89833, lon:-111.62957, triplet:"823:UT:SNTL"},
   {id:"deadwood", region:"id", name:"Deadwood Summit", note:"Boise National Forest", ft:6990, lat:44.54492, lon:-115.56386, triplet:"439:ID:SNTL"},
+  {id:"brundage", region:"id", name:"Brundage Mountain", note:"McCall · summit forecast", ft:7640, lat:45.0050, lon:-116.1540,
+   triplet:"370:ID:SNTL", snotelName:"Brundage Reservoir", snotelFt:6280, report:"https://brundage.com/snow-report/"},
 ].map(l => ({...l, m: l.m || Math.round(l.ft * 0.3048)}));
 const TZ = "America/Denver";
 const HOUR = 36e5;
@@ -227,11 +278,11 @@ async function getJSON(url, timeoutMs = 20000) {
   const t = setTimeout(() => ctl.abort(), timeoutMs);
   try {
     const r = await fetch(url, {signal:ctl.signal, cache:"no-store"});
-    if (!r.ok) throw new Error(`HTTP ${r.status} from ${new URL(url).host}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status} from ${new URL(url, location.href).host}`);
     return await r.json();
   } catch (e) {
-    if (e.name === "AbortError") throw new Error(`Timed out reaching ${new URL(url).host}`);
-    if (e instanceof TypeError) throw new Error(`Network error reaching ${new URL(url).host}`);
+    if (e.name === "AbortError") throw new Error(`Timed out reaching ${new URL(url, location.href).host}`);
+    if (e instanceof TypeError) throw new Error(`Network error reaching ${new URL(url, location.href).host}`);
     throw e;
   } finally { clearTimeout(t); }
 }
@@ -259,8 +310,9 @@ function buildPage() {
     for (const loc of locs) {
       grid.insertAdjacentHTML("beforeend", `<section class="card" id="loc-${loc.id}">
         <div class="top"><div><h3>${esc(loc.name)}</h3><div class="sub">${ftLabel(loc)} · ${esc(loc.note)}</div></div><span class="badge">${loc.triplet ? "SNOTEL " + esc(loc.triplet.split(":")[0]) : "Forecast only"}</span></div>
-        ${loc.triplet ? `<div class="panel" id="sn-${loc.id}"><div class="ptitle">Snowpack <span>NRCS SNOTEL · hourly</span></div><div class="body"></div></div>` : ""}
-        <div class="panel" id="fc-${loc.id}"><div class="ptitle">16-day forecast <span>Open-Meteo at ${ftLabel(loc)}</span></div><div class="body"></div></div>
+        ${loc.triplet ? `<div class="panel" id="sn-${loc.id}"><div class="ptitle">Snowpack <span>${loc.snotelName ? `${esc(loc.snotelName)} SNOTEL · ${loc.snotelFt.toLocaleString()} ft` : "NRCS SNOTEL · hourly"}</span></div><div class="body"></div></div>` : ""}
+        <div class="panel" id="fc-${loc.id}"><div class="ptitle">16-day forecast <span>6-model consensus at ${ftLabel(loc)}</span></div><div class="body"></div></div>
+        ${loc.report ? `<a class="ext" href="${loc.report}" target="_blank" rel="noopener">Official ${esc(loc.name.split(" ")[0])} snow report ↗</a>` : ""}
       </section>`);
       const na = loc.triplet ? "…" : "—";
       glance.insertAdjacentHTML("beforeend", `<tr class="loc" data-id="${loc.id}"><td>${esc(loc.name)}<small>${esc(loc.note)}</small></td>`
@@ -391,6 +443,54 @@ function rangeLabel(time, a, b) {
   return s.slice(0, 3) === e.slice(0, 3) ? `${s}–${e.slice(4)}` : `${s}–${e}`;
 }
 
+const MODELS = [["ecmwf_ifs025","ECMWF"],["gfs_seamless","GFS"],["icon_seamless","ICON"],["gem_seamless","GEM"],["ukmo_seamless","UKMO"],["jma_seamless","JMA"]];
+const SHORT_MODELS = [["ncep_hrrr_conus","HRRR"],["ncep_nam_conus","NAM"]];
+const median = a => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+
+function modelSeries(d, u, key, name) {
+  const pick = v => {
+    const arr = d[`${v}_${key}`];
+    if (!Array.isArray(arr) || !arr.some(x => x != null)) return null;
+    return arr;
+  };
+  const snow = pick("snowfall_sum");
+  if (!snow) return null;
+  const rain = pick("rain_sum");
+  return {
+    key, name,
+    snow: toInches(snow, u[`snowfall_sum_${key}`]).map(v => v == null ? null : Math.max(0, v)),
+    rain: rain ? toInches(rain, u[`rain_sum_${key}`]).map(v => v == null ? null : Math.max(0, v)) : snow.map(() => null),
+    hi: pick("temperature_2m_max") || [], lo: pick("temperature_2m_min") || [],
+  };
+}
+
+// Window totals only count models that cover every day of the window.
+function windowStats(models, a, b) {
+  const list = [];
+  for (const m of models) {
+    const seg = m.snow.slice(a, b);
+    if (seg.length === b - a && seg.every(v => v != null)) list.push({name:m.name, total:seg.reduce((x, y) => x + y, 0)});
+  }
+  if (!list.length) return null;
+  const totals = list.map(x => x.total);
+  return {median:median(totals), lo:Math.min(...totals), hi:Math.max(...totals), list};
+}
+
+function agreement(st) {
+  if (!st) return "";
+  if (st.list.length === 1) return `Only <b>${st.list[0].name}</b> reaches this far`;
+  const M = st.median, tol = Math.max(1, 0.35 * M);
+  const agree = st.list.filter(x => Math.abs(x.total - M) <= tol);
+  const hi = st.list.filter(x => x.total > M + tol), lo = st.list.filter(x => x.total < M - tol);
+  const names = xs => xs.map(x => x.name).join(", ");
+  if (!hi.length && !lo.length) return `<b>All ${st.list.length} models agree</b> (${fmtIn(st.lo) === fmtIn(st.hi) ? fmtIn(st.lo) : `${fmtIn(st.lo)}–${fmtIn(st.hi)}`}")`;
+  const agreeTxt = agree.length * 2 > st.list.length
+    ? `<b>${names(agree)}</b> agree on ~${fmtIn(median(agree.map(x => x.total)))}"`
+    : `<b>Models split</b> (median ${fmtIn(M)}")${agree.length ? `: ${names(agree)} near it` : ""}`;
+  const out = xs => xs.map(x => `${x.name} ${fmtIn(x.total)}"`).join(", ");
+  return agreeTxt + (hi.length ? ` · <span class="hi">higher: ${out(hi)}</span>` : "") + (lo.length ? ` · <span class="lo">lower: ${out(lo)}</span>` : "");
+}
+
 async function loadForecast(loc) {
   const body = panelBody("fc", loc);
   body.innerHTML = `<div class="skel" style="height:92px;margin-bottom:10px"></div><div class="skel" style="height:170px"></div>`;
@@ -398,23 +498,35 @@ async function loadForecast(loc) {
   try {
     const url = "https://api.open-meteo.com/v1/forecast"
       + `?latitude=${loc.lat}&longitude=${loc.lon}&elevation=${loc.m}`
-      + "&daily=snowfall_sum,precipitation_sum,rain_sum,temperature_2m_max,temperature_2m_min"
+      + "&daily=snowfall_sum,rain_sum,temperature_2m_max,temperature_2m_min"
+      + `&models=${[...MODELS, ...SHORT_MODELS].map(m => m[0]).join(",")}`
       + "&forecast_days=16&timezone=America%2FDenver&precipitation_unit=inch&temperature_unit=fahrenheit";
     const json = await getJSON(url);
     if (json.error) throw new Error(json.reason || "Open-Meteo returned an error.");
     const d = json.daily, u = json.daily_units || {};
-    if (!d || !Array.isArray(d.time) || !d.time.length || !Array.isArray(d.snowfall_sum)) throw new Error("Open-Meteo response had no daily forecast.");
+    if (!d || !Array.isArray(d.time) || !d.time.length) throw new Error("Open-Meteo response had no daily forecast.");
     // With precipitation_unit=inch Open-Meteo already returns snowfall in inches; trust daily_units, never assume.
+    const models = MODELS.map(([k, n]) => modelSeries(d, u, k, n)).filter(Boolean);
+    const short = SHORT_MODELS.map(([k, n]) => modelSeries(d, u, k, n)).filter(Boolean);
+    if (!models.length) throw new Error("None of the forecast models returned snowfall for this point.");
+    const daily = (field, i) => median(models.map(m => m[field][i]).filter(v => v != null));
     const fc = {
-      name: loc.name, time: d.time,
-      snow: toInches(d.snowfall_sum, u.snowfall_sum),
-      rain: d.rain_sum ? toInches(d.rain_sum, u.rain_sum) : d.time.map(() => null),
-      hi: d.temperature_2m_max || [], lo: d.temperature_2m_min || [],
+      name: loc.name, time: d.time, models, short,
+      snow: d.time.map((_, i) => daily("snow", i)),
+      rain: d.time.map((_, i) => daily("rain", i)),
+      hi: d.time.map((_, i) => daily("hi", i)), lo: d.time.map((_, i) => daily("lo", i)),
+      sMin: d.time.map((_, i) => { const v = models.map(m => m.snow[i]).filter(x => x != null); return v.length ? Math.min(...v) : null; }),
+      sMax: d.time.map((_, i) => { const v = models.map(m => m.snow[i]).filter(x => x != null); return v.length ? Math.max(...v) : null; }),
+      nAt: d.time.map((_, i) => models.filter(m => m.snow[i] != null).length),
+      w1: windowStats(models, 0, 5), w2: windowStats(models, 5, 10), w3: windowStats(models, 10, d.time.length),
     };
     fcState[loc.id] = fc;
     renderForecast(body, fc);
-    for (const [col, v] of [["n1", sum(fc.snow, 0, 5)], ["n2", sum(fc.snow, 5, 10)]])
-      setCell(loc.id, col, fmtIn(v) + '"', v < 0.05 ? "na" : "", v >= 0.05 ? `color:${snowColor(v)}` : "");
+    for (const [col, w] of [["n1", fc.w1], ["n2", fc.w2]]) {
+      if (!w) { setCell(loc.id, col, "—", "na"); continue; }
+      const v = w.median, rng = w.hi - w.lo >= 0.5 ? `<small>${fmtIn(w.lo)}–${fmtIn(w.hi)}</small>` : "";
+      setCell(loc.id, col, fmtIn(v) + '"' + rng, v < 0.05 ? "na" : "", v >= 0.05 ? `color:${snowColor(v)}` : "");
+    }
     return true;
   } catch (e) {
     delete fcState[loc.id];
@@ -426,42 +538,62 @@ async function loadForecast(loc) {
 }
 
 function renderForecast(body, fc) {
-  const n1 = sum(fc.snow, 0, 5), n2 = sum(fc.snow, 5, 10);
   const r1 = sum(fc.rain, 0, 5), r2 = sum(fc.rain, 5, 10);
-  const scaleMax = Math.max(8, ...fc.snow.map(v => v || 0));
+  const scaleMax = Math.max(8, ...fc.sMax.map(v => v || 0));
+  const hOf = v => v == null ? 0 : Math.sqrt(Math.min(v, scaleMax) / scaleMax) * 84;
   const today = todayMT();
   const W = 38;
   const days = fc.time.map((t, i) => {
     const s = fc.snow[i], r = fc.rain[i] || 0, dt = ymd(t), dow = dt.getUTCDay();
-    const h = s == null ? 0 : Math.max(2, Math.sqrt(s / scaleMax) * 84);
-    const cls = ["day", i === 5 || i === 10 ? "sep" : "", i >= 10 ? "far" : "", t === today ? "today" : ""].join(" ");
-    const hi = fc.hi[i], lo = fc.lo[i];
-    return `<div class="${cls}" title="${shortDate(t)}: ${s == null ? "n/a" : s.toFixed(1) + '" snow'}${r >= 0.01 ? `, ${r.toFixed(2)}" rain` : ""}">
+    const h = s == null ? 0 : Math.max(2, hOf(s));
+    const lo = hOf(fc.sMin[i]), hi = hOf(fc.sMax[i]);
+    const cls = ["day", i === 5 || i === 10 ? "sep" : "", i >= 10 ? "far" : "", fc.nAt[i] < 3 ? "thin" : "", t === today ? "today" : ""].join(" ");
+    const per = fc.models.map(m => `${m.name} ${m.snow[i] == null ? "–" : m.snow[i].toFixed(1)}`).join(", ");
+    const th = fc.hi[i], tl = fc.lo[i];
+    return `<div class="${cls}" title="${shortDate(t)} · ${fc.nAt[i]} models · ${per}">
       <div class="amt ${!s || s < 0.05 ? "z" : ""}" style="${s >= 0.05 ? `color:${snowColor(s)}` : ""}">${s == null ? "–" : fmtIn(s)}</div>
-      <div class="barbox"><div class="bar" style="height:${h.toFixed(1)}px;background:${s >= 0.05 ? snowColor(s) : "var(--s0)"}"></div></div>
+      <div class="barbox">${hi - lo >= 3 ? `<div class="wh" style="bottom:${lo.toFixed(1)}px;height:${(hi - lo).toFixed(1)}px"></div>` : ""}<div class="bar" style="height:${h.toFixed(1)}px;background:${s >= 0.05 ? snowColor(s) : "var(--s0)"}"></div></div>
       <div class="rain">${r >= 0.05 ? `<span class="drop"></span>${r.toFixed(1)}` : ""}</div>
       <div class="dow ${dow === 0 || dow === 6 ? "we" : ""}">${t === today ? "Today" : DOW[dow]}</div>
       <div class="dt">${dt.getUTCDate()}</div>
-      <div class="hi">${hi == null ? "–" : Math.round(hi) + "°"}</div>
-      <div class="lo">${lo == null ? "–" : Math.round(lo) + "°"}</div>
+      <div class="hi">${th == null ? "–" : Math.round(th) + "°"}</div>
+      <div class="lo">${tl == null ? "–" : Math.round(tl) + "°"}</div>
     </div>`;
   }).join("");
-  const segs = [[0, 5, "Next 1–5 days"], [5, 10, "Days 6–10"], [10, fc.time.length, "Days 11–16"]]
+  const segs = [[0, 5, "Next 1–5 days", fc.w1], [5, 10, "Days 6–10", fc.w2], [10, fc.time.length, "Days 11–16", fc.w3]]
     .filter(([a, b]) => b > a)
-    .map(([a, b, l]) => `<span style="width:${(b - a) * W - 4}px">${l} · ${fmtIn(sum(fc.snow, a, b))}"</span>`).join("");
+    .map(([a, b, l, w]) => `<span style="width:${(b - a) * W - 4}px">${l} · ${w ? fmtIn(w.median) + '"' : "—"}${w ? ` <small>(${w.list.length})</small>` : ""}</span>`).join("");
   const rainNote = (r, s) => r >= 0.1 && r > s / 10 ? ` · <span style="color:var(--rain)">${r.toFixed(1)}" rain</span>` : "";
+  const total = (w, label, range) => {
+    const v = w ? w.median : null;
+    return `<div class="stat"><div class="l">${label}</div><div class="v" style="color:${v >= 0.05 ? snowColor(v) : "inherit"}">${fmtIn(v)}<small>"</small></div>
+      <div class="rng">${w ? (w.list.length > 1 ? (fmtIn(w.lo) === fmtIn(w.hi) ? `All ${w.list.length} models: ${fmtIn(w.lo)}"` : `Range ${fmtIn(w.lo)}–${fmtIn(w.hi)}" · ${w.list.length} models`) : `${w.list[0].name} only`) : "No model coverage"}</div>
+      <div class="chg">${range}</div></div>`;
+  };
+  const s48 = windowStats(fc.models, 0, 2);
+  const shortTxt = fc.short.length && s48
+    ? `<span class="sr">Next 48h, high-res US models: ${fc.short.map(m => { const v = m.snow.slice(0, 2); return `${m.name} ${v.every(x => x != null) ? fmtIn(v[0] + v[1]) + '"' : "–"}`; }).join(" · ")} · global consensus ${fmtIn(s48.median)}"</span>`
+    : "";
+  const fmtCell = v => v == null ? `<td class="na">—</td>` : `<td style="${v >= 0.05 ? `color:${snowColor(v)}` : ""}">${fmtIn(v)}"</td>`;
+  const winTotal = (m, a, b) => { const seg = m.snow.slice(a, b); return seg.length === b - a && seg.every(v => v != null) ? seg.reduce((x, y) => x + y, 0) : null; };
+  const rows = [...fc.models, ...fc.short].map(m => {
+    const days = m.snow.filter(v => v != null).length;
+    return `<tr><td>${m.name}${fc.short.includes(m) ? " <small style=\"color:var(--dim)\">short-range</small>" : ""}</td>${fmtCell(winTotal(m, 0, 2))}${fmtCell(winTotal(m, 0, 5))}${fmtCell(winTotal(m, 5, 10))}<td class="na">${days}d</td></tr>`;
+  }).join("");
   body.innerHTML = `
     <div class="totals">
-      <div class="stat"><div class="l">Next 1–5 days</div><div class="v" style="color:${n1 >= 0.05 ? snowColor(n1) : "inherit"}">${fmtIn(n1)}<small>"</small></div>
-        <div class="chg">${rangeLabel(fc.time, 0, 4).replace(/^today/, "Today")}${rainNote(r1, n1)}</div></div>
-      <div class="stat"><div class="l">Days 6–10</div><div class="v" style="color:${n2 >= 0.05 ? snowColor(n2) : "inherit"}">${fmtIn(n2)}<small>"</small></div>
-        <div class="chg">${fc.time[9] ? rangeLabel(fc.time, 5, 9) : ""}${rainNote(r2, n2)}</div></div>
+      ${total(fc.w1, "Next 1–5 days", rangeLabel(fc.time, 0, 4).replace(/^today/, "Today") + rainNote(r1, fc.w1 ? fc.w1.median : 0))}
+      ${total(fc.w2, "Days 6–10", (fc.time[9] ? rangeLabel(fc.time, 5, 9) : "") + rainNote(r2, fc.w2 ? fc.w2.median : 0))}
     </div>
+    <div class="agree">1–5 days: ${agreement(fc.w1)}${fc.w2 ? `<span class="sr">6–10 days: ${agreement(fc.w2)}</span>` : ""}${shortTxt}</div>
     <div class="chart"><div class="seglbl">${segs}</div><div class="days">${days}</div></div>
     <div class="legend">Snow:
       <i style="background:var(--s1)"></i>&lt;1" <i style="background:var(--s2)"></i>1–3 <i style="background:var(--s3)"></i>3–6
       <i style="background:var(--s4)"></i>6–12 <i style="background:var(--s5)"></i>12–18 <i style="background:var(--s6)"></i>18+
-      <span><span class="drop" style="margin-left:6px"></span>rain</span><span style="margin-left:auto">High / low °F</span></div>`;
+      <span><span class="drop" style="margin-left:6px"></span>rain</span><span style="margin-left:auto">Bar = median · line = model range</span></div>
+    <details class="models"><summary>Model by model</summary>
+      <table><thead><tr><th>Model</th><th>48h</th><th>1–5d</th><th>6–10d</th><th>Covers</th></tr></thead><tbody>${rows}</tbody></table>
+    </details>`;
 }
 
 /* ---------------- Banner ---------------- */
@@ -477,11 +609,15 @@ function updateBanner() {
     b.querySelector(".h").textContent = best && best.total >= 0.5
       ? `Biggest storm: ${best.fc.name}, ${fmtIn(best.total)}" ${rangeLabel(best.fc.time, best.start, best.end)}`
       : "No significant snow in the 16-day forecast";
+    if (best && best.total >= 0.5) {
+      const w = windowStats(best.fc.models, best.start, best.end + 1);
+      if (w && w.list.length > 1) chips.push(`Model range: <b>${fmtIn(w.lo)}–${fmtIn(w.hi)}"</b> (${w.list.length} models)`);
+    }
     let next = null;
     for (const fc of fcs) for (const s of storms(fc)) if (s.start > 0 && (!next || s.total > next.total)) next = {...s, fc};
     if (next && next.total >= 0.5 && best && best.start === 0)
       chips.push(`Next storm: <b>${esc(next.fc.name)} ${fmtIn(next.total)}"</b> ${rangeLabel(next.fc.time, next.start, next.end)}`);
-    const top5 = fcs.map(fc => ({fc, v:sum(fc.snow, 0, 5)})).sort((a, c) => c.v - a.v)[0];
+    const top5 = fcs.map(fc => ({fc, v:fc.w1 ? fc.w1.median : 0})).sort((a, c) => c.v - a.v)[0];
     if (top5 && top5.v >= 0.05) chips.push(`Next 5 days: <b>${esc(top5.fc.name)} ${fmtIn(top5.v)}"</b>`);
   }
   const sns = LOCATIONS.map(l => snotelState[l.id]).filter(Boolean);
@@ -490,6 +626,53 @@ function updateBanner() {
   const gain = sns.filter(s => s.d24 != null).sort((a, c) => c.d24 - a.d24)[0];
   if (gain && gain.d24 >= 0.5) chips.push(`Biggest 24h gain: <b>${esc(gain.name)} ${fmtDelta(gain.d24)}</b>`);
   b.querySelector(".chips").innerHTML = chips.map(c => `<span class="chip">${c}</span>`).join("");
+}
+
+/* ---------------- Chris Tomer ---------------- */
+
+const REGION_ORDER = ["San Juans", "Northern Colorado", "Central Colorado", "Wyoming", "Utah", "Idaho", "Arizona / New Mexico"];
+const clip = (t, n = 180) => !t ? "" : t.length > n ? t.slice(0, n).replace(/\s+\S*$/, "") + "…" : t;
+
+async function loadTomer() {
+  const body = document.querySelector("#tomer .body");
+  try {
+    const j = await getJSON(`tomer.json?t=${Date.now()}`);
+    if (!j || !j.video || !j.summary) throw new Error("tomer.json is missing the video or summary.");
+    const v = j.video, s = j.summary, tr = j.transcript || {};
+    const pub = new Date(v.published);
+    const ageH = (Date.now() - pub) / HOUR;
+    const pubTxt = pub.toLocaleString("en-US", {timeZone:TZ, weekday:"short", month:"short", day:"numeric", hour:"numeric", minute:"2-digit"});
+    const storms = (s.storms || []).map(st => `<li><span class="w">${esc(st.when || "")}</span>${esc(st.text || "")}
+        ${st.states && st.states.length ? `<span class="st">${esc(st.states.join(" · "))}</span>` : ""}
+        ${st.detail ? `<span class="q">“${esc(clip(st.detail))}”</span>` : ""}</li>`).join("");
+    const amts = [...(s.amounts || [])].sort((a, b) => REGION_ORDER.indexOf(a.region) - REGION_ORDER.indexOf(b.region))
+      .map(a => `<span class="amt" title="${esc(a.quote || "")}">${esc(a.region)}<b>${esc(a.amount)}</b></span>`).join("");
+    const levels = (s.snow_levels || []).map(esc).join(" · ");
+    const fromTranscript = tr.status === "ok";
+    const conf = s.confidence
+      ? `<div class="conf"><b>Confidence:</b> “${esc(clip(s.confidence, 220))}”</div>`
+      : `<div class="conf"><b>Confidence:</b> ${fromTranscript ? "not stated explicitly in the video." : "unknown: his description doesn't say, and the transcript couldn't be read."}</div>`;
+    const method = (s.method || "").startsWith("llm:") ? `AI summary (${esc(s.method.slice(4))})` : "Keyword summary";
+    const src = fromTranscript
+      ? `<div class="src">${method} of the video transcript (${esc(tr.source)}) and description.</div>`
+      : `<div class="src warn">Transcript unavailable: YouTube blocked the automated request, so this summary uses only Tomer's own written video description. No amounts are guessed.</div>
+         ${tr.errors && tr.errors.length ? `<details><summary>What failed</summary><code>${esc(tr.errors.join("\n\n"))}</code></details>` : ""}`;
+    body.innerHTML = `
+      <div class="vid"><a href="${esc(v.url)}" target="_blank" rel="noopener"><img src="${esc(v.thumbnail)}" alt="" loading="lazy"></a>
+        <div><a href="${esc(v.url)}" target="_blank" rel="noopener"><div class="t">${esc(v.title)}</div></a>
+          <div class="d">${pubTxt} MT${ageH > 36 ? ` · <span style="color:var(--warn)">${Math.round(ageH / 24)} days old</span>` : ""} · <a href="${esc(v.url)}" target="_blank" rel="noopener" style="color:var(--ice)">Watch ↗</a></div></div></div>
+      ${s.headline && !(s.storms || []).some(st => st.text === s.headline) ? `<div class="head">${esc(s.headline)}</div>` : ""}
+      ${storms ? `<ul>${storms}</ul>` : ""}
+      ${amts ? `<div class="amts">${amts}</div>` : `<div class="conf"><b>Amounts:</b> ${fromTranscript ? "no specific numbers mentioned." : "not in the description; see the video."}</div>`}
+      ${levels ? `<div class="conf"><b>Snow levels:</b> ${levels}</div>` : ""}
+      ${conf}
+      ${src}`;
+    return true;
+  } catch (e) {
+    body.innerHTML = "";
+    body.appendChild(errorBox("Couldn't load the Chris Tomer summary", e, loadTomer));
+    return false;
+  }
 }
 
 /* ---------------- Boot ---------------- */
@@ -505,6 +688,7 @@ async function loadAll() {
   const jobs = [
     ...LOCATIONS.filter(l => l.triplet).map(st => loadSnotel(st).then(ok => (updateBanner(), ok))),
     ...LOCATIONS.map(loc => loadForecast(loc).then(ok => (updateBanner(), ok))),
+    loadTomer(),
   ];
   const results = await Promise.all(jobs);
   const failed = results.filter(ok => !ok).length;
