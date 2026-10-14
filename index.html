@@ -56,6 +56,16 @@ header .stamp.err{color:var(--warn)}
 .banner .k{font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.8;font-weight:600}
 .banner .h{font-size:21px;font-weight:750;margin:3px 0 8px;letter-spacing:-.01em}
 .banner .chips{display:flex;flex-wrap:wrap;gap:6px}
+.banner .models{position:relative;background:#00000030;border-radius:12px;padding:9px 11px 8px;margin:0 0 10px}
+.banner .models .t{font-size:12px;opacity:.9;margin-bottom:7px}
+.banner .mrow{display:grid;grid-template-columns:70px 1fr 38px;align-items:center;gap:8px;font-size:12.5px;margin:4px 0}
+.banner .mrow .n{font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.banner .mrow .bar{height:11px;background:#ffffff1c;border-radius:6px;overflow:hidden}
+.banner .mrow .bar i{display:block;height:100%;min-width:2px;background:#fff;border-radius:6px;opacity:.92}
+.banner .mrow .v{text-align:right;font-weight:750}
+.banner .mrow.med .n,.banner .mrow.med .v{color:#fde68a}
+.banner .mrow.med .bar i{background:#fde68a}
+.banner .models .miss{font-size:11px;opacity:.75;margin-top:6px;line-height:1.35}
 .chip{background:#ffffff1f;border-radius:999px;padding:4px 10px;font-size:12.5px;white-space:nowrap}
 .chip b{font-weight:700}
 
@@ -131,6 +141,10 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .glance{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:6px 4px;overflow:hidden}
 .glance table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .glance th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);font-weight:650;text-align:right;padding:6px 8px 4px}
+.glance th{cursor:pointer;user-select:none;-webkit-user-select:none}
+.glance th.on{color:var(--ice)}
+.glance th.on:after{content:" ↓"}
+.glance th.on.asc:after{content:" ↑"}
 .glance th:first-child,.glance td:first-child{text-align:left}
 .glance td{padding:7px 8px;text-align:right;font-size:14px;font-weight:650;border-top:1px solid #ffffff0a;white-space:nowrap}
 .glance td:first-child{font-weight:600;white-space:normal;line-height:1.15}
@@ -177,11 +191,6 @@ details.models td.na{color:var(--dim);font-weight:400}
 .tomer .amt b{font-size:15px;margin-left:4px}
 .tomer .conf{font-size:13px;color:var(--muted);margin-bottom:8px}
 .tomer .conf b{color:var(--text)}
-.tomer .src{font-size:11.5px;color:var(--dim);line-height:1.45}
-.tomer .src.warn{color:#fcd34d}
-.tomer details{font-size:11.5px;color:var(--dim);margin-top:4px}
-.tomer details summary{cursor:pointer}
-.tomer details code{display:block;white-space:pre-wrap;word-break:break-word;margin-top:4px;color:#fda4af}
 .cams{padding:12px}
 .cams .resorts{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px}
 .cams .resorts::-webkit-scrollbar{display:none}
@@ -254,6 +263,7 @@ footer .ask{color:var(--muted);margin-top:4px}
   <div class="banner" id="banner">
     <div class="k">16-day outlook</div>
     <div class="h">Checking the forecast…</div>
+    <div id="banner-models"></div>
     <div class="chips"></div>
   </div>
 
@@ -265,7 +275,7 @@ footer .ask{color:var(--muted);margin-top:4px}
   <nav class="jump" id="jump" aria-label="Jump to region"><a href="#glance">Overview</a><a href="#tomer">Tomer</a><a href="#map">Map</a><a href="#cams">Webcams</a></nav>
 
   <h2 class="sec" id="glance">At a glance <small>Depth: SNOTEL · snow: model consensus</small></h2>
-  <div class="glance"><table><thead><tr><th>Location</th><th>Depth</th><th>24h</th><th>1–5d</th><th>6–10d</th></tr></thead><tbody id="glance-body"></tbody></table></div>
+  <div class="glance"><table><thead id="glance-head"><tr><th data-k="loc">Location</th><th data-k="depth">Depth</th><th data-k="d24">24h</th><th data-k="n1">1–5d</th><th data-k="n2">6–10d</th></tr></thead><tbody id="glance-body"></tbody></table></div>
 
   <h2 class="sec" id="map">Snowfall map <small>tap the map for a reading</small></h2>
   <section class="card smap" id="map-card">
@@ -422,12 +432,38 @@ function buildPage() {
     const tr = e.target.closest("tr.loc");
     if (tr) $("loc-" + tr.dataset.id).scrollIntoView({behavior:"smooth", block:"start"});
   });
+  glanceOrig = [...glance.children];
+  $("glance-head").addEventListener("click", e => {
+    const th = e.target.closest("th[data-k]");
+    if (!th) return;
+    const k = th.dataset.k;
+    if (k === glanceSort.col && k !== "loc") glanceSort.desc = !glanceSort.desc;
+    else { glanceSort.col = k; glanceSort.desc = true; }
+    try { localStorage.setItem("snowSort", JSON.stringify(glanceSort)); } catch (_) {}
+    applyGlanceSort();
+  });
+  applyGlanceSort();
 }
 
-function setCell(id, col, html, cls = "", style = "") {
+function setCell(id, col, html, cls = "", style = "", v = null) {
   const td = document.querySelector(`#glance-body tr[data-id="${id}"] td[data-c="${col}"]`);
   if (!td) return;
   td.innerHTML = html; td.className = cls; td.style.cssText = style;
+  td.dataset.v = v == null || !isFinite(v) ? "" : v;
+  if (glanceSort.col !== "loc") applyGlanceSort();
+}
+
+// Sorting by a number column flattens the region groups; "Location" restores them.
+const glanceSort = (() => { try { return {col:"loc", desc:true, ...JSON.parse(localStorage.getItem("snowSort") || "{}")}; } catch (_) { return {col:"loc", desc:true}; } })();
+let glanceOrig = [];
+function applyGlanceSort() {
+  const tb = $("glance-body");
+  for (const th of document.querySelectorAll("#glance-head th")) th.className = th.dataset.k === glanceSort.col && glanceSort.col !== "loc" ? (glanceSort.desc ? "on" : "on asc") : "";
+  if (glanceSort.col === "loc") { tb.replaceChildren(...glanceOrig); return; }
+  const val = tr => { const s = tr.querySelector(`td[data-c="${glanceSort.col}"]`).dataset.v; return s ? +s : null; };
+  const rows = glanceOrig.filter(tr => tr.classList.contains("loc")).map(tr => ({tr, v:val(tr)}))
+    .sort((a, b) => (a.v == null) - (b.v == null) || (a.v == null ? 0 : glanceSort.desc ? b.v - a.v : a.v - b.v));
+  tb.replaceChildren(...rows.map(r => r.tr));
 }
 const panelBody = (kind, loc) => document.querySelector(`#${kind}-${loc.id} .body`);
 
@@ -520,8 +556,8 @@ function renderSnotel(st, rec, saved, retry) {
   const stale = now - asOf > 6 * HOUR;
   const d6 = changeOver(depth, 6), d24 = changeOver(depth, 24), w6 = changeOver(swe, 6), w24 = changeOver(swe, 24);
   snotelState[st.id] = {name:st.name, depth:dl && dl.v, d24};
-  setCell(st.id, "depth", dl ? Math.round(dl.v) + '"' : "—", dl ? "" : "na", dl && dl.v >= 0.5 ? `color:${snowColor(dl.v)}` : "");
-  setCell(st.id, "d24", fmtDelta(d24), d24 == null ? "na" : deltaCls(d24));
+  setCell(st.id, "depth", dl ? Math.round(dl.v) + '"' : "—", dl ? "" : "na", dl && dl.v >= 0.5 ? `color:${snowColor(dl.v)}` : "", dl ? dl.v : null);
+  setCell(st.id, "d24", fmtDelta(d24), d24 == null ? "na" : deltaCls(d24), "", d24);
   body.innerHTML = `
     <div class="stats">
       <div class="stat"><div class="l">Snow depth</div><div class="v" style="color:${dl ? snowColor(dl.v) : "inherit"}">${dl ? Math.round(dl.v) : "—"}<small>"</small></div>
@@ -648,7 +684,7 @@ async function loadForecast(loc) {
     for (const [col, w] of [["n1", fc.w1], ["n2", fc.w2]]) {
       if (!w) { setCell(loc.id, col, "—", "na"); continue; }
       const v = w.median, rng = w.hi - w.lo >= 0.5 ? `<small>${fmtIn(w.lo)}–${fmtIn(w.hi)}</small>` : "";
-      setCell(loc.id, col, fmtIn(v) + '"' + rng, v < 0.05 ? "na" : "", v >= 0.05 ? `color:${snowColor(v)}` : "");
+      setCell(loc.id, col, fmtIn(v) + '"' + rng, v < 0.05 ? "na" : "", v >= 0.05 ? `color:${snowColor(v)}` : "", v);
     }
     return res.savedAt ? "saved" : true;
   } catch (e) {
@@ -721,6 +757,19 @@ function renderForecast(body, fc) {
 
 /* ---------------- Banner ---------------- */
 
+// Each model's total for the headline storm, so "which models say what" is spelled out.
+function modelBars(storm) {
+  const {fc, start, end} = storm;
+  const rows = fc.models.map(m => { const seg = m.snow.slice(start, end + 1); return {name:m.name, v:seg.every(v => v != null) ? seg.reduce((x, y) => x + y, 0) : null}; });
+  const have = rows.filter(r => r.v != null).sort((a, b) => b.v - a.v), miss = rows.filter(r => r.v == null);
+  if (have.length < 2) return "";
+  const max = Math.max(have[0].v, storm.total, 0.1);
+  const bar = (name, v, cls = "") => `<div class="mrow ${cls}"><span class="n">${esc(name)}</span><div class="bar"><i style="width:${(v / max * 100).toFixed(0)}%"></i></div><span class="v">${fmtIn(v)}"</span></div>`;
+  return `<div class="models"><div class="t">What each model says for <b>${esc(fc.name)}</b>, ${rangeLabel(fc.time, start, end)}</div>
+    ${bar("Consensus", storm.total, "med")}${have.map(r => bar(r.name, r.v)).join("")}
+    ${miss.length ? `<div class="miss">${esc(miss.map(r => r.name).join(", "))} ${miss.length > 1 ? "don't" : "doesn't"} forecast out to ${shortDate(fc.time[end])}, so ${miss.length > 1 ? "they're" : "it's"} not counted.</div>` : ""}</div>`;
+}
+
 function updateBanner() {
   const b = $("banner"), fcs = LOCATIONS.map(l => fcState[l.id]).filter(Boolean);
   const chips = [];
@@ -732,10 +781,7 @@ function updateBanner() {
     b.querySelector(".h").textContent = best && best.total >= 0.5
       ? `Biggest storm: ${best.fc.name}, ${fmtIn(best.total)}" ${rangeLabel(best.fc.time, best.start, best.end)}`
       : "No significant snow in the 16-day forecast";
-    if (best && best.total >= 0.5) {
-      const w = windowStats(best.fc.models, best.start, best.end + 1);
-      if (w && w.list.length > 1) chips.push(`Model range: <b>${fmtIn(w.lo)}–${fmtIn(w.hi)}"</b> (${w.list.length} models)`);
-    }
+    $("banner-models").innerHTML = best && best.total >= 0.5 ? modelBars(best) : "";
     let next = null;
     for (const fc of fcs) for (const s of storms(fc)) if (s.start > 0 && (!next || s.total > next.total)) next = {...s, fc};
     if (next && next.total >= 0.5 && best && best.start === 0)
@@ -761,7 +807,7 @@ async function loadTomer() {
   try {
     const j = await getJSON(`tomer.json?t=${Date.now()}`);
     if (!j || !j.video || !j.summary) throw new Error("tomer.json is missing the video or summary.");
-    const v = j.video, s = j.summary, tr = j.transcript || {};
+    const v = j.video, s = j.summary;
     const pub = new Date(v.published);
     const ageH = (Date.now() - pub) / HOUR;
     const pubTxt = pub.toLocaleString("en-US", {timeZone:TZ, weekday:"short", month:"short", day:"numeric", hour:"numeric", minute:"2-digit"});
@@ -771,25 +817,14 @@ async function loadTomer() {
     const amts = [...(s.amounts || [])].sort((a, b) => REGION_ORDER.indexOf(a.region) - REGION_ORDER.indexOf(b.region))
       .map(a => `<span class="amt" title="${esc(a.quote || "")}">${esc(a.region)}<b>${esc(a.amount)}</b></span>`).join("");
     const levels = (s.snow_levels || []).map(esc).join(" · ");
-    const fromTranscript = tr.status === "ok";
-    const conf = s.confidence
-      ? `<div class="conf"><b>Confidence:</b> “${esc(clip(s.confidence, 220))}”</div>`
-      : `<div class="conf"><b>Confidence:</b> ${fromTranscript ? "not stated explicitly in the video." : "unknown: his description doesn't say, and the transcript couldn't be read."}</div>`;
-    const method = (s.method || "").startsWith("llm:") ? `AI summary (${esc(s.method.slice(4))})` : "Keyword summary";
-    const src = fromTranscript
-      ? `<div class="src">${method} of the video transcript (${esc(tr.source)}) and description.</div>`
-      : `<div class="src warn">Transcript unavailable: YouTube blocked the automated request, so this summary uses only Tomer's own written video description. No amounts are guessed.</div>
-         ${tr.errors && tr.errors.length ? `<details><summary>What failed</summary><code>${esc(tr.errors.join("\n\n"))}</code></details>` : ""}`;
     body.innerHTML = `
       <div class="vid"><a href="${esc(v.url)}" target="_blank" rel="noopener"><img src="${esc(v.thumbnail)}" alt="" loading="lazy"></a>
         <div><a href="${esc(v.url)}" target="_blank" rel="noopener"><div class="t">${esc(v.title)}</div></a>
           <div class="d">${pubTxt} MT${ageH > 36 ? ` · <span style="color:var(--warn)">${Math.round(ageH / 24)} days old</span>` : ""} · <a href="${esc(v.url)}" target="_blank" rel="noopener" style="color:var(--ice)">Watch ↗</a></div></div></div>
       ${s.headline && !(s.storms || []).some(st => st.text === s.headline) ? `<div class="head">${esc(s.headline)}</div>` : ""}
       ${storms ? `<ul>${storms}</ul>` : ""}
-      ${amts ? `<div class="amts">${amts}</div>` : `<div class="conf"><b>Amounts:</b> ${fromTranscript ? "no specific numbers mentioned." : "not in the description; see the video."}</div>`}
-      ${levels ? `<div class="conf"><b>Snow levels:</b> ${levels}</div>` : ""}
-      ${conf}
-      ${src}`;
+      ${amts ? `<div class="amts">${amts}</div>` : ""}
+      ${levels ? `<div class="conf"><b>Snow levels:</b> ${levels}</div>` : ""}`;
     return true;
   } catch (e) {
     body.innerHTML = "";
