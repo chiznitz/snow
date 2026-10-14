@@ -82,6 +82,8 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .spark .row{display:flex;justify-content:space-between;font-size:11px;color:var(--dim)}
 .spark svg{display:block;width:100%;height:46px;margin:4px 0}
 .asof{font-size:11.5px;color:var(--dim);margin-top:8px}
+.saved{font-size:12px;color:#fde68a;background:#3a2f12;border:1px solid #6b5416;border-radius:10px;padding:6px 9px;margin-bottom:10px}
+.saved button{margin-left:6px;background:none;border:0;color:#fcd34d;font-weight:700;font-size:12px;text-decoration:underline;cursor:pointer;padding:0}
 
 .totals{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .totals .stat .v{font-size:40px}
@@ -319,6 +321,34 @@ async function getJSON(url, timeoutMs = 20000) {
   } finally { clearTimeout(t); }
 }
 
+// Fetch with one retry; keep the last good response on the device so a blocked request
+// (NRCS's firewall sometimes 403s whole networks) still shows the most recent data.
+const CACHE_PREFIX = "snowCache:";
+async function fetchCached(key, url, check = () => {}) {
+  let err;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (attempt) await new Promise(r => setTimeout(r, 2500));
+    try {
+      const data = await getJSON(url);
+      check(data);
+      try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({t:Date.now(), data})); } catch (_) {}
+      return {data};
+    } catch (e) { err = e; }
+  }
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(CACHE_PREFIX + key)); } catch (_) {}
+  if (saved && saved.data) return {data:saved.data, savedAt:saved.t, err};
+  throw err;
+}
+
+function savedNote(res, retryFn) {
+  const div = document.createElement("div");
+  div.className = "saved";
+  div.innerHTML = `⚠ Showing saved data from ${esc(mtTime(res.savedAt))} MT · ${esc(res.err && res.err.message || res.err)}<button type="button">Retry</button>`;
+  div.querySelector("button").onclick = retryFn;
+  return div;
+}
+
 function errorBox(title, err, retryFn) {
   const box = document.createElement("div");
   box.className = "error";
@@ -404,46 +434,67 @@ function sparkline(s, now, gid) {
 
 const snotelState = {};
 
-async function loadSnotel(st) {
-  const body = panelBody("sn", st);
-  body.innerHTML = `<div class="skel" style="height:190px"></div>`;
-  setCell(st.id, "depth", "…"); setCell(st.id, "d24", "…");
+// One request for every station: fewer hits on NRCS, which rate-limits/blocks by IP.
+async function loadSnotelAll() {
+  const stations = LOCATIONS.filter(l => l.triplet);
+  for (const st of stations) {
+    panelBody("sn", st).innerHTML = `<div class="skel" style="height:190px"></div>`;
+    setCell(st.id, "depth", "…"); setCell(st.id, "d24", "…");
+  }
+  const retry = () => loadSnotelAll().then(updateBanner);
+  let res;
   try {
     const now = Date.now();
     const url = "https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data"
-      + `?stationTriplets=${st.triplet}&elements=SNWD,WTEQ&duration=HOURLY`
+      + `?stationTriplets=${stations.map(s => s.triplet).join(",")}&elements=SNWD,WTEQ&duration=HOURLY`
       + `&beginDate=${encodeURIComponent(awdbFmt(now - 50 * HOUR))}&endDate=${encodeURIComponent(awdbFmt(now + HOUR))}`;
-    const json = await getJSON(url);
-    const rec = Array.isArray(json) && json.find(r => r.stationTriplet === st.triplet) || (Array.isArray(json) ? json[0] : null);
-    if (!rec || !Array.isArray(rec.data)) throw new Error("SNOTEL returned no data for this station.");
-    const el = {};
-    rec.data.forEach(d => { el[d.stationElement.elementCode] = series(d.values); });
-    const depth = el.SNWD || [], swe = el.WTEQ || [];
-    if (!depth.length && !swe.length) throw new Error("No hourly readings in the last 48 hours (station may be offline).");
-    const dl = depth[depth.length - 1], wl = swe[swe.length - 1];
-    const asOf = Math.max(dl ? dl.t : 0, wl ? wl.t : 0);
-    const stale = now - asOf > 6 * HOUR;
-    const d6 = changeOver(depth, 6), d24 = changeOver(depth, 24), w6 = changeOver(swe, 6), w24 = changeOver(swe, 24);
-    snotelState[st.id] = {name:st.name, depth:dl && dl.v, d24};
-    setCell(st.id, "depth", dl ? Math.round(dl.v) + '"' : "—", dl ? "" : "na", dl && dl.v >= 0.5 ? `color:${snowColor(dl.v)}` : "");
-    setCell(st.id, "d24", fmtDelta(d24), d24 == null ? "na" : deltaCls(d24));
-    body.innerHTML = `
-      <div class="stats">
-        <div class="stat"><div class="l">Snow depth</div><div class="v" style="color:${dl ? snowColor(dl.v) : "inherit"}">${dl ? Math.round(dl.v) : "—"}<small>"</small></div>
-          <div class="chg"><span>6h <b class="${deltaCls(d6)}">${fmtDelta(d6)}</b></span><span>24h <b class="${deltaCls(d24)}">${fmtDelta(d24)}</b></span></div></div>
-        <div class="stat"><div class="l">SWE</div><div class="v">${wl ? wl.v.toFixed(1) : "—"}<small>"</small></div>
-          <div class="chg"><span>6h <b class="${deltaCls(w6)}">${fmtDelta(w6)}</b></span><span>24h <b class="${deltaCls(w24)}">${fmtDelta(w24)}</b></span></div></div>
-      </div>
-      <div class="spark"><div class="row"><span>Depth · last 48h</span><span>${dl ? Math.round(dl.v) + '" now' : ""}</span></div>${sparkline(depth, asOf || now, "sg-" + st.id)}<div class="row"><span>48h ago</span><span>24h</span><span>now</span></div></div>
-      <div class="asof">${stale ? "⚠ Stale · " : ""}Last reading ${mtTime(asOf)} MT</div>`;
-    return true;
+    res = await fetchCached("snotel", url, d => { if (!Array.isArray(d) || !d.length) throw new Error("SNOTEL returned no stations."); });
   } catch (e) {
-    delete snotelState[st.id];
-    setCell(st.id, "depth", "!", "bad"); setCell(st.id, "d24", "!", "bad");
-    body.innerHTML = "";
-    body.appendChild(errorBox("Couldn't load SNOTEL data", e, () => loadSnotel(st).then(updateBanner)));
-    return false;
+    for (const st of stations) snotelFail(st, e, retry);
+    return stations.map(() => false);
   }
+  return stations.map(st => {
+    const rec = res.data.find(r => r.stationTriplet === st.triplet);
+    try {
+      renderSnotel(st, rec, res.savedAt ? res : null, retry);
+      return res.savedAt ? "saved" : true;
+    } catch (e) { snotelFail(st, e, retry); return false; }
+  });
+}
+
+function snotelFail(st, e, retry) {
+  delete snotelState[st.id];
+  setCell(st.id, "depth", "!", "bad"); setCell(st.id, "d24", "!", "bad");
+  const body = panelBody("sn", st);
+  body.innerHTML = "";
+  body.appendChild(errorBox("Couldn't load SNOTEL data", e, retry));
+}
+
+function renderSnotel(st, rec, saved, retry) {
+  const body = panelBody("sn", st);
+  const now = Date.now();
+  if (!rec || !Array.isArray(rec.data)) throw new Error("SNOTEL returned no data for this station.");
+  const el = {};
+  rec.data.forEach(d => { el[d.stationElement.elementCode] = series(d.values); });
+  const depth = el.SNWD || [], swe = el.WTEQ || [];
+  if (!depth.length && !swe.length) throw new Error("No hourly readings in the last 48 hours (station may be offline).");
+  const dl = depth[depth.length - 1], wl = swe[swe.length - 1];
+  const asOf = Math.max(dl ? dl.t : 0, wl ? wl.t : 0);
+  const stale = now - asOf > 6 * HOUR;
+  const d6 = changeOver(depth, 6), d24 = changeOver(depth, 24), w6 = changeOver(swe, 6), w24 = changeOver(swe, 24);
+  snotelState[st.id] = {name:st.name, depth:dl && dl.v, d24};
+  setCell(st.id, "depth", dl ? Math.round(dl.v) + '"' : "—", dl ? "" : "na", dl && dl.v >= 0.5 ? `color:${snowColor(dl.v)}` : "");
+  setCell(st.id, "d24", fmtDelta(d24), d24 == null ? "na" : deltaCls(d24));
+  body.innerHTML = `
+    <div class="stats">
+      <div class="stat"><div class="l">Snow depth</div><div class="v" style="color:${dl ? snowColor(dl.v) : "inherit"}">${dl ? Math.round(dl.v) : "—"}<small>"</small></div>
+        <div class="chg"><span>6h <b class="${deltaCls(d6)}">${fmtDelta(d6)}</b></span><span>24h <b class="${deltaCls(d24)}">${fmtDelta(d24)}</b></span></div></div>
+      <div class="stat"><div class="l">SWE</div><div class="v">${wl ? wl.v.toFixed(1) : "—"}<small>"</small></div>
+        <div class="chg"><span>6h <b class="${deltaCls(w6)}">${fmtDelta(w6)}</b></span><span>24h <b class="${deltaCls(w24)}">${fmtDelta(w24)}</b></span></div></div>
+    </div>
+    <div class="spark"><div class="row"><span>Depth · last 48h</span><span>${dl ? Math.round(dl.v) + '" now' : ""}</span></div>${sparkline(depth, asOf || now, "sg-" + st.id)}<div class="row"><span>48h ago</span><span>24h</span><span>now</span></div></div>
+    <div class="asof">${stale ? "⚠ Stale · " : ""}Last reading ${mtTime(asOf)} MT</div>`;
+  if (saved) body.prepend(savedNote(saved, retry));
 }
 
 /* ---------------- Forecast ---------------- */
@@ -533,10 +584,12 @@ async function loadForecast(loc) {
       + "&daily=snowfall_sum,rain_sum,temperature_2m_max,temperature_2m_min"
       + `&models=${[...MODELS, ...SHORT_MODELS].map(m => m[0]).join(",")}`
       + "&forecast_days=16&timezone=America%2FDenver&precipitation_unit=inch&temperature_unit=fahrenheit";
-    const json = await getJSON(url);
-    if (json.error) throw new Error(json.reason || "Open-Meteo returned an error.");
+    const res = await fetchCached("fc:" + loc.id, url, j => {
+      if (j.error) throw new Error(j.reason || "Open-Meteo returned an error.");
+      if (!j.daily || !Array.isArray(j.daily.time) || !j.daily.time.length) throw new Error("Open-Meteo response had no daily forecast.");
+    });
+    const json = res.data;
     const d = json.daily, u = json.daily_units || {};
-    if (!d || !Array.isArray(d.time) || !d.time.length) throw new Error("Open-Meteo response had no daily forecast.");
     // With precipitation_unit=inch Open-Meteo already returns snowfall in inches; trust daily_units, never assume.
     const models = MODELS.map(([k, n]) => modelSeries(d, u, k, n)).filter(Boolean);
     const short = SHORT_MODELS.map(([k, n]) => modelSeries(d, u, k, n)).filter(Boolean);
@@ -554,12 +607,13 @@ async function loadForecast(loc) {
     };
     fcState[loc.id] = fc;
     renderForecast(body, fc);
+    if (res.savedAt) body.prepend(savedNote(res, () => loadForecast(loc).then(updateBanner)));
     for (const [col, w] of [["n1", fc.w1], ["n2", fc.w2]]) {
       if (!w) { setCell(loc.id, col, "—", "na"); continue; }
       const v = w.median, rng = w.hi - w.lo >= 0.5 ? `<small>${fmtIn(w.lo)}–${fmtIn(w.hi)}</small>` : "";
       setCell(loc.id, col, fmtIn(v) + '"' + rng, v < 0.05 ? "na" : "", v >= 0.05 ? `color:${snowColor(v)}` : "");
     }
-    return true;
+    return res.savedAt ? "saved" : true;
   } catch (e) {
     delete fcState[loc.id];
     setCell(loc.id, "n1", "!", "bad"); setCell(loc.id, "n2", "!", "bad");
@@ -799,16 +853,17 @@ async function loadAll() {
   stamp.classList.remove("err");
   stamp.textContent = "Updating…";
   const jobs = [
-    ...LOCATIONS.filter(l => l.triplet).map(st => loadSnotel(st).then(ok => (updateBanner(), ok))),
+    loadSnotelAll().then(oks => (updateBanner(), oks)),
     ...LOCATIONS.map(loc => loadForecast(loc).then(ok => (updateBanner(), ok))),
     loadTomer(),
   ];
-  const results = await Promise.all(jobs);
-  const failed = results.filter(ok => !ok).length;
+  const results = (await Promise.all(jobs)).flat();
+  const failed = results.filter(ok => !ok).length, saved = results.filter(ok => ok === "saved").length;
   lastLoad = Date.now();
   stamp.textContent = `Updated ${new Date(lastLoad).toLocaleTimeString("en-US", {timeZone:TZ, hour:"numeric", minute:"2-digit"})} MT`
-    + (failed ? ` · ${failed} of ${results.length} sources failed` : "");
-  if (failed) stamp.classList.add("err");
+    + (failed ? ` · ${failed} of ${results.length} failed` : "")
+    + (saved ? ` · ${saved} showing saved data` : "");
+  if (failed || saved) stamp.classList.add("err");
   btn.classList.remove("spin");
   loading = false;
 }
