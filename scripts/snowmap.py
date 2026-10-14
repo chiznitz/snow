@@ -42,9 +42,17 @@ POINTS = [
 ]
 
 BATCH = 100
+# A 100-point batch counts as ~107 calls; the free tier allows 600 calls/minute.
+MIN_GAP_S = 12
+_last_call = 0.0
 
 
 def fetch(lats, lons, elevs=None):
+    global _last_call
+    wait = _last_call + MIN_GAP_S - time.time()
+    if wait > 0:
+        time.sleep(wait)
+    _last_call = time.time()
     url = ("https://api.open-meteo.com/v1/forecast"
            f"?latitude={','.join(f'{v:.3f}' for v in lats)}&longitude={','.join(f'{v:.3f}' for v in lons)}"
            + (f"&elevation={','.join(str(e) for e in elevs)}" if elevs else "")
@@ -57,8 +65,11 @@ def fetch(lats, lons, elevs=None):
             return data if isinstance(data, list) else [data]
         except urllib.error.HTTPError as e:
             body = e.read().decode("utf-8", "replace")[:300]
-            if e.code == 429 or attempt == 3:
+            if attempt == 3 or (e.code == 429 and "daily" in body.lower()):
                 raise RuntimeError(f"Open-Meteo HTTP {e.code}: {body}") from None
+            if e.code == 429:
+                time.sleep(65)
+                continue
         except (urllib.error.URLError, TimeoutError) as e:
             if attempt == 3:
                 raise RuntimeError(f"Open-Meteo unreachable: {e}") from None
