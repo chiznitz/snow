@@ -204,6 +204,34 @@ details.models td.na{color:var(--dim);font-weight:400}
 .cams .thumb .im.bad:after{content:"offline";position:absolute;inset:0;display:grid;place-items:center;font-size:11px;color:var(--dim)}
 .cams .thumb span{display:block;font-size:12px;font-weight:600;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cams .note{font-size:11.5px;color:var(--dim);margin-top:8px}
+
+.smap{padding:12px}
+.smap .tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:#0b1330;border:1px solid var(--line);border-radius:12px;padding:3px;margin-bottom:10px}
+.smap .tabs button{font:inherit;font-size:14px;font-weight:750;color:var(--muted);background:none;border:0;border-radius:9px;padding:8px 0;cursor:pointer}
+.smap .tabs button[aria-pressed="true"]{color:#fff;background:linear-gradient(135deg,#2563eb,#9333ea)}
+.smap .views{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-top:10px}
+.smap .views::-webkit-scrollbar{display:none}
+.smap .views button{flex:none;font:inherit;font-size:13px;font-weight:650;color:var(--text);background:#0b1330;border:1px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.smap .views button[aria-pressed="true"]{background:var(--card2);border-color:var(--ice)}
+.smap .box{position:relative;border-radius:14px;overflow:hidden;background:#1d2a1f;min-height:200px;touch-action:manipulation}
+.smap .tiles img{position:absolute;display:block;filter:brightness(.62) saturate(.75)}
+.smap canvas{position:absolute;inset:0;width:100%;height:100%}
+.smap .labels{position:absolute;inset:0;pointer-events:none}
+.smap .mk{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;background:none;border:0;padding:0;font:inherit;cursor:pointer}
+.smap .mk b{display:block;min-width:22px;padding:1px 5px;border-radius:7px;background:#facc15;color:#1a1300;font-size:13px;font-weight:800;line-height:17px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.6)}
+.smap .mk.zero b{background:#e5e7eb;color:#374151}
+.smap .lbl{position:absolute;white-space:nowrap;font-size:11px;font-weight:700;color:#fff;text-shadow:0 0 3px #000,0 0 6px #000;line-height:14px}
+.smap .lbl.city{font-weight:500;color:#d6deef;font-size:10.5px}
+.smap .dot{position:absolute;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:#d6deef;box-shadow:0 0 2px #000}
+.smap .read{position:absolute;transform:translate(-50%,calc(-100% - 8px));background:rgba(10,16,36,.92);border:1px solid var(--line);border-radius:8px;padding:3px 8px;font-size:12px;white-space:nowrap;pointer-events:none}
+.smap .attr{position:absolute;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.55);pointer-events:none}
+.smap .mlegend{display:flex;margin-top:10px}
+.smap .mlegend div{flex:1;text-align:left;font-size:10.5px;color:var(--muted)}
+.smap .mlegend i{display:block;height:9px;margin-bottom:3px}
+.smap .mlegend div:first-child i{border-radius:5px 0 0 5px}
+.smap .mlegend div:last-child i{border-radius:0 5px 5px 0}
+.smap .note{font-size:11.5px;color:var(--dim);margin-top:8px}
+.smap .note.warn{color:var(--warn)}
 @media(min-width:760px){.cams .thumb{width:150px}}
 footer{color:var(--dim);font-size:12.5px;text-align:center;margin:26px 8px 6px;line-height:1.55}
 footer a{color:var(--muted)}
@@ -234,10 +262,19 @@ footer .ask{color:var(--muted);margin-top:4px}
     <div class="body"><div class="skel" style="height:140px"></div></div>
   </section>
 
-  <nav class="jump" id="jump" aria-label="Jump to region"><a href="#glance">Overview</a><a href="#tomer">Tomer</a><a href="#cams">Webcams</a></nav>
+  <nav class="jump" id="jump" aria-label="Jump to region"><a href="#glance">Overview</a><a href="#tomer">Tomer</a><a href="#map">Map</a><a href="#cams">Webcams</a></nav>
 
   <h2 class="sec" id="glance">At a glance <small>Depth: SNOTEL · snow: model consensus</small></h2>
   <div class="glance"><table><thead><tr><th>Location</th><th>Depth</th><th>24h</th><th>1–5d</th><th>6–10d</th></tr></thead><tbody id="glance-body"></tbody></table></div>
+
+  <h2 class="sec" id="map">Snowfall map <small>tap the map for a reading</small></h2>
+  <section class="card smap" id="map-card">
+    <div class="tabs" id="map-wins" role="group" aria-label="Forecast window"></div>
+    <div class="box" id="map-box"><div class="tiles"></div><canvas></canvas><div class="labels"></div><div class="attr">Imagery © Esri</div></div>
+    <div class="mlegend" id="map-legend"></div>
+    <div class="views" id="map-views" role="group" aria-label="Map area"></div>
+    <div class="note" id="map-note">Loading snowfall map…</div>
+  </section>
 
   <h2 class="sec" id="cams">Webcams <small>tap a camera · stills refresh every 5 min</small></h2>
   <section class="card cams" id="cams-card">
@@ -842,6 +879,222 @@ $("cam-thumbs").addEventListener("click", e => {
 });
 setInterval(() => { if (document.visibilityState === "visible" && !camState.live) renderCams(); }, 300000);
 
+/* ---------------- Snowfall map ---------------- */
+
+const MAP_WINDOWS = [["h24","24H","Next 24 hours"],["h48","48H","Next 48 hours"],["d3","3D","Next 3 days"],["d7","7D","Next 7 days"],["d14","14D","Next 14 days"]];
+// [lower bound in inches, color, opacity]; each band runs up to the next band's bound.
+const MAP_BANDS = [[0.1,"#dbeafe",.3],[1,"#7cb8ff",.5],[3,"#3b82f6",.66],[6,"#6d4af2",.74],[12,"#a855f7",.8],[18,"#e040fb",.84],[24,"#f472b6",.87],[36,"#ffe1ef",.9]];
+const MAP_CITIES = [["Durango",37.275,-107.88],["Silverton",37.812,-107.664],["Telluride",37.938,-107.812],["Pagosa Springs",37.269,-107.01],["Cortez",37.349,-108.586],
+  ["Denver",39.739,-104.99],["Steamboat",40.485,-106.832],["Laramie",41.311,-105.591],["Grand Junction",39.064,-108.551],["Salt Lake City",40.761,-111.891],
+  ["Logan",41.737,-111.834],["Jackson",43.48,-110.762],["Boise",43.615,-116.202],["McCall",44.911,-116.099],["Reno",39.53,-119.814],["Missoula",46.872,-113.994],
+  ["Bozeman",45.677,-111.043],["Albuquerque",35.084,-106.65],["Phoenix",33.448,-112.074],["Cheyenne",41.14,-104.82]];
+let mapData = null, mapBorders = null, mapRead = null;
+const mapState = (() => { try { return {view:"west", win:"d7", ...JSON.parse(localStorage.getItem("snowMap") || "{}")}; } catch (_) { return {view:"west", win:"d7"}; } })();
+const saveMapState = () => { try { localStorage.setItem("snowMap", JSON.stringify({view:mapState.view, win:mapState.win})); } catch (_) {} };
+
+const mercY = lat => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
+function mapProj(v, W) {
+  const top = mercY(v.lat1), span = top - mercY(v.lat0);
+  const H = W * span / ((v.lon1 - v.lon0) * Math.PI / 180);
+  return {W, H,
+    x: lon => (lon - v.lon0) / (v.lon1 - v.lon0) * W,
+    y: lat => (top - mercY(lat)) / span * H,
+    lon: x => v.lon0 + x / W * (v.lon1 - v.lon0),
+    lat: y => (2 * Math.atan(Math.exp(top - y / H * span)) - Math.PI / 2) * 180 / Math.PI};
+}
+
+function mapTiles(v) {
+  const px = (lon, z) => (lon + 180) / 360 * 256 * 2 ** z;
+  const py = (lat, z) => (1 - mercY(lat) / Math.PI) / 2 * 256 * 2 ** z;
+  let z = 3;
+  while (z < 10 && px(v.lon1, z) - px(v.lon0, z) < 640) z++;
+  const x0 = px(v.lon0, z), x1 = px(v.lon1, z), y0 = py(v.lat1, z), y1 = py(v.lat0, z);
+  const tw = 25600 / (x1 - x0), th = 25600 / (y1 - y0);
+  let html = "";
+  for (let ty = Math.floor(y0 / 256); ty * 256 < y1; ty++)
+    for (let tx = Math.floor(x0 / 256); tx * 256 < x1; tx++)
+      html += `<img alt="" loading="lazy" src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}"`
+        + ` style="left:${((tx * 256 - x0) / (x1 - x0) * 100).toFixed(3)}%;top:${((ty * 256 - y0) / (y1 - y0) * 100).toFixed(3)}%;width:${(tw + .15).toFixed(3)}%;height:${(th + .15).toFixed(3)}%">`;
+  return html;
+}
+
+function mapSample(v, g, lat, lon) {
+  const fx = Math.min(Math.max((lon - v.lon0) / v.step, 0), v.nx - 1), fy = Math.min(Math.max((lat - v.lat0) / v.step, 0), v.ny - 1);
+  const i = Math.min(Math.floor(fx), v.nx - 2), j = Math.min(Math.floor(fy), v.ny - 2), a = fx - i, b = fy - j;
+  const at = (ii, jj) => g[jj * v.nx + ii] || 0;
+  return (at(i, j) * (1 - a) + at(i + 1, j) * a) * (1 - b) + (at(i, j + 1) * (1 - a) + at(i + 1, j + 1) * a) * b;
+}
+// Regional grids sample finer than the models' ~0.25° cells, which shows up as blocks; blur them away.
+function mapGrid(v, win) {
+  v.smooth = v.smooth || {};
+  if (v.smooth[win]) return v.smooth[win];
+  let a = v.grids[win].map(x => x || 0);
+  const at = (arr, i, j) => arr[Math.min(Math.max(j, 0), v.ny - 1) * v.nx + Math.min(Math.max(i, 0), v.nx - 1)];
+  for (let p = Math.floor(0.3 / v.step); p > 0; p--) {
+    const h = a.map((_, k) => { const i = k % v.nx, j = (k / v.nx) | 0; return (at(a, i - 1, j) + 2 * a[k] + at(a, i + 1, j)) / 4; });
+    a = h.map((_, k) => { const i = k % v.nx, j = (k / v.nx) | 0; return (at(h, i, j - 1) + 2 * h[k] + at(h, i, j + 1)) / 4; });
+  }
+  return v.smooth[win] = a;
+}
+const mapBand = val => { let k = -1; for (let i = 0; i < MAP_BANDS.length && val >= MAP_BANDS[i][0]; i++) k = i; return k; };
+const hexRGB = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+
+function renderMapControls() {
+  $("map-wins").innerHTML = MAP_WINDOWS.map(([id, short, long]) => `<button type="button" data-w="${id}" aria-pressed="${id === mapState.win}" title="${long}">${short}</button>`).join("");
+  $("map-views").innerHTML = mapData ? mapData.views.map(v => `<button type="button" data-v="${v.id}" aria-pressed="${v.id === mapState.view}">${esc(v.name)}</button>`).join("") : "";
+  $("map-legend").innerHTML = MAP_BANDS.map(([lo, c], i) => `<div><i style="background:${c}"></i>${i === MAP_BANDS.length - 1 ? lo + "+" : lo}</div>`).join("");
+}
+
+let mapTileView = null;
+function renderMap() {
+  renderMapControls();
+  if (!mapData) return;
+  const v = mapData.views.find(x => x.id === mapState.view) || mapData.views[0];
+  if (!v.grids[mapState.win]) return;
+  const g = mapGrid(v, mapState.win);
+  const box = $("map-box"), W = box.clientWidth;
+  if (!W) return;
+  const P = mapProj(v, W);
+  box.style.height = P.H.toFixed(1) + "px";
+  if (mapTileView !== v.id) { box.querySelector(".tiles").innerHTML = mapTiles(v); mapTileView = v.id; }
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const cv = box.querySelector("canvas"), ctx = cv.getContext("2d");
+  cv.width = Math.round(W * dpr); cv.height = Math.round(P.H * dpr);
+  // Paint the field at reduced resolution, then let the upscale soften the band edges.
+  const fw = Math.round(W * .7), fh = Math.round(P.H * .7);
+  const off = document.createElement("canvas"); off.width = fw; off.height = fh;
+  const octx = off.getContext("2d"), img = octx.createImageData(fw, fh);
+  const rgb = MAP_BANDS.map(b => hexRGB(b[1]));
+  for (let y = 0; y < fh; y++) {
+    const lat = P.lat((y + .5) / fh * P.H);
+    for (let x = 0; x < fw; x++) {
+      const k = mapBand(mapSample(v, g, lat, P.lon((x + .5) / fw * W)));
+      if (k < 0) continue;
+      const o = (y * fw + x) * 4, c = rgb[k];
+      img.data[o] = c[0]; img.data[o + 1] = c[1]; img.data[o + 2] = c[2]; img.data[o + 3] = MAP_BANDS[k][2] * 255;
+    }
+  }
+  octx.putImageData(img, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(off, 0, 0, cv.width, cv.height);
+  if (mapBorders) {
+    ctx.strokeStyle = "rgba(255,255,255,.55)"; ctx.lineWidth = dpr; ctx.lineJoin = "round";
+    ctx.beginPath();
+    for (const ring of mapBorders) ring.forEach(([lon, lat], i) => ctx[i ? "lineTo" : "moveTo"](P.x(lon) * dpr, P.y(lat) * dpr));
+    ctx.stroke();
+  }
+
+  // Our spots first (numbers always shown), then names and cities wherever they fit.
+  const placed = [], html = [];
+  const fits = r => r.x0 >= 0 && r.x1 <= W && r.y0 >= 0 && r.y1 <= P.H && !placed.some(q => r.x0 < q.x1 && r.x1 > q.x0 && r.y0 < q.y1 && r.y1 > q.y0);
+  const textW = (s, px) => s.length * px * .56 + 2;
+  const inView = (lat, lon) => lat >= v.lat0 && lat <= v.lat1 && lon >= v.lon0 && lon <= v.lon1;
+  let spots = LOCATIONS.filter(l => inView(l.lat, l.lon) && mapData.points[l.id]).map(l => {
+    const val = mapData.points[l.id][mapState.win], txt = fmtIn(val), x = P.x(l.lon), y = P.y(l.lat);
+    return {l, x, y, bx:x, by:y, val, txt, w:Math.max(22, txt.length * 8 + 10)};
+  });
+  const hit = (a, b) => Math.abs(a.bx - b.bx) < (a.w + b.w) / 2 + 2 && Math.abs(a.by - b.by) < 20;
+  if (v.id === "west") {
+    // Too zoomed out to fit every spot: keep the biggest total in each cluster.
+    const keep = [];
+    for (const s of [...spots].sort((a, b) => (b.val || 0) - (a.val || 0))) if (!keep.some(k => hit(k, s))) keep.push(s);
+    spots = spots.filter(s => keep.includes(s));
+  } else {
+    for (let it = 0; it < 80; it++) {
+      let moved = false;
+      spots.forEach((a, i) => spots.slice(i + 1).forEach(b => {
+        if (!hit(a, b)) return;
+        moved = true;
+        const dy = b.by - a.by || (b.y >= a.y ? 1 : -1), push = (20 - Math.abs(dy)) / 2 + .5;
+        a.by -= Math.sign(dy) * push; b.by += Math.sign(dy) * push;
+      }));
+      if (!moved) break;
+    }
+  }
+  ctx.strokeStyle = "rgba(255,255,255,.8)"; ctx.fillStyle = "#fff"; ctx.lineWidth = dpr;
+  for (const s of spots) {
+    s.bx = Math.min(Math.max(s.bx, s.w / 2 + 2), W - s.w / 2 - 2); s.by = Math.min(Math.max(s.by, 11), P.H - 11);
+    placed.push({x0:s.bx - s.w / 2, x1:s.bx + s.w / 2, y0:s.by - 9, y1:s.by + 9});
+    if (Math.hypot(s.bx - s.x, s.by - s.y) > 4) {
+      ctx.beginPath(); ctx.moveTo(s.x * dpr, s.y * dpr); ctx.lineTo(s.bx * dpr, s.by * dpr); ctx.stroke();
+      ctx.beginPath(); ctx.arc(s.x * dpr, s.y * dpr, 2.5 * dpr, 0, 7); ctx.fill();
+    }
+  }
+  for (const s of spots) {
+    const {bx:x, by:y} = s;
+    html.push(`<button type="button" class="mk${!s.val ? " zero" : ""}" data-id="${s.l.id}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px" aria-label="${esc(s.l.name)}: ${s.txt} inches"><b>${s.txt}</b></button>`);
+    const tw = textW(s.l.name, 11);
+    for (const r of [{x0:x + s.w / 2 + 3, y0:y - 7}, {x0:x - s.w / 2 - 3 - tw, y0:y - 7}, {x0:x - tw / 2, y0:y + 10}, {x0:x - tw / 2, y0:y - 24}]) {
+      r.x1 = r.x0 + tw; r.y1 = r.y0 + 14;
+      if (fits(r)) { placed.push(r); html.push(`<span class="lbl" style="left:${r.x0.toFixed(1)}px;top:${r.y0.toFixed(1)}px">${esc(s.l.name)}</span>`); break; }
+    }
+  }
+  for (const [name, lat, lon] of MAP_CITIES) {
+    if (!inView(lat, lon)) continue;
+    const x = P.x(lon), y = P.y(lat), tw = textW(name, 10.5);
+    const r = [{x0:x - 3, x1:x + 5 + tw, y0:y - 7, y1:y + 7, lx:x + 5}, {x0:x - 5 - tw, x1:x + 3, y0:y - 7, y1:y + 7, lx:x - 5 - tw}].find(fits);
+    if (!r) continue;
+    placed.push(r);
+    html.push(`<i class="dot" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px"></i><span class="lbl city" style="left:${r.lx.toFixed(1)}px;top:${(y - 7).toFixed(1)}px">${esc(name)}</span>`);
+  }
+  if (mapRead && mapRead.view === v.id) {
+    const val = mapSample(v, g, mapRead.lat, mapRead.lon);
+    html.push(`<div class="read" style="left:${P.x(mapRead.lon).toFixed(1)}px;top:${P.y(mapRead.lat).toFixed(1)}px">≈ ${fmtIn(val)}" here</div>`);
+  }
+  box.querySelector(".labels").innerHTML = html.join("");
+
+  const [, , long] = MAP_WINDOWS.find(w => w[0] === mapState.win);
+  const models = (mapData.models[mapState.win] || []).join(", ");
+  const age = Date.now() - Date.parse(mapData.generated_at);
+  const note = $("map-note");
+  note.className = "note" + (age > 30 * HOUR ? " warn" : "");
+  note.innerHTML = `<b>${long}</b> from ${mtTime(Date.parse(mapData.start))} MT · median of ${esc(models)}`
+    + (mapState.win === "d14" ? " (the only models that reach 14 days)" : "")
+    + `. Yellow numbers are at each spot's elevation; tap one to jump to it. Colors use model terrain, so peaks can read lower than their number.`
+    + ` Map ${age > 30 * HOUR ? "is stale — last built" : "rebuilt twice daily · last"} ${mtTime(Date.parse(mapData.generated_at))} MT.`;
+}
+
+async function loadSnowMap() {
+  try {
+    const [data, borders] = await Promise.all([
+      getJSON("snowmap.json?t=" + Date.now()),
+      mapBorders ? mapBorders : getJSON("borders.json").catch(() => null),
+    ]);
+    if (!data || !Array.isArray(data.views) || !data.views.length) throw new Error("snowmap.json has no map data yet.");
+    mapData = data; mapBorders = borders;
+    renderMap();
+    return true;
+  } catch (e) {
+    if (mapData) { renderMap(); return false; }
+    const note = $("map-note");
+    note.className = "note";
+    note.innerHTML = "";
+    note.appendChild(errorBox("Couldn't load the snowfall map", e, loadSnowMap));
+    return false;
+  }
+}
+
+$("map-wins").addEventListener("click", e => {
+  const b = e.target.closest("button[data-w]");
+  if (b) { mapState.win = b.dataset.w; saveMapState(); renderMap(); }
+});
+$("map-views").addEventListener("click", e => {
+  const b = e.target.closest("button[data-v]");
+  if (b) { mapState.view = b.dataset.v; mapRead = null; saveMapState(); renderMap(); }
+});
+$("map-box").addEventListener("click", e => {
+  const mk = e.target.closest(".mk");
+  if (mk) { $("loc-" + mk.dataset.id).scrollIntoView({behavior:"smooth", block:"start"}); return; }
+  if (!mapData) return;
+  const v = mapData.views.find(x => x.id === mapState.view), box = $("map-box"), r = box.getBoundingClientRect();
+  const P = mapProj(v, box.clientWidth);
+  mapRead = {view:v.id, lat:P.lat(e.clientY - r.top), lon:P.lon(e.clientX - r.left)};
+  renderMap();
+});
+let mapW = 0;
+new ResizeObserver(() => { const w = $("map-box").clientWidth; if (w && w !== mapW) { mapW = w; renderMap(); } }).observe($("map-box"));
+
 /* ---------------- Boot ---------------- */
 
 let loading = false, lastLoad = 0;
@@ -856,6 +1109,7 @@ async function loadAll() {
     loadSnotelAll().then(oks => (updateBanner(), oks)),
     ...LOCATIONS.map(loc => loadForecast(loc).then(ok => (updateBanner(), ok))),
     loadTomer(),
+    loadSnowMap(),
   ];
   const results = (await Promise.all(jobs)).flat();
   const failed = results.filter(ok => !ok).length, saved = results.filter(ok => ok === "saved").length;
