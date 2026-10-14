@@ -14,6 +14,10 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
   manual dispatch. It reads his channel RSS, tries to fetch the newest video's transcript, and writes `tomer.json`.
   Optional repo secrets: `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` (AI summary instead of keyword extraction),
   `YT_PROXY_URL` (residential proxy) or `YT_COOKIES` (cookies.txt) if YouTube blocks the runner.
+- **Webcams:** still images (cache-busted every 5 min) with optional live players, defined in `WEBCAMS` in
+  `index.html`. Purgatory and Wolf Creek use Brownrice, Telluride uses ipcamlive, Grand Targhee uses SeeJH stills
+  (its streams block embedding), and Brundage serves its own JPGs. Purgatory's Verkada base stream is locked to
+  purgatory.ski, so it is linked rather than embedded.
 
 | Region | Location | SNOTEL |
 |---|---|---|
