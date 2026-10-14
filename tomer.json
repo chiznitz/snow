@@ -1,0 +1,60 @@
+{
+  "generated_at": "2026-10-14T18:06:08+00:00",
+  "video": {
+    "id": "I8F3BKPd3i4",
+    "title": "Mountain Weather Update 10/14, Meteorologist Chris Tomer",
+    "url": "https://www.youtube.com/watch?v=I8F3BKPd3i4",
+    "published": "2026-10-14T14:46:40+00:00",
+    "thumbnail": "https://i.ytimg.com/vi/I8F3BKPd3i4/hqdefault.jpg"
+  },
+  "description": "CO storm system 10/14-10/15 with snow accumulation.  Remnants of Simon look minor 10/18.  Next big storm system hits 10/20-10/23 with snow for UT/CO/WY/AZ/NM.",
+  "transcript": {
+    "status": "unavailable",
+    "source": null,
+    "chars": 0,
+    "errors": [
+      "youtube-transcript-api: IpBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=I8F3BKPd3i4! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
+      "yt-dlp: RuntimeError: ERROR: [youtube] I8F3BKPd3i4: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTube cookies"
+    ]
+  },
+  "summary": {
+    "method": "extractive",
+    "headline": "CO storm system 10/14-10/15 with snow accumulation.",
+    "storms": [
+      {
+        "when": "Oct 14–15",
+        "start": "2026-10-14",
+        "end": "2026-10-15",
+        "text": "CO storm system 10/14-10/15 with snow accumulation.",
+        "states": [
+          "Colorado"
+        ]
+      },
+      {
+        "when": "Oct 18",
+        "start": "2026-10-18",
+        "end": "2026-10-18",
+        "text": "Remnants of Simon look minor 10/18.",
+        "states": []
+      },
+      {
+        "when": "Oct 20–23",
+        "start": "2026-10-20",
+        "end": "2026-10-23",
+        "text": "Next big storm system hits 10/20-10/23 with snow for UT/CO/WY/AZ/NM.",
+        "states": [
+          "Utah",
+          "Colorado",
+          "Wyoming",
+          "Arizona",
+          "New Mexico"
+        ]
+      }
+    ],
+    "amounts": [],
+    "snow_levels": [],
+    "confidence": null,
+    "confidence_extra": [],
+    "based_on": "video description only"
+  }
+}

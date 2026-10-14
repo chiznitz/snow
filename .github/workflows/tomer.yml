@@ -1,0 +1,60 @@
+name: Chris Tomer daily summary
+
+on:
+  schedule:
+    # 14:15 and 15:15 UTC = 8:15/9:15 AM MDT, 7:15/8:15 AM MST
+    - cron: "15 14 * * *"
+    - cron: "15 15 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/tomer.py
+      - .github/workflows/tomer.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tomer
+  cancel-in-progress: false
+
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # yt-dlp needs a JS runtime for YouTube extraction
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install dependencies
+        run: pip install --upgrade youtube-transcript-api yt-dlp
+
+      - name: Build tomer.json
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          YT_PROXY_URL: ${{ secrets.YT_PROXY_URL }}
+          YT_COOKIES: ${{ secrets.YT_COOKIES }}
+        run: python scripts/tomer.py
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- tomer.json; then
+            echo "tomer.json unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tomer.json
+          git commit -m "Update Chris Tomer summary"
+          git pull --rebase origin main
+          git push origin HEAD:main
