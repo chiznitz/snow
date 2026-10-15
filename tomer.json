@@ -1,53 +1,45 @@
 {
-  "generated_at": "2026-10-14T18:11:44+00:00",
+  "generated_at": "2026-10-15T15:28:31+00:00",
   "video": {
-    "id": "I8F3BKPd3i4",
-    "title": "Mountain Weather Update 10/14, Meteorologist Chris Tomer",
-    "url": "https://www.youtube.com/watch?v=I8F3BKPd3i4",
-    "published": "2026-10-14T14:46:40+00:00",
-    "thumbnail": "https://i.ytimg.com/vi/I8F3BKPd3i4/hqdefault.jpg"
+    "id": "nDiHSqdED2Q",
+    "title": "Mountain Weather Update 10/15, Meteorologist Chris Tomer",
+    "url": "https://www.youtube.com/watch?v=nDiHSqdED2Q",
+    "published": "2026-10-15T14:55:15+00:00",
+    "thumbnail": "https://i.ytimg.com/vi/nDiHSqdED2Q/hqdefault.jpg"
   },
-  "description": "CO storm system 10/14-10/15 with snow accumulation.  Remnants of Simon look minor 10/18.  Next big storm system hits 10/20-10/23 with snow for UT/CO/WY/AZ/NM.",
+  "description": "CO new snow with light additional wraparound snow 10/15.  Then high pressure builds in until the remnants of Simon arrive.  Actual storm system hits the West 10/21-10/24 with snow accumulation in CA/UT/WY/CO/MT.  It has slowed down at least a full day and temps will be warm upon arrival.",
   "transcript": {
     "status": "unavailable",
     "source": null,
     "chars": 0,
     "errors": [
-      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=I8F3BKPd3i4! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
-      "yt-dlp: RuntimeError: ERROR: [youtube] I8F3BKPd3i4: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTube cookies"
+      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=nDiHSqdED2Q! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
+      "yt-dlp: RuntimeError: ERROR: [youtube] nDiHSqdED2Q: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTube cookies"
     ]
   },
   "summary": {
     "method": "extractive",
-    "headline": "CO storm system 10/14-10/15 with snow accumulation.",
+    "headline": "CO new snow with light additional wraparound snow 10/15.",
     "storms": [
       {
-        "when": "Oct 14–15",
-        "start": "2026-10-14",
+        "when": "Oct 15",
+        "start": "2026-10-15",
         "end": "2026-10-15",
-        "text": "CO storm system 10/14-10/15 with snow accumulation.",
+        "text": "CO new snow with light additional wraparound snow 10/15.",
         "states": [
           "Colorado"
         ]
       },
       {
-        "when": "Oct 18",
-        "start": "2026-10-18",
-        "end": "2026-10-18",
-        "text": "Remnants of Simon look minor 10/18.",
-        "states": []
-      },
-      {
-        "when": "Oct 20–23",
-        "start": "2026-10-20",
-        "end": "2026-10-23",
-        "text": "Next big storm system hits 10/20-10/23 with snow for UT/CO/WY/AZ/NM.",
+        "when": "Oct 21–24",
+        "start": "2026-10-21",
+        "end": "2026-10-24",
+        "text": "Actual storm system hits the West 10/21-10/24 with snow accumulation in CA/UT/WY/CO/MT.",
         "states": [
           "Utah",
-          "Colorado",
           "Wyoming",
-          "Arizona",
-          "New Mexico"
+          "Colorado",
+          "Montana"
         ]
       }
     ],
