@@ -66,6 +66,36 @@ header .stamp.err{color:var(--warn)}
 .banner .mrow.med .n,.banner .mrow.med .v{color:#fde68a}
 .banner .mrow.med .bar i{background:#fde68a}
 .banner .models .miss{font-size:11px;opacity:.75;margin-top:6px;line-height:1.35}
+.banner details.why{margin:0 0 10px}
+.banner details.why summary{list-style:none;cursor:pointer;font-size:13px;font-weight:650;background:#00000030;border-radius:12px;padding:9px 11px;display:flex;justify-content:space-between;align-items:center}
+.banner details.why summary::-webkit-details-marker{display:none}
+.banner details.why summary:after{content:"▾";font-size:14px;opacity:.8;transition:transform .2s}
+.banner details.why[open] summary:after{transform:rotate(180deg)}
+.banner details.why[open] summary{border-radius:12px 12px 0 0}
+.banner .whyb{background:#00000030;border-radius:0 0 12px 12px;padding:10px 11px 11px;font-size:12.5px;line-height:1.45}
+.banner .whyb h4{font-size:11px;text-transform:uppercase;letter-spacing:.07em;opacity:.8;margin:12px 0 5px;font-weight:650}
+.banner .whyb h4:first-child{margin-top:0}
+.banner .whyb .tbl{overflow-x:auto;margin:0 -11px;padding:0 11px;scrollbar-width:none}
+.banner .whyb table{border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.banner .whyb th{font-weight:650;opacity:.8;padding:3px 3px;text-align:right;font-size:10.5px}
+.banner .whyb th:first-child,.banner .whyb td:first-child{text-align:left;padding-left:0;font-weight:650}
+.banner .whyb td{padding:3px 3px;text-align:right;border-top:1px solid #ffffff14}
+.banner .whyb td i{display:inline-block;min-width:24px;padding:1px 4px;border-radius:6px;font-style:normal;font-weight:700;color:#fff;font-size:11.5px}
+.banner .whyb td i.z{background:#ffffff14;color:#ffffffa0;font-weight:500}
+.banner .whyb td i.x{background:none;color:#ffffff66;font-weight:400}
+.banner .whyb tr.tot td{border-top:1px solid #ffffff40;font-weight:750}
+.banner .whyb .one{color:#fde68a}
+.banner .whyb p{margin:0 0 6px}
+.banner .whyb .elev{display:flex;flex-wrap:wrap;gap:5px}
+.banner .whyb .elev span{background:#ffffff1a;border-radius:8px;padding:3px 8px;font-size:12px}
+.banner .whyb .elev span b{font-weight:750}
+.banner .whyb .afd{background:#ffffff14;border-radius:10px;padding:8px 10px;margin:6px 0}
+.banner .whyb .afd .o{font-weight:700}
+.banner .whyb .afd .q{display:block;margin-top:3px;font-style:italic;opacity:.95}
+.banner .whyb .afd .m{display:block;margin-top:3px;font-size:11.5px;opacity:.8}
+.banner .whyb a{color:#fff;text-decoration:underline;text-decoration-color:#ffffff80;text-underline-offset:2px}
+.banner .whyb .links{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.banner .whyb .links a{background:#ffffff1f;border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:650;text-decoration:none;white-space:nowrap}
 .chip{background:#ffffff1f;border-radius:999px;padding:4px 10px;font-size:12.5px;white-space:nowrap}
 .chip b{font-weight:700}
 
@@ -264,6 +294,7 @@ footer .ask{color:var(--muted);margin-top:4px}
     <div class="k">16-day outlook</div>
     <div class="h">Checking the forecast…</div>
     <div id="banner-models"></div>
+    <details class="why" id="banner-why" hidden><summary>Why this storm? Days, models, elevation &amp; NWS discussion</summary><div class="whyb"></div></details>
     <div class="chips"></div>
   </div>
 
@@ -309,12 +340,13 @@ footer .ask{color:var(--muted);margin-top:4px}
 
 <script>
 "use strict";
+// nws: forecast offices whose Area Forecast Discussion covers the region (a location can override).
 const REGIONS = [
-  {id:"sanjuans", name:"San Juans", sub:"Durango area"},
-  {id:"nco", name:"Northern Colorado", sub:"Park Range"},
-  {id:"wy", name:"Wyoming", sub:"Snowy Range · Sierra Madre"},
-  {id:"ut", name:"Utah", sub:"Bear River Range"},
-  {id:"id", name:"Idaho", sub:"West Central Mtns · McCall"},
+  {id:"sanjuans", name:"San Juans", sub:"Durango area", nws:["GJT"]},
+  {id:"nco", name:"Northern Colorado", sub:"Park Range", nws:["GJT", "BOU"]},
+  {id:"wy", name:"Wyoming", sub:"Snowy Range · Sierra Madre", nws:["CYS"]},
+  {id:"ut", name:"Utah", sub:"Bear River Range", nws:["SLC"]},
+  {id:"id", name:"Idaho", sub:"West Central Mtns · McCall", nws:["BOI"]},
 ];
 // Elevations come from the NRCS station metadata (feet); forecasts are downscaled to that elevation.
 const LOCATIONS = [
@@ -324,7 +356,7 @@ const LOCATIONS = [
   {id:"molas", region:"sanjuans", name:"Molas Pass", note:"SNOTEL: Molas Lake", ft:10610, m:3236, lat:37.74929, lon:-107.68933, triplet:"632:CO:SNTL"},
   {id:"stump", region:"sanjuans", name:"Stump Lakes", note:"Weminuche", ft:11230, lat:37.47647, lon:-107.63348, triplet:"797:CO:SNTL"},
   {id:"purg", region:"sanjuans", name:"Purgatory", note:"Ski area · forecast only", ft:10322, m:3146, lat:37.6303, lon:-107.8140},
-  {id:"wolf", region:"sanjuans", name:"Wolf Creek", note:"Ski area · forecast only", ft:11001, m:3353, lat:37.4747, lon:-106.7932},
+  {id:"wolf", region:"sanjuans", name:"Wolf Creek", note:"Ski area · forecast only", ft:11001, m:3353, lat:37.4747, lon:-106.7932, nws:["GJT", "PUB"]},
   {id:"rabbit", region:"nco", name:"Rabbit Ears", note:"Rabbit Ears Pass · Steamboat", ft:9390, lat:40.36735, lon:-106.74118, triplet:"709:CO:SNTL"},
   {id:"nfrench", region:"wy", name:"North French Creek", note:"Snowy Range", ft:10150, lat:41.33087, lon:-106.37558, triplet:"668:WY:SNTL"},
   {id:"battle", region:"wy", name:"Battle Mountain", note:"Sierra Madre", ft:7460, lat:41.05402, lon:-107.26674, triplet:"317:WY:SNTL"},
@@ -581,11 +613,14 @@ const toInches = (arr, unit) => {
 const sum = (a, i, j) => a.slice(i, j).reduce((s, v) => s + (v || 0), 0);
 const fcState = {};
 
+// Storm ranking only trusts days where at least MIN_MODELS models have data. Past day 10 only
+// ECMWF and GFS run, and past day 14 only GFS, so a lone model would otherwise become the "consensus".
+const MIN_MODELS = 2;
 function storms(fc) {
   const out = [];
   let cur = null;
   fc.time.forEach((t, i) => {
-    const s = fc.snow[i] || 0;
+    const s = fc.nAt[i] >= MIN_MODELS ? fc.snow[i] || 0 : 0;
     if (s >= 0.1) { if (!cur) cur = {start:i, end:i, total:0}; cur.end = i; cur.total += s; }
     else if (cur) { out.push(cur); cur = null; }
   });
@@ -676,6 +711,7 @@ async function loadForecast(loc) {
       sMin: d.time.map((_, i) => { const v = models.map(m => m.snow[i]).filter(x => x != null); return v.length ? Math.min(...v) : null; }),
       sMax: d.time.map((_, i) => { const v = models.map(m => m.snow[i]).filter(x => x != null); return v.length ? Math.max(...v) : null; }),
       nAt: d.time.map((_, i) => models.filter(m => m.snow[i] != null).length),
+      elevM: json.elevation, siteFt: loc.ft, loc,
       w1: windowStats(models, 0, 5), w2: windowStats(models, 5, 10), w3: windowStats(models, 10, d.time.length),
     };
     fcState[loc.id] = fc;
@@ -770,6 +806,76 @@ function modelBars(storm) {
     ${miss.length ? `<div class="miss">${esc(miss.map(r => r.name).join(", "))} ${miss.length > 1 ? "don't" : "doesn't"} forecast out to ${shortDate(fc.time[end])}, so ${miss.length > 1 ? "they're" : "it's"} not counted.</div>` : ""}</div>`;
 }
 
+/* Explanation panel for the headline storm: day-by-day model matrix, elevation, ranking rules, and
+   links to the human-written NWS and CPC discussions for that area. */
+let afdState = null;
+const ftOf = m => Math.round(m / 0.3048).toLocaleString() + " ft";
+const CPC_LINKS = `<a href="https://www.cpc.ncep.noaa.gov/products/predictions/610day/" target="_blank" rel="noopener">CPC 6–10 day outlook ↗</a>
+  <a href="https://www.cpc.ncep.noaa.gov/products/predictions/814day/" target="_blank" rel="noopener">CPC 8–14 day outlook ↗</a>`;
+
+function stormWhy(storm, nSpots) {
+  const {fc, start, end} = storm, loc = fc.loc, days = fc.time.slice(start, end + 1);
+  const cell = v => v == null ? `<i class="x">—</i>` : v < 0.05 ? `<i class="z">0</i>` : `<i style="background:${snowColor(v)}">${fmtIn(v)}</i>`;
+  const rows = days.map((t, k) => {
+    const i = start + k, vals = fc.models.map(m => m.snow[i]).filter(v => v != null);
+    const thin = fc.nAt[i] < MIN_MODELS;
+    return `<tr${thin ? ' class="one"' : ""}><td>${esc(dayLabel(t))}${thin ? " *" : ""}</td><td>${cell(fc.snow[i])}</td>
+      <td>${vals.length > 1 ? `${fmtIn(Math.min(...vals))}–${fmtIn(Math.max(...vals))}"` : "—"}</td><td>${fc.nAt[i]}</td>
+      ${fc.models.map(m => `<td>${cell(m.snow[i])}</td>`).join("")}</tr>`;
+  }).join("");
+  const w = windowStats(fc.models, start, end + 1);
+  const tot = fc.models.map(m => { const seg = m.snow.slice(start, end + 1); return seg.every(v => v != null) ? seg.reduce((x, y) => x + y, 0) : null; });
+  const have = tot.filter(v => v != null);
+  const snowy = fc.models.filter((m, i) => tot[i] != null && tot[i] > 0.5);
+  const outlier = have.length >= 2 && snowy.length === 1;
+  const thinDays = days.filter((_, k) => fc.nAt[start + k] < MIN_MODELS).length;
+
+  const terrain = mapData && mapData.terrain_m && mapData.terrain_m[loc.id];
+  const terrainTxt = terrain ? Object.entries(terrain).sort((a, b) => b[1] - a[1]).map(([n, m]) => `<span>${esc(n)} <b>${ftOf(m)}</b></span>`).join("") : "";
+
+  const region = REGIONS.find(r => r.id === loc.region) || {};
+  const offices = loc.nws || region.nws || [];
+  const afd = offices.map(code => {
+    const o = afdState && afdState.offices && afdState.offices[code];
+    const url = `https://forecast.weather.gov/product.php?site=NWS&issuedby=${code}&product=AFD&format=txt`;
+    if (!o) return `<div class="afd"><span class="o">NWS ${code}</span> · <a href="${url}" target="_blank" rel="noopener">Area Forecast Discussion ↗</a></div>`;
+    const age = (Date.now() - Date.parse(o.issued)) / HOUR;
+    return `<div class="afd"><span class="o">NWS ${esc(o.name)} (${code})</span> · ${esc(o.section.toLowerCase())} section, ${mtTime(Date.parse(o.issued))} MT${age > 30 ? ` <span class="one">· ${Math.round(age / 24)} days old</span>` : ""}
+      <span class="q">“${esc(o.excerpt)}”</span>
+      <span class="m"><a href="${esc(o.url)}" target="_blank" rel="noopener">Read the full discussion ↗</a></span></div>`;
+  }).join("");
+
+  return `
+    <h4>How it's ranked</h4>
+    <p>Each spot's daily number is the <b>median</b> of the global models that have a forecast for that day. Days in a row with
+    ≥0.1" are grouped into one storm, and the biggest storm is the one with the largest total across all ${nSpots} spots.
+    Days with fewer than ${MIN_MODELS} models are skipped (*), so a single model can't be the "consensus" on its own.
+    Past day 10 only ECMWF and GFS run, so out there the median is just their average.</p>
+    <h4>Day by day at ${esc(fc.name)} · inches</h4>
+    <div class="tbl"><table><thead><tr><th>Day</th><th>Median</th><th>Range</th><th>#</th>${fc.models.map(m => `<th>${esc(m.name)}</th>`).join("")}</tr></thead>
+      <tbody>${rows}<tr class="tot"><td>Total</td><td>${cell(storm.total)}</td><td>${w && w.list.length > 1 ? `${fmtIn(w.lo)}–${fmtIn(w.hi)}"` : "—"}</td><td>${w ? w.list.length : 0}</td>${tot.map(v => `<td>${cell(v)}</td>`).join("")}</tr></tbody></table></div>
+    <p style="margin-top:6px">${outlier ? `<b class="one">One model carries this storm:</b> of the ${have.length} models that reach ${shortDate(fc.time[end])}, only <b>${esc(snowy[0].name)}</b> has meaningful snow, so treat it as a maybe. `
+      : w && w.list.length > 1 ? `${w.list.length} models reach ${shortDate(fc.time[end])} and their totals span <b>${fmtIn(w.lo)}–${fmtIn(w.hi)}"</b>. ` : ""}
+      ${thinDays ? `${thinDays} day${thinDays > 1 ? "s" : ""} marked * had fewer than ${MIN_MODELS} models and didn't count toward the total. ` : ""}
+      “—” means that model's forecast doesn't reach that day.</p>
+    <h4>Elevation</h4>
+    <p>Site: <b>${loc.ft.toLocaleString()} ft</b>. Forecast computed at <b>${fc.elevM != null ? ftOf(fc.elevM) : "the site elevation"}</b>; Open-Meteo adjusts temperature and the rain/snow line to that height,
+    but the precipitation itself comes from each model's grid cell, whose terrain sits at:</p>
+    ${terrainTxt ? `<div class="elev">${terrainTxt}</div>` : `<p>Model terrain heights appear once the twice-daily map build runs.</p>`}
+    <h4>Human-written forecasts for this area</h4>
+    ${afd}
+    <div class="links">${CPC_LINKS}</div>`;
+}
+
+async function loadAfd() {
+  try {
+    afdState = await getJSON(`afd.json?t=${Date.now()}`);
+    return true;
+  } catch (e) {
+    return !!afdState;
+  }
+}
+
 function updateBanner() {
   const b = $("banner"), fcs = LOCATIONS.map(l => fcState[l.id]).filter(Boolean);
   const chips = [];
@@ -782,6 +888,9 @@ function updateBanner() {
       ? `Biggest storm: ${best.fc.name}, ${fmtIn(best.total)}" ${rangeLabel(best.fc.time, best.start, best.end)}`
       : "No significant snow in the 16-day forecast";
     $("banner-models").innerHTML = best && best.total >= 0.5 ? modelBars(best) : "";
+    const why = $("banner-why");
+    why.hidden = !(best && best.total >= 0.5);
+    if (!why.hidden) why.querySelector(".whyb").innerHTML = stormWhy(best, fcs.length);
     let next = null;
     for (const fc of fcs) for (const s of storms(fc)) if (s.start > 0 && (!next || s.total > next.total)) next = {...s, fc};
     if (next && next.total >= 0.5 && best && best.start === 0)
@@ -1144,7 +1253,8 @@ async function loadAll() {
     loadSnotelAll().then(oks => (updateBanner(), oks)),
     ...LOCATIONS.map(loc => loadForecast(loc).then(ok => (updateBanner(), ok))),
     loadTomer(),
-    loadSnowMap(),
+    loadSnowMap().then(ok => (updateBanner(), ok)),
+    loadAfd().then(ok => (updateBanner(), ok)),
   ];
   const results = (await Promise.all(jobs)).flat();
   const failed = results.filter(ok => !ok).length, saved = results.filter(ok => ok === "saved").length;
