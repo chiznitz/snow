@@ -1,45 +1,42 @@
 {
-  "generated_at": "2026-10-15T15:28:31+00:00",
+  "generated_at": "2026-10-16T14:29:52+00:00",
   "video": {
-    "id": "nDiHSqdED2Q",
-    "title": "Mountain Weather Update 10/15, Meteorologist Chris Tomer",
-    "url": "https://www.youtube.com/watch?v=nDiHSqdED2Q",
-    "published": "2026-10-15T14:55:15+00:00",
-    "thumbnail": "https://i.ytimg.com/vi/nDiHSqdED2Q/hqdefault.jpg"
+    "id": "QNMVaqfwYbI",
+    "title": "Mountain Weather Update 10/16, Meteorologist Chris Tomer",
+    "url": "https://www.youtube.com/watch?v=QNMVaqfwYbI",
+    "published": "2026-10-16T14:20:10+00:00",
+    "thumbnail": "https://i.ytimg.com/vi/QNMVaqfwYbI/hqdefault.jpg"
   },
-  "description": "CO new snow with light additional wraparound snow 10/15.  Then high pressure builds in until the remnants of Simon arrive.  Actual storm system hits the West 10/21-10/24 with snow accumulation in CA/UT/WY/CO/MT.  It has slowed down at least a full day and temps will be warm upon arrival.",
+  "description": "Next storm system 10/21-10/24 with snow accumulation, but runs into very warm air upon arrival with high elevation freezing levels.  Track keeps shifting.  Minor remnants of Simon hit NM/AZ/CO between 10/18-10/19.",
   "transcript": {
     "status": "unavailable",
     "source": null,
     "chars": 0,
     "errors": [
-      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=nDiHSqdED2Q! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
-      "yt-dlp: RuntimeError: ERROR: [youtube] nDiHSqdED2Q: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTube cookies"
+      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=QNMVaqfwYbI! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
+      "yt-dlp: RuntimeError: ERROR: [youtube] QNMVaqfwYbI: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTube cookies"
     ]
   },
   "summary": {
     "method": "extractive",
-    "headline": "CO new snow with light additional wraparound snow 10/15.",
+    "headline": "Next storm system 10/21-10/24 with snow accumulation, but runs into very warm air upon arrival with high elevation freezing levels.",
     "storms": [
-      {
-        "when": "Oct 15",
-        "start": "2026-10-15",
-        "end": "2026-10-15",
-        "text": "CO new snow with light additional wraparound snow 10/15.",
-        "states": [
-          "Colorado"
-        ]
-      },
       {
         "when": "Oct 21–24",
         "start": "2026-10-21",
         "end": "2026-10-24",
-        "text": "Actual storm system hits the West 10/21-10/24 with snow accumulation in CA/UT/WY/CO/MT.",
+        "text": "Next storm system 10/21-10/24 with snow accumulation, but runs into very warm air upon arrival with high elevation freezing levels.",
+        "states": []
+      },
+      {
+        "when": "Oct 18–19",
+        "start": "2026-10-18",
+        "end": "2026-10-19",
+        "text": "Minor remnants of Simon hit NM/AZ/CO between 10/18-10/19.",
         "states": [
-          "Utah",
-          "Wyoming",
-          "Colorado",
-          "Montana"
+          "New Mexico",
+          "Arizona",
+          "Colorado"
         ]
       }
     ],
