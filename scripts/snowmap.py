@@ -140,6 +140,23 @@ def main():
         tot, _ = window_totals(rec, start_index(rec, now))
         points[p[0]] = tot
 
+    # Each model's own terrain height at our spots (elevation=nan turns off Open-Meteo's downscaling),
+    # so the page can show how far below the real ridge a model thinks the site sits.
+    terrain = {p[0]: {} for p in POINTS}
+    for key, name in MODELS:
+        try:
+            url = ("https://api.open-meteo.com/v1/forecast"
+                   f"?latitude={','.join(f'{p[1]:.3f}' for p in POINTS)}&longitude={','.join(f'{p[2]:.3f}' for p in POINTS)}"
+                   f"&elevation={','.join('nan' for _ in POINTS)}&daily=snowfall_sum&models={key}&forecast_days=1")
+            time.sleep(2)
+            with urllib.request.urlopen(url, timeout=60) as r:
+                recs = json.load(r)
+            for p, rec in zip(POINTS, recs if isinstance(recs, list) else [recs]):
+                if rec.get("elevation") is not None:
+                    terrain[p[0]][name] = round(rec["elevation"])
+        except (urllib.error.URLError, TimeoutError, ValueError) as e:
+            print(f"terrain for {name} skipped: {e}", file=sys.stderr)
+
     out = {
         "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "start": now.strftime("%Y-%m-%dT%H:00:00Z"),
@@ -150,6 +167,7 @@ def main():
         "windows": [{"id": wid, "hours": hrs} for wid, hrs in WINDOWS],
         "views": views,
         "points": points,
+        "terrain_m": terrain,
     }
     with open(OUT, "w") as f:
         json.dump(out, f, separators=(",", ":"))

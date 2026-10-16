@@ -21,6 +21,14 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
   page draws the field on a canvas over Esri World Imagery tiles with state lines from `borders.json`. A run is
   about 3,500 points, roughly a third of Open-Meteo's free 10k daily calls. When you add a location, add it to
   `POINTS` in the script too.
+- **Biggest storm card:** the headline is the largest consensus storm across all spots, where a day only counts
+  if at least two models have a forecast for it (`MIN_MODELS`); otherwise a lone GFS day 15–16 total becomes the
+  "consensus". The "Why this storm?" panel shows the day-by-day model matrix, each model's terrain height at the
+  spot (`terrain_m` in `snowmap.json`, fetched with `elevation=nan`), and the NWS/CPC discussion links.
+- **NWS discussions:** `.github/workflows/afd.yml` runs `scripts/afd.py` every 6 hours. It pulls each office's
+  Area Forecast Discussion from api.weather.gov (GJT, BOU, PUB, CYS, SLC, BOI), finds the long-range section, and
+  writes a verbatim one-line excerpt to `afd.json`. Offices are mapped per region (`nws` in `REGIONS`, overridable
+  per location).
 - **Webcams:** still images (cache-busted every 5 min) with optional live players, defined in `WEBCAMS` in
   `index.html`. Purgatory and Wolf Creek use Brownrice, Telluride uses ipcamlive, Grand Targhee uses SeeJH stills
   (its streams block embedding), and Brundage serves its own JPGs. Purgatory's Verkada base stream is locked to
