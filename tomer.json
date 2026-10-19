@@ -1,45 +1,31 @@
 {
-  "generated_at": "2026-10-19T14:29:25+00:00",
+  "generated_at": "2026-10-19T15:27:00+00:00",
   "video": {
-    "id": "qfGKx1i8R0M",
-    "title": "Mountain Weather Update 10/18, Meteorologist Chris Tomer",
-    "url": "https://www.youtube.com/watch?v=qfGKx1i8R0M",
-    "published": "2026-10-18T17:23:56+00:00",
-    "thumbnail": "https://i.ytimg.com/vi/qfGKx1i8R0M/hqdefault.jpg"
+    "id": "iIrq7eQkIqc",
+    "title": "Mountain Weather Update 10/19, Meteorologist Chris Tomer",
+    "url": "https://www.youtube.com/watch?v=iIrq7eQkIqc",
+    "published": "2026-10-19T14:21:20+00:00",
+    "thumbnail": "https://i.ytimg.com/vi/iIrq7eQkIqc/hqdefault.jpg"
   },
-  "description": "Next storm system 10/21-10/23 for the West, but will hit warm air with high elevation freezing levels upon arrival.  Freezing levels will drop to lower elevations eventually.  Also, minor remnants of Simon 10/18-10/19.  Then, another storm system 10/26-10/29.",
+  "description": "Tracking next storm system 10/21-10/24 then another potential storm system end of month.  First storm system runs into high elevation freezing levels (warm air).  Eventually the freezing level will drop to lower elevations for a short time.",
   "transcript": {
     "status": "unavailable",
     "source": null,
     "chars": 0,
     "errors": [
-      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=qfGKx1i8R0M! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
-      "yt-dlp: RuntimeError: ERROR: [youtube] qfGKx1i8R0M: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTube cookies"
+      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=iIrq7eQkIqc! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
+      "yt-dlp: RuntimeError: ERROR: [youtube] iIrq7eQkIqc: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTube cookies"
     ]
   },
   "summary": {
     "method": "extractive",
-    "headline": "Next storm system 10/21-10/23 for the West, but will hit warm air with high elevation freezing levels upon arrival.",
+    "headline": "Tracking next storm system 10/21-10/24 then another potential storm system end of month.",
     "storms": [
       {
-        "when": "Oct 21–23",
+        "when": "Oct 21–24",
         "start": "2026-10-21",
-        "end": "2026-10-23",
-        "text": "Next storm system 10/21-10/23 for the West, but will hit warm air with high elevation freezing levels upon arrival.",
-        "states": []
-      },
-      {
-        "when": "Oct 18–19",
-        "start": "2026-10-18",
-        "end": "2026-10-19",
-        "text": "Also, minor remnants of Simon 10/18-10/19.",
-        "states": []
-      },
-      {
-        "when": "Oct 26–29",
-        "start": "2026-10-26",
-        "end": "2026-10-29",
-        "text": "Then, another storm system 10/26-10/29.",
+        "end": "2026-10-24",
+        "text": "Tracking next storm system 10/21-10/24 then another potential storm system end of month.",
         "states": []
       }
     ],
