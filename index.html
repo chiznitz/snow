@@ -127,27 +127,30 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 
 .totals{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .totals .stat .v{font-size:40px}
-.chart{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px;padding:0 14px;scrollbar-width:none}
-.chart::-webkit-scrollbar{display:none}
-.days{display:flex;min-width:max-content;position:relative}
-.day{width:38px;flex:none;text-align:center;font-variant-numeric:tabular-nums;position:relative;padding:0 1px}
+.totals .chg{display:block;line-height:1.35}
+.chart{margin:0 -4px}
+.days{display:grid;grid-template-columns:repeat(10,1fr);position:relative}
+.day{text-align:center;font-variant-numeric:tabular-nums;position:relative;min-width:0}
 .day.sep{border-left:1px dashed #3a4778}
-.day.far{opacity:.55}
-.day .amt{font-size:11px;font-weight:700;height:15px;line-height:15px}
+.day .amt{font-size:11px;font-weight:700;height:15px;line-height:15px;white-space:nowrap}
 .day .amt.z{color:var(--dim);font-weight:500}
-.day .barbox{height:84px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;border-bottom:1px solid var(--line)}
-.day .bar{width:24px;border-radius:5px 5px 2px 2px;min-height:2px}
-.day .rain{font-size:10px;color:var(--rain);height:14px;line-height:14px;margin-top:3px;white-space:nowrap;font-weight:600}
-.drop{display:inline-block;width:6px;height:6px;background:var(--rain);border-radius:0 50% 50% 50%;transform:rotate(45deg);margin-right:3px;vertical-align:1px}
-.day .dow{font-size:11.5px;color:var(--muted);margin-top:2px}
+.day .barbox{position:relative;height:76px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;border-bottom:1px solid var(--line)}
+.day .bar{width:68%;border-radius:4px 4px 2px 2px;min-height:2px}
+.day.nd .barbox:before{content:"";position:absolute;inset:8px 25% 2px;border:1px dashed #3a4778;border-radius:4px}
+.day.nd .amt{color:var(--dim);font-weight:500}
+.day .rain{font-size:9.5px;color:var(--rain);height:13px;line-height:13px;margin-top:3px;white-space:nowrap;font-weight:600}
+.drop{display:inline-block;width:5px;height:5px;background:var(--rain);border-radius:0 50% 50% 50%;transform:rotate(45deg);margin-right:2px;vertical-align:1px}
+.day .dow{font-size:11px;color:var(--muted);margin-top:2px}
 .day .dow.we{color:var(--text);font-weight:700}
-.day .dt{font-size:13px;font-weight:650}
+.day .dt{font-size:12.5px;font-weight:650}
 .day.today .dt{color:var(--ice)}
 .day.today .dow{color:var(--ice);font-weight:700}
-.day .hi{font-size:11.5px;margin-top:4px;color:#fca5a5}
-.day .lo{font-size:11.5px;color:#93c5fd}
-.seglbl{display:flex;min-width:max-content;font-size:11px;color:var(--dim);margin-bottom:2px}
-.seglbl span{flex:none;text-align:center;border-bottom:2px solid var(--line);padding-bottom:2px;margin:0 2px}
+.day .hi{font-size:11px;margin-top:4px;color:#fca5a5}
+.day .lo{font-size:11px;color:#93c5fd}
+.seglbl{display:grid;grid-template-columns:1fr 1fr;font-size:11px;color:var(--dim);margin-bottom:2px;gap:4px}
+.seglbl span{text-align:center;border-bottom:2px solid var(--line);padding-bottom:2px}
+.seglbl b{color:var(--muted)}
+@media(min-width:760px){.day .bar{width:60%}.day .barbox{height:96px}}
 .legend{display:flex;gap:4px;align-items:center;font-size:11px;color:var(--dim);margin-top:10px;flex-wrap:wrap}
 .legend i{display:inline-block;width:18px;height:8px;border-radius:2px}
 
@@ -185,7 +188,6 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .glance .na{color:var(--dim);font-weight:400}
 .glance .bad{color:var(--bad)}
 @media(min-width:760px){.glance td{font-size:15px}}
-.day .barbox{position:relative}
 .day .wh{position:absolute;left:50%;width:2px;margin-left:-1px;background:#ffffff38;border-radius:1px}
 .day.thin .bar{opacity:.6}
 .rng{font-size:12px;color:var(--muted);margin-top:1px;font-variant-numeric:tabular-nums}
@@ -452,7 +454,7 @@ function buildPage() {
       grid.insertAdjacentHTML("beforeend", `<section class="card" id="loc-${loc.id}">
         <div class="top"><div><h3>${esc(loc.name)}</h3><div class="sub">${ftLabel(loc)} · ${esc(loc.note)}</div></div><span class="badge">${loc.triplet ? "SNOTEL " + esc(loc.triplet.split(":")[0]) : "Forecast only"}</span></div>
         ${loc.triplet ? `<div class="panel" id="sn-${loc.id}"><div class="ptitle">Snowpack <span>${loc.snotelName ? `${esc(loc.snotelName)} SNOTEL · ${loc.snotelFt.toLocaleString()} ft` : "NRCS SNOTEL · hourly"}</span></div><div class="body"></div></div>` : ""}
-        <div class="panel" id="fc-${loc.id}"><div class="ptitle">16-day forecast <span>6-model consensus at ${ftLabel(loc)}</span></div><div class="body"></div></div>
+        <div class="panel" id="fc-${loc.id}"><div class="ptitle">10-day forecast <span>6-model consensus at ${ftLabel(loc)}</span></div><div class="body"></div></div>
         ${loc.report ? `<a class="ext" href="${loc.report}" target="_blank" rel="noopener">Official ${esc(loc.name.split(" ")[0])} snow report ↗</a>` : ""}
       </section>`);
       const na = loc.triplet ? "…" : "—";
@@ -717,7 +719,7 @@ async function loadForecast(loc) {
     fcState[loc.id] = fc;
     renderForecast(body, fc);
     if (res.savedAt) body.prepend(savedNote(res, () => loadForecast(loc).then(updateBanner)));
-    for (const [col, w] of [["n1", fc.w1], ["n2", fc.w2]]) {
+    for (const [col, w] of [["n1", winT(fc, 0, 5)], ["n2", winT(fc, 5, 10)]]) {
       if (!w) { setCell(loc.id, col, "—", "na"); continue; }
       const v = w.median, rng = w.hi - w.lo >= 0.5 ? `<small>${fmtIn(w.lo)}–${fmtIn(w.hi)}</small>` : "";
       setCell(loc.id, col, fmtIn(v) + '"' + rng, v < 0.05 ? "na" : "", v >= 0.05 ? `color:${snowColor(v)}` : "", v);
@@ -732,22 +734,24 @@ async function loadForecast(loc) {
   }
 }
 
+// Window total = median of the totals from models that cover every day of the window, and only
+// when at least MIN_MODELS do. Cards, the glance table and the banner all use this.
+const winT = (fc, a, b) => { const w = windowStats(fc.models, a, Math.min(b, fc.time.length)); return w && w.list.length >= MIN_MODELS ? w : null; };
+
 function renderForecast(body, fc) {
-  const r1 = sum(fc.rain, 0, 5), r2 = sum(fc.rain, 5, 10);
-  const scaleMax = Math.max(8, ...fc.sMax.map(v => v || 0));
-  const hOf = v => v == null ? 0 : Math.sqrt(Math.min(v, scaleMax) / scaleMax) * 84;
-  const today = todayMT();
-  const W = 38;
-  const days = fc.time.map((t, i) => {
-    const s = fc.snow[i], r = fc.rain[i] || 0, dt = ymd(t), dow = dt.getUTCDay();
-    const h = s == null ? 0 : Math.max(2, hOf(s));
+  const N = Math.min(10, fc.time.length), today = todayMT();
+  const ok = i => fc.nAt[i] >= MIN_MODELS && fc.snow[i] != null;
+  const scaleMax = Math.max(6, ...fc.time.slice(0, N).map((_, i) => ok(i) ? Math.max(fc.snow[i], fc.sMax[i] || 0) : 0));
+  const hOf = v => v == null ? 0 : Math.sqrt(Math.min(v, scaleMax) / scaleMax) * 72;
+  const days = fc.time.slice(0, N).map((t, i) => {
+    const dt = ymd(t), dow = dt.getUTCDay(), s = ok(i) ? fc.snow[i] : null, r = ok(i) ? fc.rain[i] || 0 : 0;
     const lo = hOf(fc.sMin[i]), hi = hOf(fc.sMax[i]);
-    const cls = ["day", i === 5 || i === 10 ? "sep" : "", i >= 10 ? "far" : "", fc.nAt[i] < 3 ? "thin" : "", t === today ? "today" : ""].join(" ");
+    const cls = ["day", i === 5 ? "sep" : "", ok(i) ? "" : "nd", t === today ? "today" : ""].join(" ");
     const per = fc.models.map(m => `${m.name} ${m.snow[i] == null ? "–" : m.snow[i].toFixed(1)}`).join(", ");
     const th = fc.hi[i], tl = fc.lo[i];
-    return `<div class="${cls}" title="${shortDate(t)} · ${fc.nAt[i]} models · ${per}">
-      <div class="amt ${!s || s < 0.05 ? "z" : ""}" style="${s >= 0.05 ? `color:${snowColor(s)}` : ""}">${s == null ? "–" : fmtIn(s)}</div>
-      <div class="barbox">${hi - lo >= 3 ? `<div class="wh" style="bottom:${lo.toFixed(1)}px;height:${(hi - lo).toFixed(1)}px"></div>` : ""}<div class="bar" style="height:${h.toFixed(1)}px;background:${s >= 0.05 ? snowColor(s) : "var(--s0)"}"></div></div>
+    return `<div class="${cls}" title="${shortDate(t)} · ${fc.nAt[i]} model${fc.nAt[i] === 1 ? "" : "s"}${ok(i) ? "" : " (not counted)"} · ${per}">
+      <div class="amt ${s == null || s < 0.05 ? "z" : ""}" style="${s >= 0.05 ? `color:${snowColor(s)}` : ""}">${s == null ? "–" : fmtIn(s)}</div>
+      <div class="barbox">${ok(i) && hi - lo >= 3 ? `<div class="wh" style="bottom:${lo.toFixed(1)}px;height:${(hi - lo).toFixed(1)}px"></div>` : ""}${ok(i) ? `<div class="bar" style="height:${Math.max(2, hOf(s)).toFixed(1)}px;background:${s >= 0.05 ? snowColor(s) : "var(--s0)"}"></div>` : ""}</div>
       <div class="rain">${r >= 0.05 ? `<span class="drop"></span>${r.toFixed(1)}` : ""}</div>
       <div class="dow ${dow === 0 || dow === 6 ? "we" : ""}">${t === today ? "Today" : DOW[dow]}</div>
       <div class="dt">${dt.getUTCDate()}</div>
@@ -755,16 +759,17 @@ function renderForecast(body, fc) {
       <div class="lo">${tl == null ? "–" : Math.round(tl) + "°"}</div>
     </div>`;
   }).join("");
-  const segs = [[0, 5, "Next 1–5 days", fc.w1], [5, 10, "Days 6–10", fc.w2], [10, fc.time.length, "Days 11–16", fc.w3]]
-    .filter(([a, b]) => b > a)
-    .map(([a, b, l, w]) => `<span style="width:${(b - a) * W - 4}px">${l} · ${w ? fmtIn(w.median) + '"' : "—"}${w ? ` <small>(${w.list.length})</small>` : ""}</span>`).join("");
+  const w5 = winT(fc, 0, 5), w10 = winT(fc, 0, 10);
+  const r5 = sum(fc.rain, 0, 5), r10 = sum(fc.rain, 0, 10);
   const rainNote = (r, s) => r >= 0.1 && r > s / 10 ? ` · <span style="color:var(--rain)">${r.toFixed(1)}" rain</span>` : "";
-  const total = (w, label, range) => {
-    const v = w ? w.median : null;
+  const total = (w, a, b, label, sub) => {
+    const v = w ? w.median : null, all = windowStats(fc.models, a, Math.min(b, fc.time.length));
+    const rng = w ? (fmtIn(w.lo) === fmtIn(w.hi) ? `All ${w.list.length} models: ${fmtIn(w.lo)}"` : `Range ${fmtIn(w.lo)}–${fmtIn(w.hi)}" · ${w.list.length} models`)
+      : all ? `Only ${all.list[0].name} reaches day ${Math.min(b, fc.time.length)} (${fmtIn(all.list[0].total)}") · not counted` : `No model covers all ${Math.min(b, fc.time.length)} days`;
     return `<div class="stat"><div class="l">${label}</div><div class="v" style="color:${v >= 0.05 ? snowColor(v) : "inherit"}">${fmtIn(v)}<small>"</small></div>
-      <div class="rng">${w ? (w.list.length > 1 ? (fmtIn(w.lo) === fmtIn(w.hi) ? `All ${w.list.length} models: ${fmtIn(w.lo)}"` : `Range ${fmtIn(w.lo)}–${fmtIn(w.hi)}" · ${w.list.length} models`) : `${w.list[0].name} only`) : "No model coverage"}</div>
-      <div class="chg">${range}</div></div>`;
+      <div class="rng">${rng}</div><div class="chg">${sub}</div></div>`;
   };
+  const segs = `<span>Days 1–5</span><span>Days 6–10</span>`;
   const s48 = windowStats(fc.models, 0, 2);
   const shortTxt = fc.short.length && s48
     ? `<span class="sr">Next 48h, high-res US models: ${fc.short.map(m => { const v = m.snow.slice(0, 2); return `${m.name} ${v.every(x => x != null) ? fmtIn(v[0] + v[1]) + '"' : "–"}`; }).join(" · ")} · global consensus ${fmtIn(s48.median)}"</span>`
@@ -773,21 +778,22 @@ function renderForecast(body, fc) {
   const winTotal = (m, a, b) => { const seg = m.snow.slice(a, b); return seg.length === b - a && seg.every(v => v != null) ? seg.reduce((x, y) => x + y, 0) : null; };
   const rows = [...fc.models, ...fc.short].map(m => {
     const days = m.snow.filter(v => v != null).length;
-    return `<tr><td>${m.name}${fc.short.includes(m) ? " <small style=\"color:var(--dim)\">short-range</small>" : ""}</td>${fmtCell(winTotal(m, 0, 2))}${fmtCell(winTotal(m, 0, 5))}${fmtCell(winTotal(m, 5, 10))}<td class="na">${days}d</td></tr>`;
+    return `<tr><td>${m.name}${fc.short.includes(m) ? " <small style=\"color:var(--dim)\">short-range</small>" : ""}</td>${fmtCell(winTotal(m, 0, 2))}${fmtCell(winTotal(m, 0, 5))}${fmtCell(winTotal(m, 0, 10))}<td class="na">${days}d</td></tr>`;
   }).join("");
   body.innerHTML = `
     <div class="totals">
-      ${total(fc.w1, "Next 1–5 days", rangeLabel(fc.time, 0, 4).replace(/^today/, "Today") + rainNote(r1, fc.w1 ? fc.w1.median : 0))}
-      ${total(fc.w2, "Days 6–10", (fc.time[9] ? rangeLabel(fc.time, 5, 9) : "") + rainNote(r2, fc.w2 ? fc.w2.median : 0))}
+      ${total(w5, 0, 5, "Next 5 days", rangeLabel(fc.time, 0, 4).replace(/^today/, "Today") + rainNote(r5, w5 ? w5.median : 0))}
+      ${total(w10, 0, 10, "Next 10 days", rangeLabel(fc.time, 0, N - 1).replace(/^today/, "Today") + rainNote(r10, w10 ? w10.median : 0))}
     </div>
-    <div class="agree">1–5 days: ${agreement(fc.w1)}${fc.w2 ? `<span class="sr">6–10 days: ${agreement(fc.w2)}</span>` : ""}${shortTxt}</div>
     <div class="chart"><div class="seglbl">${segs}</div><div class="days">${days}</div></div>
     <div class="legend">Snow:
       <i style="background:var(--s1)"></i>&lt;1" <i style="background:var(--s2)"></i>1–3 <i style="background:var(--s3)"></i>3–6
       <i style="background:var(--s4)"></i>6–12 <i style="background:var(--s5)"></i>12–18 <i style="background:var(--s6)"></i>18+
       <span><span class="drop" style="margin-left:6px"></span>rain</span><span style="margin-left:auto">Bar = median · line = model range</span></div>
+    <div class="agree">1–5 days: ${agreement(fc.w1)}${fc.w2 ? `<span class="sr">6–10 days: ${agreement(fc.w2)}</span>` : ""}${shortTxt}
+      <span class="sr">Bars are the daily median; totals are the median of each model's total. A day or window counts only when at least ${MIN_MODELS} models cover it (dashed days don't).</span></div>
     <details class="models"><summary>Model by model</summary>
-      <table><thead><tr><th>Model</th><th>48h</th><th>1–5d</th><th>6–10d</th><th>Covers</th></tr></thead><tbody>${rows}</tbody></table>
+      <table><thead><tr><th>Model</th><th>48h</th><th>5 days</th><th>10 days</th><th>Covers</th></tr></thead><tbody>${rows}</tbody></table>
     </details>`;
 }
 
@@ -895,7 +901,7 @@ function updateBanner() {
     for (const fc of fcs) for (const s of storms(fc)) if (s.start > 0 && (!next || s.total > next.total)) next = {...s, fc};
     if (next && next.total >= 0.5 && best && best.start === 0)
       chips.push(`Next storm: <b>${esc(next.fc.name)} ${fmtIn(next.total)}"</b> ${rangeLabel(next.fc.time, next.start, next.end)}`);
-    const top5 = fcs.map(fc => ({fc, v:fc.w1 ? fc.w1.median : 0})).sort((a, c) => c.v - a.v)[0];
+    const top5 = fcs.map(fc => ({fc, v:(winT(fc, 0, 5) || {}).median || 0})).sort((a, c) => c.v - a.v)[0];
     if (top5 && top5.v >= 0.05) chips.push(`Next 5 days: <b>${esc(top5.fc.name)} ${fmtIn(top5.v)}"</b>`);
   }
   const sns = LOCATIONS.map(l => snotelState[l.id]).filter(Boolean);
