@@ -38,7 +38,11 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
   7d and 14d come from the daily forecast. A window only counts when at least two models cover it (`MIN_MODELS`),
   so a lone long-range model can't pose as the consensus. Zeros are blank dots; non-zero cells are colored pills
   with the model range underneath. Below 760px a Past / Next toggle picks which group shows beside the sticky
-  location column; tap a header to sort, tap a row to jump to that spot's card.
+  location column; tap a header to sort. Tap a row to open that spot's card inline (one at a time); region rows
+  collapse (San Juans open by default, remembered per device). `#loc-<id>` in the URL opens that card on load.
+  The card's 24H / 48H / 72H / 7D / 14D control drives one chart: hourly bars (median of the global models, faint
+  model band, HRRR line, temperature, 700 mb wind arrows) with the SNOTEL depth trace for the same span to the left
+  of "now", or the daily bars for 7D / 14D.
 - **Conditions (NWS + avalanche):** `.github/workflows/conditions.yml` runs `scripts/conditions.py` every 6 hours
   and writes `conditions.json`. NWS: api.weather.gov `/points` resolves each spot to its forecast office and the
   latest Area Forecast Discussion is stored once per office (aviation/fire/marine sections dropped). Avalanche:
