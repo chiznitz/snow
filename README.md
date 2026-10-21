@@ -21,14 +21,20 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
   page draws the field on a canvas over Esri World Imagery tiles with state lines from `borders.json`. A run is
   about 3,500 points, roughly a third of Open-Meteo's free 10k daily calls. When you add a location, add it to
   `POINTS` in the script too.
-- **Biggest storm card:** the headline is the largest consensus storm across all spots, where a day only counts
-  if at least two models have a forecast for it (`MIN_MODELS`); otherwise a lone GFS day 15–16 total becomes the
-  "consensus". The "Why this storm?" panel shows the day-by-day model matrix, each model's terrain height at the
-  spot (`terrain_m` in `snowmap.json`, fetched with `elevation=nan`), and the NWS/CPC discussion links.
-- **NWS discussions:** `.github/workflows/afd.yml` runs `scripts/afd.py` every 6 hours. It pulls each office's
-  Area Forecast Discussion from api.weather.gov (GJT, BOU, PUB, CYS, SLC, BOI), finds the long-range section, and
-  writes a verbatim one-line excerpt to `afd.json`. Offices are mapped per region (`nws` in `REGIONS`, overridable
-  per location).
+- **Snow forecast table:** one row per spot with current depth, 5- and 10-day consensus totals, and ten daily
+  cells colored on the OpenSnow-style scale. A day or window only counts when at least two models cover it
+  (`MIN_MODELS`), so a lone long-range model can't pose as the consensus. First column is sticky so the table
+  scrolls sideways on a phone; tap a header to sort, tap a row to jump to that spot's card.
+- **Conditions (NWS + avalanche):** `.github/workflows/conditions.yml` runs `scripts/conditions.py` every 6 hours
+  and writes `conditions.json`. NWS: api.weather.gov `/points` resolves each spot to its forecast office and the
+  latest Area Forecast Discussion is stored once per office (aviation/fire/marine sections dropped). Avalanche:
+  api.avalanche.org's map layer locates each spot's zone by point-in-polygon (so CAIC's early-season statewide zone
+  and the regional zones that replace it on Nov 1 both work) and stores the latest product per zone with danger by
+  elevation band, problems, aspects and discussion. Each card shows these as expandable sections; early season
+  shows "No avalanche forecast issued yet". Deadwood Summit has no avalanche center.
+- **Wind loading:** per card, an estimate from Open-Meteo hourly 700 mb wind (one batched request, client side):
+  the snowfall-weighted mean wind during the last 72 h of snow and during the next storm, the lee aspects
+  (opposite the wind), and a cross-check against any wind-slab problem the avalanche center lists.
 - **Webcams:** still images (cache-busted every 5 min) with optional live players, defined in `WEBCAMS` in
   `index.html`. Purgatory and Wolf Creek use Brownrice, Telluride uses ipcamlive, Grand Targhee uses SeeJH stills
   (its streams block embedding), and Brundage serves its own JPGs. Purgatory's Verkada base stream is locked to
