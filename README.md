@@ -11,7 +11,8 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
   (ECMWF, GFS, ICON, GEM, UKMO, JMA) plus HRRR and NAM for the next 48 hours. Totals are the median of the models
   that cover the whole window; ranges are the lowest and highest model.
 - **Loading and fallback:** `.github/workflows/live.yml` runs `scripts/live.py` every 2 hours and writes
-  `live.json`, a snapshot of the exact SNOTEL, forecast and 700 mb wind responses the page would fetch itself.
+  `live.json`, a snapshot of the exact SNOTEL (last 170 h), daily forecast, hourly forecast and 700 mb wind
+  responses the page would fetch itself.
   The page renders from that snapshot first (same origin, ~25 KB gzipped), so it is readable before any
   third-party request is sent, then updates progressively: SNOTEL is always refreshed live; Open-Meteo is only
   called live when the snapshot is more than 2 hours old or you tap refresh. Every third-party request has an 8 s

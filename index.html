@@ -1103,7 +1103,7 @@ let hourlyErr = null;
 
 async function loadHourly() {
   try {
-    const res = await fetchCached("hourly", HOURLY_URL, checkHourly);
+    const res = await fetchCached("hourly", HOURLY_URL, checkHourly, () => snapshot && snapshot.hourly);
     hourlyErr = null;
     return applyHourly(res);
   } catch (e) {
@@ -1512,6 +1512,7 @@ async function loadSnapshot() {
     if (j && !liveArrived.has("fc:" + loc.id)) { try { applyForecast(loc, {data:j, ...note}); } catch (e) { console.error(e); } }
   }
   if (snapshot.wind && !liveArrived.has("wind")) { try { applyWind({data:snapshot.wind, ...note}); } catch (e) { console.error(e); } }
+  if (snapshot.hourly && !liveArrived.has("hourly")) { try { applyHourly({data:snapshot.hourly, ...note}); } catch (e) { console.error(e); } }
   return true;
 }
 
@@ -1525,12 +1526,14 @@ async function loadAll(force = false) {
 
   // Step 2: live fetches, each rendering on its own as it finishes. Nothing waits on anything else,
   // and the snapshot download runs alongside the small same-origin JSON files.
-  const jobs = [loadSnotelAll(), loadHourly()];
+  const jobs = [loadSnotelAll()];
   // On a slow link the snapshot gets the bandwidth first; on a normal one this wait is ~200 ms.
   if (firstLoad) { firstLoad = false; snapshotReady = loadSnapshot(); await snapshotReady; }
   const fresh = !force && snapAge() < SNAP_FRESH;
   jobs.push(loadTomer(), loadSnowMap(), loadConditions());
+  // A snapshot without the hourly section (older live.json) still needs the live hourly call.
   if (!fresh) jobs.push(...LOCATIONS.map(loc => loadForecast(loc)), loadWind());
+  if (!fresh || !(snapshot && snapshot.hourly)) jobs.push(loadHourly());
   let done = 0;
   const label = fresh ? `Forecast from ${fmtClock(snapTime())} MT build · checking SNOTEL…` : "Updating live data…";
   stamp.textContent = label;

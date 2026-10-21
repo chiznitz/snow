@@ -73,10 +73,25 @@ def main():
     except Exception as e:
         out["errors"].append(f"wind: {type(e).__name__}: {e}")
 
+    # Hourly snowfall/temperature for the table's 24/48/72h-from-now windows (HOURLY_URL in index.html).
+    try:
+        url = ("https://api.open-meteo.com/v1/forecast"
+               f"?latitude={','.join(str(p[1]) for p in POINTS)}&longitude={','.join(str(p[2]) for p in POINTS)}"
+               f"&elevation={','.join(str(p[3]) for p in POINTS)}"
+               "&hourly=snowfall,temperature_2m"
+               "&models=ecmwf_ifs025,gfs_seamless,icon_seamless,gem_seamless,ukmo_seamless,jma_seamless,ncep_hrrr_conus"
+               "&past_days=1&forecast_days=4&timezone=America%2FDenver&precipitation_unit=inch&temperature_unit=fahrenheit")
+        h = get(url)
+        if not isinstance(h, list) or len(h) != len(POINTS):
+            raise RuntimeError("incomplete hourly response")
+        out["hourly"] = h
+    except Exception as e:
+        out["errors"].append(f"hourly: {type(e).__name__}: {e}")
+
     try:
         url = ("https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data"
                f"?stationTriplets={','.join(TRIPLETS)}&elements=SNWD,WTEQ&duration=HOURLY"
-               f"&beginDate={urllib.request.quote(awdb(now_ms - 50 * 3600 * 1000))}&endDate={urllib.request.quote(awdb(now_ms + 3600 * 1000))}")
+               f"&beginDate={urllib.request.quote(awdb(now_ms - 170 * 3600 * 1000))}&endDate={urllib.request.quote(awdb(now_ms + 3600 * 1000))}")
         s = get(url)
         if not isinstance(s, list) or not s:
             raise RuntimeError("no stations")
@@ -89,7 +104,7 @@ def main():
         try:
             with open(OUT) as f:
                 old = json.load(f)
-            for key in ("wind", "snotel"):
+            for key in ("wind", "hourly", "snotel"):
                 if key not in out and key in old:
                     out[key] = old[key]
                     out.setdefault("stale", {})[key] = old.get("generated_at")
@@ -104,7 +119,7 @@ def main():
         print(err, file=sys.stderr)
     with open(OUT, "w") as f:
         json.dump(out, f, separators=(",", ":"))
-    print(f"wrote {OUT} ({os.path.getsize(OUT):,} bytes): {len(out['forecast'])} forecasts, wind={'wind' in out}, snotel={'snotel' in out}", file=sys.stderr)
+    print(f"wrote {OUT} ({os.path.getsize(OUT):,} bytes): {len(out['forecast'])} forecasts, wind={'wind' in out}, hourly={'hourly' in out}, snotel={'snotel' in out}", file=sys.stderr)
 
 
 if __name__ == "__main__":
