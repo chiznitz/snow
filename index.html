@@ -465,6 +465,10 @@ function buildPage() {
     if (tr) $("loc-" + tr.dataset.id).scrollIntoView({behavior:"smooth", block:"start"});
   });
   glanceOrig = [...glance.children];
+  try { wireGlanceSort(); } catch (e) { console.error("glance sort disabled:", e); }
+}
+
+function wireGlanceSort() {
   $("glance-head").addEventListener("click", e => {
     const th = e.target.closest("th[data-k]");
     if (!th) return;
@@ -483,7 +487,7 @@ function setCell(id, col, html, cls = "", style = "", v = null) {
   const keep = [...td.classList].filter(c => ["st", "dc", "tot", "sep"].includes(c)).join(" ");
   td.innerHTML = html; td.className = (keep + " " + cls).trim(); td.style.cssText = style;
   td.dataset.v = v == null || !isFinite(v) ? "" : v;
-  if (glanceSort.col !== "loc") applyGlanceSort();
+  if (glanceSort.col !== "loc") { try { applyGlanceSort(); } catch (e) { console.error(e); } }
 }
 
 let dayHeadersFor = "";
@@ -503,14 +507,19 @@ function setDayHeaders(time) {
 // Sorting by a number column flattens the region groups; "Location" restores them.
 const glanceSort = (() => { try { return {col:"loc", desc:true, ...JSON.parse(localStorage.getItem("snowSort") || "{}")}; } catch (_) { return {col:"loc", desc:true}; } })();
 let glanceOrig = [];
+const setChildren = (el, nodes) => { el.innerHTML = ""; for (const n of nodes) el.appendChild(n); };
 function applyGlanceSort() {
   const tb = $("glance-body");
-  for (const th of document.querySelectorAll("#glance-head th")) th.className = th.dataset.k === glanceSort.col && glanceSort.col !== "loc" ? (glanceSort.desc ? "on" : "on asc") : "";
-  if (glanceSort.col === "loc") { tb.replaceChildren(...glanceOrig); return; }
-  const val = tr => { const s = tr.querySelector(`td[data-c="${glanceSort.col}"]`).dataset.v; return s ? +s : null; };
+  if (!tb) return;
+  const heads = [...document.querySelectorAll("#glance-head th[data-k]")];
+  // A saved preference may name a column this table no longer has (the old "24h" column did this).
+  if (!heads.some(th => th.dataset.k === glanceSort.col)) { glanceSort.col = "loc"; try { localStorage.removeItem("snowSort"); } catch (_) {} }
+  for (const th of heads) { th.classList.toggle("on", th.dataset.k === glanceSort.col && glanceSort.col !== "loc"); th.classList.toggle("asc", th.classList.contains("on") && !glanceSort.desc); }
+  if (glanceSort.col === "loc") { setChildren(tb, glanceOrig); return; }
+  const val = tr => { const td = tr.querySelector(`td[data-c="${glanceSort.col}"]`), s = td && td.dataset.v; return s ? +s : null; };
   const rows = glanceOrig.filter(tr => tr.classList.contains("loc")).map(tr => ({tr, v:val(tr)}))
     .sort((a, b) => (a.v == null) - (b.v == null) || (a.v == null ? 0 : glanceSort.desc ? b.v - a.v : a.v - b.v));
-  tb.replaceChildren(...rows.map(r => r.tr));
+  setChildren(tb, rows.map(r => r.tr));
 }
 const panelBody = (kind, loc) => document.querySelector(`#${kind}-${loc.id} .body`);
 
@@ -1359,8 +1368,12 @@ async function loadAll() {
   loading = false;
 }
 
-buildPage();
-renderCams();
+try { buildPage(); } catch (e) {
+  console.error(e);
+  $("regions").innerHTML = "";
+  $("regions").appendChild(errorBox("The page failed to build", e, () => location.reload()));
+}
+try { renderCams(); } catch (e) { console.error("webcams failed:", e); }
 $("refresh").addEventListener("click", () => { loadAll(); if (!camState.live) renderCams(); });
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && Date.now() - lastLoad > 15 * 60 * 1000) loadAll();
