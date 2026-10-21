@@ -1,4 +1,4 @@
-name: NWS forecast discussions
+name: NWS discussions and avalanche forecasts
 
 on:
   schedule:
@@ -8,14 +8,14 @@ on:
   push:
     branches: [main]
     paths:
-      - scripts/afd.py
-      - .github/workflows/afd.yml
+      - scripts/conditions.py
+      - .github/workflows/conditions.yml
 
 permissions:
   contents: write
 
 concurrency:
-  group: afd
+  group: conditions
   cancel-in-progress: false
 
 jobs:
@@ -29,18 +29,18 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Build afd.json
-        run: python scripts/afd.py
+      - name: Build conditions.json
+        run: python scripts/conditions.py
 
       - name: Commit if changed
         run: |
-          if git diff --quiet -- afd.json; then
-            echo "afd.json unchanged"
+          if git diff --quiet -- conditions.json; then
+            echo "conditions.json unchanged"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add afd.json
-          git commit -m "Update NWS forecast discussions"
+          git add conditions.json
+          git commit -m "Update NWS and avalanche conditions"
           git pull --rebase origin main
           git push origin HEAD:main
