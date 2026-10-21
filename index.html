@@ -380,7 +380,10 @@ const shortDate = s => { const d = ymd(s); return `${MON[d.getUTCMonth()]} ${d.g
 const dayLabel = s => s === todayMT() ? "today" : shortDate(s);
 const todayMT = () => new Intl.DateTimeFormat("en-CA", {timeZone:TZ, year:"numeric", month:"2-digit", day:"2-digit"}).format(new Date());
 
-async function getJSON(url, timeoutMs = 20000) {
+// Third-party calls get 8 s so a slow API can't hold the page; our own JSON files (same origin,
+// gzipped by GitHub Pages) get longer because they are the fallback for everything else.
+const LOCAL_TIMEOUT = 15000;
+async function getJSON(url, timeoutMs = 8000) {
   const ctl = new AbortController();
   const t = setTimeout(() => ctl.abort(), timeoutMs);
   try {
@@ -388,36 +391,48 @@ async function getJSON(url, timeoutMs = 20000) {
     if (!r.ok) throw new Error(`HTTP ${r.status} from ${new URL(url, location.href).host}`);
     return await r.json();
   } catch (e) {
-    if (e.name === "AbortError") throw new Error(`Timed out reaching ${new URL(url, location.href).host}`);
+    if (e.name === "AbortError") throw new Error(`Timed out (${timeoutMs / 1000}s) reaching ${new URL(url, location.href).host}`);
     if (e instanceof TypeError) throw new Error(`Network error reaching ${new URL(url, location.href).host}`);
     throw e;
   } finally { clearTimeout(t); }
 }
 
-// Fetch with one retry; keep the last good response on the device so a blocked request
-// (NRCS's firewall sometimes 403s whole networks) still shows the most recent data.
+/* Live fetch with one quick retry. If it fails, fall back to the newer of: the last good response
+   saved on this device, or the server-built snapshot (live.json). Phones on carrier NAT share one
+   IP with thousands of users, so Open-Meteo's per-IP limits and NRCS's firewall can both fail for
+   them; the snapshot keeps the page usable regardless. */
 const CACHE_PREFIX = "snowCache:";
-async function fetchCached(key, url, check = () => {}) {
+let snapshot = null;   // contents of live.json
+let snapshotReady = Promise.resolve();   // settles once live.json has loaded or failed
+const liveArrived = new Set();   // sections already rendered from a live response
+const snapAge = () => snapshot ? Date.now() - Date.parse(snapshot.generated_at) : Infinity;
+const snapTime = () => snapshot ? Date.parse(snapshot.generated_at) : 0;
+async function fetchCached(key, url, check = () => {}, snapFn = null) {
   let err;
   for (let attempt = 0; attempt < 2; attempt++) {
-    if (attempt) await new Promise(r => setTimeout(r, 2500));
+    if (attempt) await new Promise(r => setTimeout(r, 1500));
     try {
       const data = await getJSON(url);
       check(data);
       try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({t:Date.now(), data})); } catch (_) {}
-      return {data};
+      liveArrived.add(key);
+      return {data, source:"live"};
     } catch (e) { err = e; }
   }
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(CACHE_PREFIX + key)); } catch (_) {}
-  if (saved && saved.data) return {data:saved.data, savedAt:saved.t, err};
+  await snapshotReady;   // a slow live.json shouldn't cost us the fallback
+  const snapData = snapFn ? snapFn() : null;
+  const snapT = snapData ? snapTime() : 0;
+  if (saved && saved.data && saved.t >= snapT) return {data:saved.data, savedAt:saved.t, err, source:"cache"};
+  if (snapData) return {data:snapData, savedAt:snapT, err, source:"snapshot"};
   throw err;
 }
 
 function savedNote(res, retryFn) {
   const div = document.createElement("div");
   div.className = "saved";
-  div.innerHTML = `⚠ Showing saved data from ${esc(mtTime(res.savedAt))} MT · ${esc(res.err && res.err.message || res.err)}<button type="button">Retry</button>`;
+  div.innerHTML = `⚠ Live data unavailable · showing ${res.source === "snapshot" ? "the server snapshot" : "data saved on this device"} from ${esc(mtTime(res.savedAt))} MT · ${esc(res.err && res.err.message || res.err)}<button type="button">Retry</button>`;
   div.querySelector("button").onclick = retryFn;
   return div;
 }
@@ -567,8 +582,7 @@ const snotelState = {};
 async function loadSnotelAll() {
   const stations = LOCATIONS.filter(l => l.triplet);
   for (const st of stations) {
-    panelBody("sn", st).innerHTML = `<div class="skel" style="height:190px"></div>`;
-    setCell(st.id, "depth", "…");
+    if (!snotelState[st.id]) { panelBody("sn", st).innerHTML = `<div class="skel" style="height:190px"></div>`; setCell(st.id, "depth", "…"); }
   }
   const retry = () => loadSnotelAll();
   let res;
@@ -577,11 +591,16 @@ async function loadSnotelAll() {
     const url = "https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data"
       + `?stationTriplets=${stations.map(s => s.triplet).join(",")}&elements=SNWD,WTEQ&duration=HOURLY`
       + `&beginDate=${encodeURIComponent(awdbFmt(now - 50 * HOUR))}&endDate=${encodeURIComponent(awdbFmt(now + HOUR))}`;
-    res = await fetchCached("snotel", url, d => { if (!Array.isArray(d) || !d.length) throw new Error("SNOTEL returned no stations."); });
+    res = await fetchCached("snotel", url, d => { if (!Array.isArray(d) || !d.length) throw new Error("SNOTEL returned no stations."); }, () => snapshot && snapshot.snotel);
   } catch (e) {
     for (const st of stations) snotelFail(st, e, retry);
     return stations.map(() => false);
   }
+  return applySnotel(res, retry);
+}
+
+function applySnotel(res, retry) {
+  const stations = LOCATIONS.filter(l => l.triplet);
   return stations.map(st => {
     const rec = res.data.find(r => r.stationTriplet === st.triplet);
     try {
@@ -694,22 +713,46 @@ function agreement(st) {
   return agreeTxt + (hi.length ? ` · <span class="hi">higher: ${out(hi)}</span>` : "") + (lo.length ? ` · <span class="lo">lower: ${out(lo)}</span>` : "");
 }
 
+const forecastURL = loc => "https://api.open-meteo.com/v1/forecast"
+  + `?latitude=${loc.lat}&longitude=${loc.lon}&elevation=${loc.m}`
+  + "&daily=snowfall_sum,rain_sum,temperature_2m_max,temperature_2m_min"
+  + `&models=${[...MODELS, ...SHORT_MODELS].map(m => m[0]).join(",")}`
+  + "&forecast_days=16&timezone=America%2FDenver&precipitation_unit=inch&temperature_unit=fahrenheit";
+const checkForecast = j => {
+  if (j.error) throw new Error(j.reason || "Open-Meteo returned an error.");
+  if (!j.daily || !Array.isArray(j.daily.time) || !j.daily.time.length) throw new Error("Open-Meteo response had no daily forecast.");
+};
+
 async function loadForecast(loc) {
   const body = panelBody("fc", loc);
-  body.innerHTML = `<div class="skel" style="height:92px;margin-bottom:10px"></div><div class="skel" style="height:170px"></div>`;
-  setCell(loc.id, "n1", "…"); setCell(loc.id, "n2", "…");
-  for (let i = 0; i < 10; i++) setCell(loc.id, "d" + i, `<i class="x">…</i>`);
+  if (!fcState[loc.id]) {
+    body.innerHTML = `<div class="skel" style="height:92px;margin-bottom:10px"></div><div class="skel" style="height:170px"></div>`;
+    setCell(loc.id, "n1", "…"); setCell(loc.id, "n2", "…");
+    for (let i = 0; i < 10; i++) setCell(loc.id, "d" + i, `<i class="x">…</i>`);
+  }
   try {
-    const url = "https://api.open-meteo.com/v1/forecast"
-      + `?latitude=${loc.lat}&longitude=${loc.lon}&elevation=${loc.m}`
-      + "&daily=snowfall_sum,rain_sum,temperature_2m_max,temperature_2m_min"
-      + `&models=${[...MODELS, ...SHORT_MODELS].map(m => m[0]).join(",")}`
-      + "&forecast_days=16&timezone=America%2FDenver&precipitation_unit=inch&temperature_unit=fahrenheit";
-    const res = await fetchCached("fc:" + loc.id, url, j => {
-      if (j.error) throw new Error(j.reason || "Open-Meteo returned an error.");
-      if (!j.daily || !Array.isArray(j.daily.time) || !j.daily.time.length) throw new Error("Open-Meteo response had no daily forecast.");
-    });
+    const res = await fetchCached("fc:" + loc.id, forecastURL(loc), checkForecast, () => snapshot && snapshot.forecast && snapshot.forecast[loc.id]);
+    return applyForecast(loc, res);
+  } catch (e) {
+    forecastFail(loc, e);
+    return false;
+  }
+}
+
+function forecastFail(loc, e) {
+  delete fcState[loc.id];
+  setCell(loc.id, "n1", "!", "bad"); setCell(loc.id, "n2", "!", "bad");
+  for (let i = 0; i < 10; i++) setCell(loc.id, "d" + i, `<i class="x">!</i>`);
+  const body = panelBody("fc", loc);
+  body.innerHTML = "";
+  body.appendChild(errorBox("Couldn't load the forecast", e, () => loadForecast(loc)));
+}
+
+function applyForecast(loc, res) {
+  const body = panelBody("fc", loc);
+  try {
     const json = res.data;
+    checkForecast(json);
     const d = json.daily, u = json.daily_units || {};
     // With precipitation_unit=inch Open-Meteo already returns snowfall in inches; trust daily_units, never assume.
     const models = MODELS.map(([k, n]) => modelSeries(d, u, k, n)).filter(Boolean);
@@ -742,11 +785,7 @@ async function loadForecast(loc) {
     }
     return res.savedAt ? "saved" : true;
   } catch (e) {
-    delete fcState[loc.id];
-    setCell(loc.id, "n1", "!", "bad"); setCell(loc.id, "n2", "!", "bad");
-    for (let i = 0; i < 10; i++) setCell(loc.id, "d" + i, `<i class="x">!</i>`);
-    body.innerHTML = "";
-    body.appendChild(errorBox("Couldn't load the forecast", e, () => loadForecast(loc)));
+    forecastFail(loc, e);
     return false;
   }
 }
@@ -898,7 +937,7 @@ function renderAvy(loc) {
 
 async function loadConditions() {
   try {
-    cond = await getJSON(`conditions.json?t=${Date.now()}`);
+    cond = await getJSON(`conditions.json?t=${Date.now()}`, LOCAL_TIMEOUT);
   } catch (e) {
     cond = cond || null;
   }
@@ -985,25 +1024,32 @@ function renderWind(loc) {
   el.innerHTML = `${compass(main ? main.dir : null, main ? main.steady : 0)}<div><div class="l">Wind loading · <b>estimate</b> · ridge-level (700 mb) winds, storm timing from GFS</div>${txt}${windSlabCheck(loc)}</div>`;
 }
 
+const WIND_URL = "https://api.open-meteo.com/v1/forecast"
+  + `?latitude=${LOCATIONS.map(l => l.lat).join(",")}&longitude=${LOCATIONS.map(l => l.lon).join(",")}&elevation=${LOCATIONS.map(l => l.m).join(",")}`
+  + "&hourly=snowfall,wind_speed_700hPa,wind_direction_700hPa&past_days=3&forecast_days=10&timezone=America%2FDenver&wind_speed_unit=mph&precipitation_unit=inch";
+const checkWind = d => { if (!Array.isArray(d) || d.length !== LOCATIONS.length) throw new Error("Open-Meteo wind response was incomplete."); };
+
 async function loadWind() {
-  const url = "https://api.open-meteo.com/v1/forecast"
-    + `?latitude=${LOCATIONS.map(l => l.lat).join(",")}&longitude=${LOCATIONS.map(l => l.lon).join(",")}&elevation=${LOCATIONS.map(l => l.m).join(",")}`
-    + "&hourly=snowfall,wind_speed_700hPa,wind_direction_700hPa&past_days=3&forecast_days=10&timezone=America%2FDenver&wind_speed_unit=mph&precipitation_unit=inch";
   try {
-    const res = await fetchCached("wind", url, d => { if (!Array.isArray(d) || d.length !== LOCATIONS.length) throw new Error("Open-Meteo wind response was incomplete."); });
-    res.data.forEach((rec, k) => {
-      const loc = LOCATIONS[k], hh = rec.hourly, off = (rec.utc_offset_seconds || 0) * 1000;
-      const t = hh.time.map(x => Date.parse(x + ":00Z") - off);
-      const days = [...new Set(hh.time.map(x => x.slice(0, 10)))];
-      windState[loc.id] = {t, snow:hh.snowfall, spd:hh.wind_speed_700hPa, dir:hh.wind_direction_700hPa, days,
-        dayOf:ms => days.indexOf(new Intl.DateTimeFormat("en-CA", {timeZone:TZ, year:"numeric", month:"2-digit", day:"2-digit"}).format(new Date(ms)))};
-      renderWind(loc);
-    });
-    return res.savedAt ? "saved" : true;
+    const res = await fetchCached("wind", WIND_URL, checkWind, () => snapshot && snapshot.wind);
+    return applyWind(res);
   } catch (e) {
-    for (const loc of LOCATIONS) $("wind-" + loc.id).innerHTML = `${compass(null, 0)}<div><div class="l">Wind loading</div><span class="err">Couldn't load ridge winds: ${esc(e.message)}</span></div>`;
+    for (const loc of LOCATIONS) if (!windState[loc.id]) $("wind-" + loc.id).innerHTML = `${compass(null, 0)}<div><div class="l">Wind loading</div><span class="err">Couldn't load ridge winds: ${esc(e.message)}</span></div>`;
     return false;
   }
+}
+
+function applyWind(res) {
+  checkWind(res.data);
+  res.data.forEach((rec, k) => {
+    const loc = LOCATIONS[k], hh = rec.hourly, off = (rec.utc_offset_seconds || 0) * 1000;
+    const t = hh.time.map(x => Date.parse(x + ":00Z") - off);
+    const days = [...new Set(hh.time.map(x => x.slice(0, 10)))];
+    windState[loc.id] = {t, snow:hh.snowfall, spd:hh.wind_speed_700hPa, dir:hh.wind_direction_700hPa, days, savedAt:res.savedAt,
+      dayOf:ms => days.indexOf(new Intl.DateTimeFormat("en-CA", {timeZone:TZ, year:"numeric", month:"2-digit", day:"2-digit"}).format(new Date(ms)))};
+    renderWind(loc);
+  });
+  return res.savedAt ? "saved" : true;
 }
 
 /* ---------------- Chris Tomer ---------------- */
@@ -1014,7 +1060,7 @@ const clip = (t, n = 180) => !t ? "" : t.length > n ? t.slice(0, n).replace(/\s+
 async function loadTomer() {
   const body = document.querySelector("#tomer .body");
   try {
-    const j = await getJSON(`tomer.json?t=${Date.now()}`);
+    const j = await getJSON(`tomer.json?t=${Date.now()}`, LOCAL_TIMEOUT);
     if (!j || !j.video || !j.summary) throw new Error("tomer.json is missing the video or summary.");
     const v = j.video, s = j.summary;
     const pub = new Date(v.published);
@@ -1302,8 +1348,8 @@ function renderMap() {
 async function loadSnowMap() {
   try {
     const [data, borders] = await Promise.all([
-      getJSON("snowmap.json?t=" + Date.now()),
-      mapBorders ? mapBorders : getJSON("borders.json").catch(() => null),
+      getJSON("snowmap.json?t=" + Date.now(), LOCAL_TIMEOUT),
+      mapBorders ? mapBorders : getJSON("borders.json", LOCAL_TIMEOUT).catch(() => null),
     ]);
     if (!data || !Array.isArray(data.views) || !data.views.length) throw new Error("snowmap.json has no map data yet.");
     mapData = data; mapBorders = borders;
@@ -1341,28 +1387,60 @@ new ResizeObserver(() => { const w = $("map-box").clientWidth; if (w && w !== ma
 
 /* ---------------- Boot ---------------- */
 
-let loading = false, lastLoad = 0;
-async function loadAll() {
+let loading = false, lastLoad = 0, firstLoad = true;
+const SNAP_FRESH = 2 * HOUR;   // skip live Open-Meteo calls when the server snapshot is this recent
+const fmtClock = ms => new Date(ms).toLocaleTimeString("en-US", {timeZone:TZ, hour:"numeric", minute:"2-digit"});
+
+// Step 1: render everything we can from the committed snapshot. Same-origin, so this is fast and
+// can't be rate-limited; the page is readable before any third-party request is even sent.
+async function loadSnapshot() {
+  try {
+    snapshot = await getJSON(`live.json?t=${Date.now()}`, LOCAL_TIMEOUT);   // ~25 KB gzipped from our own origin
+  } catch (e) { console.warn("live.json unavailable:", e.message); snapshot = null; return false; }
+  const note = {savedAt:0};   // savedAt 0 = render without the yellow note
+  if (snapshot.snotel && !liveArrived.has("snotel")) {
+    try { applySnotel({data:snapshot.snotel, ...note}, () => loadSnotelAll()); } catch (e) { console.error(e); }
+  }
+  for (const loc of LOCATIONS) {
+    const j = snapshot.forecast && snapshot.forecast[loc.id];
+    if (j && !liveArrived.has("fc:" + loc.id)) { try { applyForecast(loc, {data:j, ...note}); } catch (e) { console.error(e); } }
+  }
+  if (snapshot.wind && !liveArrived.has("wind")) { try { applyWind({data:snapshot.wind, ...note}); } catch (e) { console.error(e); } }
+  return true;
+}
+
+async function loadAll(force = false) {
   if (loading) return;
   loading = true;
   const btn = $("refresh"), stamp = $("stamp");
   btn.classList.add("spin");
   stamp.classList.remove("err");
-  stamp.textContent = "Updating…";
-  const jobs = [
-    loadSnotelAll(),
-    ...LOCATIONS.map(loc => loadForecast(loc)),
-    loadTomer(),
-    loadSnowMap(),
-    loadConditions(),
-    loadWind(),
-  ];
-  const results = (await Promise.all(jobs)).flat();
-  const failed = results.filter(ok => !ok).length, saved = results.filter(ok => ok === "saved").length;
+  stamp.textContent = "Loading…";
+
+  // Step 2: live fetches, each rendering on its own as it finishes. Nothing waits on anything else,
+  // and the snapshot download runs alongside the small same-origin JSON files.
+  const jobs = [loadSnotelAll()];
+  // On a slow link the snapshot gets the bandwidth first; on a normal one this wait is ~200 ms.
+  if (firstLoad) { firstLoad = false; snapshotReady = loadSnapshot(); await snapshotReady; }
+  const fresh = !force && snapAge() < SNAP_FRESH;
+  jobs.push(loadTomer(), loadSnowMap(), loadConditions());
+  if (!fresh) jobs.push(...LOCATIONS.map(loc => loadForecast(loc)), loadWind());
+  let done = 0;
+  const label = fresh ? `Forecast from ${fmtClock(snapTime())} MT build · checking SNOTEL…` : "Updating live data…";
+  stamp.textContent = label;
+  const tick = r => { done++; stamp.textContent = `${label} ${done}/${jobs.length}`; return r; };
+  // Each job reports an array (one entry per card) or a single value; a job counts as "saved"
+  // when any of its cards had to fall back, and "failed" when none of them rendered.
+  const results = await Promise.all(jobs.map(j => j.then(tick, e => (console.error(e), false)).then(r => [].concat(r))));
+  const failed = results.filter(r => r.every(ok => !ok)).length;
+  const saved = results.filter(r => r.some(ok => ok === "saved")).length;
   lastLoad = Date.now();
-  stamp.textContent = `Updated ${new Date(lastLoad).toLocaleTimeString("en-US", {timeZone:TZ, hour:"numeric", minute:"2-digit"})} MT`
-    + (failed ? ` · ${failed} of ${results.length} failed` : "")
-    + (saved ? ` · ${saved} showing saved data` : "");
+  const sections = [];
+  if (failed) sections.push(`${failed} of ${results.length} sources failed`);
+  if (saved) sections.push(`${saved} using saved data`);
+  stamp.textContent = `Updated ${fmtClock(lastLoad)} MT`
+    + (fresh ? ` · forecast from ${fmtClock(snapTime())} build` : "")
+    + (sections.length ? " · " + sections.join(" · ") : "");
   if (failed || saved) stamp.classList.add("err");
   btn.classList.remove("spin");
   loading = false;
@@ -1374,7 +1452,7 @@ try { buildPage(); } catch (e) {
   $("regions").appendChild(errorBox("The page failed to build", e, () => location.reload()));
 }
 try { renderCams(); } catch (e) { console.error("webcams failed:", e); }
-$("refresh").addEventListener("click", () => { loadAll(); if (!camState.live) renderCams(); });
+$("refresh").addEventListener("click", () => { loadAll(true); if (!camState.live) renderCams(); });
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && Date.now() - lastLoad > 15 * 60 * 1000) loadAll();
 });

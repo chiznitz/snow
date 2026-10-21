@@ -10,6 +10,15 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
 - **Forecast:** Open-Meteo 16-day daily forecast, downscaled to each site's elevation, from six global models
   (ECMWF, GFS, ICON, GEM, UKMO, JMA) plus HRRR and NAM for the next 48 hours. Totals are the median of the models
   that cover the whole window; ranges are the lowest and highest model.
+- **Loading and fallback:** `.github/workflows/live.yml` runs `scripts/live.py` every 2 hours and writes
+  `live.json`, a snapshot of the exact SNOTEL, forecast and 700 mb wind responses the page would fetch itself.
+  The page renders from that snapshot first (same origin, ~25 KB gzipped), so it is readable before any
+  third-party request is sent, then updates progressively: SNOTEL is always refreshed live; Open-Meteo is only
+  called live when the snapshot is more than 2 hours old or you tap refresh. Every third-party request has an 8 s
+  timeout and one retry, and a failure falls back to the newer of the last good response saved in the browser or
+  the snapshot, with a yellow "Live data unavailable" note on the affected card. No single fetch can block the
+  page, and non-critical build steps are wrapped so one failure can't blank it. When you add a location, add its
+  SNOTEL triplet to `TRIPLETS` in `scripts/live.py` too.
 - **Chris Tomer:** `.github/workflows/tomer.yml` runs `scripts/tomer.py` each morning (14:15 and 15:15 UTC) and on
   manual dispatch. It reads his channel RSS, tries to fetch the newest video's transcript, and writes `tomer.json`.
   Optional repo secrets: `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` (AI summary instead of keyword extraction),
