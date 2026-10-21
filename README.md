@@ -28,6 +28,7 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
   and on manual dispatch. It samples Open-Meteo's hourly snowfall from the same six global models on a grid for
   each map area (West at 0.5°, San Juans and N. CO / WY at 0.15°, UT / ID at 0.25°) and writes 24h / 48h / 3d /
   7d / 14d totals to `snowmap.json`, plus totals at each location's own elevation for the yellow numbers. The
+  map opens on the San Juans view for first-time visitors (a saved choice wins). The
   page draws the field on a canvas over Esri World Imagery tiles with state lines from `borders.json`. A run is
   about 3,500 points, roughly a third of Open-Meteo's free 10k daily calls. When you add a location, add it to
   `POINTS` in the script too.
@@ -42,7 +43,9 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
   collapse (San Juans open by default, remembered per device). `#loc-<id>` in the URL opens that card on load.
   The card's 24H / 48H / 72H / 7D / 14D control drives one chart: hourly bars (median of the global models, faint
   model band, HRRR line, temperature, 700 mb wind arrows) with the SNOTEL depth trace for the same span to the left
-  of "now", or the daily bars for 7D / 14D.
+  of "now", or the daily bars for 7D / 14D. Above the chart: one total and a High / Medium / Low confidence chip
+  (model count and spread; the raw range is in the chip's tooltip and under "Model by model"), then a one-line
+  model-agreement sentence. Snowpack shows depth with 24h / 7d change, SWE as a small line, and a 7-day trace.
 - **Conditions (NWS + avalanche):** `.github/workflows/conditions.yml` runs `scripts/conditions.py` every 6 hours
   and writes `conditions.json`. NWS: api.weather.gov `/points` resolves each spot to its forecast office and the
   latest Area Forecast Discussion is stored once per office (aviation/fire/marine sections dropped). Avalanche:
@@ -52,7 +55,8 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
   shows "No avalanche forecast issued yet". Deadwood Summit has no avalanche center.
 - **Wind loading:** per card, an estimate from Open-Meteo hourly 700 mb wind (one batched request, client side):
   the snowfall-weighted mean wind during the last 72 h of snow and during the next storm, the lee aspects
-  (opposite the wind), and a cross-check against any wind-slab problem the avalanche center lists.
+  (opposite the wind), and a cross-check against any wind-slab problem the avalanche center lists. The card shows
+  one line (loaded aspects, wind, storm) with the full sentences and the cross-check under "Details".
 - **Webcams:** still images (cache-busted every 5 min) with optional live players, defined in `WEBCAMS` in
   `index.html`. Purgatory and Wolf Creek use Brownrice, Telluride uses ipcamlive, Grand Targhee uses SeeJH stills
   (its streams block embedding), and Brundage serves its own JPGs. Purgatory's Verkada base stream is locked to

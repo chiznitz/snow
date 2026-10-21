@@ -71,9 +71,6 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .saved{font-size:12px;color:#fde68a;background:#3a2f12;border:1px solid #6b5416;border-radius:10px;padding:6px 9px;margin-bottom:10px}
 .saved button{margin-left:6px;background:none;border:0;color:#fcd34d;font-weight:700;font-size:12px;text-decoration:underline;cursor:pointer;padding:0}
 
-.totals{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.totals .stat .v{font-size:40px}
-.totals .chg{display:block;line-height:1.35}
 .chart{margin:0 -4px}
 .days{display:grid;grid-template-columns:repeat(10,1fr);position:relative}
 .day{text-align:center;font-variant-numeric:tabular-nums;position:relative;min-width:0}
@@ -92,10 +89,7 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .day.today .dt{color:var(--ice)}
 .day.today .dow{color:var(--ice);font-weight:700}
 .day .hi{font-size:11px;margin-top:4px;color:#fca5a5}
-.day .lo{font-size:11px;color:#93c5fd}
-.seglbl{display:grid;grid-template-columns:1fr 1fr;font-size:11px;color:var(--dim);margin-bottom:2px;gap:4px}
-.seglbl span{text-align:center;border-bottom:2px solid var(--line);padding-bottom:2px}
-.seglbl b{color:var(--muted)}
+.day .lo{font-size:11px;color:var(--dim)}
 @media(min-width:760px){.day .bar{width:60%}.day .barbox{height:96px}}
 .legend{display:flex;gap:4px;align-items:center;font-size:11px;color:var(--dim);margin-top:10px;flex-wrap:wrap}
 .legend i{display:inline-block;width:18px;height:8px;border-radius:2px}
@@ -169,9 +163,23 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .hchart svg{display:block;width:100%;height:auto}
 .hchart text{font-size:10px;fill:var(--dim)}
 @media(min-width:760px){.hchart text{font-size:11px}}
+.tline .tl1{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tline .tl1 .lbl{font-size:11.5px;font-weight:650;text-transform:uppercase;letter-spacing:.06em}
+.tline .big{font-size:30px;font-weight:750;letter-spacing:-.02em;line-height:1.1;color:var(--text)}
+.tline .tl2{font-size:12.5px;margin-top:2px}
+.conf{font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.06em;border-radius:999px;padding:3px 9px;border:1px solid currentColor;cursor:help}
+.conf.high{color:var(--good)}.conf.medium{color:var(--warn)}.conf.low{color:var(--bad)}
+.dwin .agree{margin:10px 0 0}
+.mrange{color:var(--muted);margin:6px 0 2px}
+.snow1{background:#0b1330;border-radius:12px;padding:10px 11px}
+.snow1 .swe{font-size:12.5px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+.snow1 .swe b{font-weight:650}
+.wind details.x{background:#ffffff08;margin-top:6px}
+.wind details.x summary{padding:7px 9px;font-size:12px}
+.wind details.x .xb{padding:0 9px 9px;font-size:12.5px}
 .hnote{font-size:12.5px;color:var(--muted);background:#0b1330;border-radius:12px;padding:12px}
 @media(min-width:760px){#glance-body>tr>td{font-size:14.5px}#glance-body>tr>td.dc i{min-width:34px;font-size:13px;padding:5px 4px}.gside{display:none}}
-.day .wh{position:absolute;left:50%;width:2px;margin-left:-1px;background:#ffffff38;border-radius:1px}
+.day .wh{position:absolute;left:50%;width:2px;margin-left:-1px;background:#ffffff22;border-radius:1px}
 .day.thin .bar{opacity:.6}
 .rng{font-size:12px;color:var(--muted);margin-top:1px;font-variant-numeric:tabular-nums}
 .agree{font-size:13px;line-height:1.4;background:#0b1330;border-radius:12px;padding:9px 11px;margin-bottom:10px}
@@ -347,6 +355,8 @@ footer .ask{color:var(--muted);margin-top:4px}
     Data from <a href="https://www.nrcs.usda.gov/wps/portal/wcc/home/" rel="noopener">NRCS SNOTEL</a> and
     <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a> (ECMWF, GFS, ICON, GEM, UKMO, JMA, HRRR, NAM).
     Forecast numbers are the median of the global models; ranges show the lowest and highest model.
+    Bars are the daily (or hourly) median; totals are the median of each model's total. A day or window counts only
+    when at least 2 models cover it (dashed days don't).
     Daily video summary from <a href="https://www.youtube.com/@TheChristomer" rel="noopener">Chris Tomer</a>.
     Snow and rain in inches, temperatures in °F.
     <div class="ask">Ask Homestar "check snotel" or "snow forecast" for a summary.</div>
@@ -470,10 +480,9 @@ const ftLabel = loc => `${loc.ft.toLocaleString()} ft`;
 const cardHTML = loc => `<section class="card" id="loc-${loc.id}">
   <div class="top"><div><h3>${esc(loc.name)}</h3><div class="sub">${ftLabel(loc)} · ${esc(loc.note)}</div></div><span class="badge">${loc.triplet ? "SNOTEL " + esc(loc.triplet.split(":")[0]) : "Forecast only"}</span></div>
   <div class="cols"><div class="col">
-    <div class="panel dwin" id="dw-${loc.id}"><div class="wins" role="group" aria-label="Window"></div><div class="tline"></div><div class="hchart"></div></div>
-    ${loc.triplet ? `<div class="panel" id="sn-${loc.id}"><div class="ptitle">Snowpack <span>${loc.snotelName ? `${esc(loc.snotelName)} SNOTEL · ${loc.snotelFt.toLocaleString()} ft` : "NRCS SNOTEL · hourly"}</span></div><div class="body"></div></div>` : ""}
+    <div class="panel dwin" id="fc-${loc.id}"><div class="ptitle">Forecast <span>consensus of 6 models</span></div><div class="wins" role="group" aria-label="Window"></div><div class="tline"></div><div class="hchart"></div><div class="agree"></div><div class="body"></div></div>
   </div><div class="col">
-    <div class="panel" id="fc-${loc.id}"><div class="ptitle">10-day forecast <span>6-model consensus at ${ftLabel(loc)}</span></div><div class="body"></div></div>
+    ${loc.triplet ? `<div class="panel" id="sn-${loc.id}"><div class="ptitle">Snowpack <span>${loc.snotelName ? `${esc(loc.snotelName)} SNOTEL · ${loc.snotelFt.toLocaleString()} ft` : "NRCS SNOTEL · hourly"}</span></div><div class="body"></div></div>` : ""}
     <div class="panel" id="more-${loc.id}">
       <div class="wind" id="wind-${loc.id}"><div class="skel" style="height:58px"></div></div>
       <details class="x" id="nws-${loc.id}"><summary><span class="t">NWS forecast discussion</span><span class="s">loading…</span></summary><div class="xb"></div></details>
@@ -642,8 +651,8 @@ function changeOver(s, hours) {
   return last.v - ref.v;
 }
 
-function sparkline(s, now, gid) {
-  const W = 300, H = 46, start = now - 48 * HOUR;
+function sparkline(s, now, gid, hours = 48) {
+  const W = 300, H = 46, start = now - hours * HOUR;
   const pts = s.filter(p => p.t >= start);
   if (pts.length < 2) return `<svg viewBox="0 0 ${W} ${H}"><text x="${W/2}" y="${H/2+4}" fill="#5d6b96" font-size="12" text-anchor="middle">Not enough hourly data</text></svg>`;
   const lo = Math.min(...pts.map(p => p.v)), hi = Math.max(...pts.map(p => p.v));
@@ -653,7 +662,7 @@ function sparkline(s, now, gid) {
   const y = v => H - 4 - ((v - base) / span) * (H - 10);
   const line = pts.map(p => `${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join(" ");
   const last = pts[pts.length - 1];
-  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Snow depth, last 48 hours">
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Snow depth, last ${hours} hours">
     <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7dd3fc" stop-opacity=".45"/><stop offset="1" stop-color="#7dd3fc" stop-opacity="0"/></linearGradient></defs>
     <polygon points="${x(pts[0].t).toFixed(1)},${H} ${line} ${x(last.t).toFixed(1)},${H}" fill="url(#${gid})"/>
     <polyline points="${line}" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
@@ -715,22 +724,20 @@ function renderSnotel(st, rec, saved, retry) {
   const dl = depth[depth.length - 1], wl = swe[swe.length - 1];
   const asOf = Math.max(dl ? dl.t : 0, wl ? wl.t : 0);
   const stale = now - asOf > 6 * HOUR;
-  const d6 = changeOver(depth, 6), d24 = changeOver(depth, 24), d48 = changeOver(depth, 48), d72 = changeOver(depth, 72), d168 = changeOver(depth, 168);
-  const w6 = changeOver(swe, 6), w24 = changeOver(swe, 24);
+  const d24 = changeOver(depth, 24), d48 = changeOver(depth, 48), d72 = changeOver(depth, 72), d168 = changeOver(depth, 168);
+  const w24 = changeOver(swe, 24), w168 = changeOver(swe, 168);
   snotelState[st.id] = {name:st.name, depth:dl && dl.v, d24, d48, d72, d168, series:depth};
   setCell(st.id, "depth", dl ? Math.round(dl.v) + '"' : "—", dl ? "" : "na", dl && dl.v >= 0.5 ? `color:${snowColor(dl.v)}` : "", dl ? dl.v : null);
   [d24, d48, d72, d168].forEach((v, i) => {
     if (v == null) { setCell(st.id, PAST_COLS[i], "—", "na"); return; }
     setCell(st.id, PAST_COLS[i], `<span title="Net change in snow depth — the pack settles, so new snow is usually more than this">${fmtDelta(v)}</span>`, deltaCls(v), "", v);
   });
+  const chg = (l, v) => `<span>${l} <b class="${deltaCls(v)}">${fmtDelta(v)}</b></span>`;
   body.innerHTML = `
-    <div class="stats">
-      <div class="stat"><div class="l">Snow depth</div><div class="v" style="color:${dl ? snowColor(dl.v) : "inherit"}">${dl ? Math.round(dl.v) : "—"}<small>"</small></div>
-        <div class="chg"><span>6h <b class="${deltaCls(d6)}">${fmtDelta(d6)}</b></span><span>24h <b class="${deltaCls(d24)}">${fmtDelta(d24)}</b></span></div></div>
-      <div class="stat"><div class="l">SWE</div><div class="v">${wl ? wl.v.toFixed(1) : "—"}<small>"</small></div>
-        <div class="chg"><span>6h <b class="${deltaCls(w6)}">${fmtDelta(w6)}</b></span><span>24h <b class="${deltaCls(w24)}">${fmtDelta(w24)}</b></span></div></div>
-    </div>
-    <div class="spark"><div class="row"><span>Depth · last 48h</span><span>${dl ? Math.round(dl.v) + '" now' : ""}</span></div>${sparkline(depth, asOf || now, "sg-" + st.id)}<div class="row"><span>48h ago</span><span>24h</span><span>now</span></div></div>
+    <div class="snow1"><div class="stat" style="padding:0;background:none"><div class="l">Snow depth</div><div class="v" style="color:${dl ? snowColor(dl.v) : "inherit"}">${dl ? Math.round(dl.v) : "—"}<small>"</small></div>
+      <div class="chg">${chg("24h", d24)}${chg("7d", d168)}</div></div>
+      <div class="swe">SWE <b>${wl ? wl.v.toFixed(1) + '"' : "—"}</b> · 24h <b class="${deltaCls(w24)}">${fmtDelta(w24)}</b> · 7d <b class="${deltaCls(w168)}">${fmtDelta(w168)}</b></div></div>
+    <div class="spark"><div class="row"><span>Depth · last 7 days</span><span>${dl ? Math.round(dl.v) + '" now' : ""}</span></div>${sparkline(depth, asOf || now, "sg-" + st.id, 168)}<div class="row"><span>7d ago</span><span>${esc(wdayFmt.format(new Date((asOf || now) - 84 * HOUR)))}</span><span>now</span></div></div>
     <div class="asof">${stale ? "⚠ Stale · " : ""}Last reading ${mtTime(asOf)} MT</div>`;
   if (saved) body.prepend(savedNote(saved, retry));
   refreshDetail(st.id);
@@ -818,7 +825,7 @@ const checkForecast = j => {
 async function loadForecast(loc) {
   const body = panelBody("fc", loc);
   if (!fcState[loc.id]) {
-    body.innerHTML = `<div class="skel" style="height:92px;margin-bottom:10px"></div><div class="skel" style="height:170px"></div>`;
+    body.innerHTML = `<div class="skel" style="height:24px"></div>`;
     for (const c of NEXT_COLS) if (!(hrState[loc.id] && HOURLY_COLS.includes(c))) setCell(loc.id, c, `<i class="x">…</i>`);
   }
   try {
@@ -863,6 +870,7 @@ function applyForecast(loc, res) {
     fcState[loc.id] = fc;
     renderForecast(body, fc);
     if (res.savedAt) body.prepend(savedNote(res, () => loadForecast(loc)));
+    refreshDetail(loc.id);
     setNext(loc);
     return res.savedAt ? "saved" : true;
   } catch (e) {
@@ -919,7 +927,7 @@ function dailyStrip(fc, N, sepAt = 5) {
     const per = fc.models.map(m => `${m.name} ${m.snow[i] == null ? "–" : m.snow[i].toFixed(1)}`).join(", ");
     const th = fc.hi[i], tl = fc.lo[i];
     return `<div class="${cls}" title="${shortDate(t)} · ${fc.nAt[i]} model${fc.nAt[i] === 1 ? "" : "s"}${ok(i) ? "" : " (not counted)"} · ${per}">
-      <div class="amt ${s == null || s < 0.05 ? "z" : ""}" style="${s >= 0.05 ? `color:${snowColor(s)}` : ""}">${s == null ? "–" : fmtIn(s)}</div>
+      <div class="amt ${s == null || s < 0.1 ? "z" : ""}" style="${s >= 0.1 ? `color:${snowColor(s)}` : ""}">${s == null ? "–" : s < 0.1 ? "" : fmtIn(s)}</div>
       <div class="barbox">${ok(i) && hi - lo >= 3 ? `<div class="wh" style="bottom:${lo.toFixed(1)}px;height:${(hi - lo).toFixed(1)}px"></div>` : ""}${ok(i) ? `<div class="bar" style="height:${Math.max(2, hOf(s)).toFixed(1)}px;background:${s >= 0.05 ? snowColor(s) : "var(--s0)"}"></div>` : ""}</div>
       <div class="rain">${r >= 0.05 ? `<span class="drop"></span>${r.toFixed(1)}` : ""}</div>
       <div class="dow ${dow === 0 || dow === 6 ? "we" : ""}">${t === today ? "Today" : DOW[dow]}</div>
@@ -931,40 +939,22 @@ function dailyStrip(fc, N, sepAt = 5) {
   return `<div class="days" style="grid-template-columns:repeat(${N},1fr)">${days}</div>`;
 }
 
+// A rain total is worth showing only when it is real and not a rounding error next to the snow.
+const rainMatters = (r, snow) => r >= 0.1 && r > snow / 10;
+
+// The panel body holds only "Model by model"; the window control, total, chart and agreement line
+// above it are drawn by renderDetail() for whichever window is selected.
 function renderForecast(body, fc) {
-  const N = Math.min(10, fc.time.length);
-  const days = dailyStrip(fc, N);
-  const w5 = winT(fc, 0, 5), w10 = winT(fc, 0, 10);
-  const r5 = sum(fc.rain, 0, 5), r10 = sum(fc.rain, 0, 10);
-  const rainNote = (r, s) => r >= 0.1 && r > s / 10 ? ` · <span style="color:var(--rain)">${r.toFixed(1)}" rain</span>` : "";
-  const total = (w, a, b, label, sub) => {
-    const v = w ? w.median : null, all = windowStats(fc.models, a, Math.min(b, fc.time.length));
-    const rng = w ? (fmtIn(w.lo) === fmtIn(w.hi) ? `All ${w.list.length} models: ${fmtIn(w.lo)}"` : `Range ${fmtIn(w.lo)}–${fmtIn(w.hi)}" · ${w.list.length} models`)
-      : all ? `Only ${all.list[0].name} reaches day ${Math.min(b, fc.time.length)} (${fmtIn(all.list[0].total)}") · not counted` : `No model covers all ${Math.min(b, fc.time.length)} days`;
-    return `<div class="stat"><div class="l">${label}</div><div class="v" style="color:${v >= 0.05 ? snowColor(v) : "inherit"}">${fmtIn(v)}<small>"</small></div>
-      <div class="rng">${rng}</div><div class="chg">${sub}</div></div>`;
-  };
-  const segs = `<span>Days 1–5</span><span>Days 6–10</span>`;
-  const s48 = windowStats(fc.models, 0, 2);
-  const shortTxt = fc.short.length && s48
-    ? `<span class="sr">Next 48h, high-res US models: ${fc.short.map(m => { const v = m.snow.slice(0, 2); return `${m.name} ${v.every(x => x != null) ? fmtIn(v[0] + v[1]) + '"' : "–"}`; }).join(" · ")} · global consensus ${fmtIn(s48.median)}"</span>`
-    : "";
+  const t = document.querySelector(`#fc-${fc.loc.id} .ptitle span`);
+  if (t) t.textContent = `consensus of ${fc.models.length} models`;
   const fmtCell = v => v == null ? `<td class="na">—</td>` : `<td style="${v >= 0.05 ? `color:${snowColor(v)}` : ""}">${fmtIn(v)}"</td>`;
   const winTotal = (m, a, b) => { const seg = m.snow.slice(a, b); return seg.length === b - a && seg.every(v => v != null) ? seg.reduce((x, y) => x + y, 0) : null; };
   const rows = [...fc.models, ...fc.short].map(m => {
     const days = m.snow.filter(v => v != null).length;
-    return `<tr><td>${m.name}${fc.short.includes(m) ? " <small style=\"color:var(--dim)\">short-range</small>" : ""}</td>${fmtCell(winTotal(m, 0, 2))}${fmtCell(winTotal(m, 0, 5))}${fmtCell(winTotal(m, 0, 10))}<td class="na">${days}d</td></tr>`;
+    return `<tr><td>${m.name}${fc.short.includes(m) ? " <small style=\"color:var(--dim)\">short-range</small>" : ""}</td>${fmtCell(winTotal(m, 0, 2))}${fmtCell(winTotal(m, 0, 7))}${fmtCell(winTotal(m, 0, 14))}<td class="na">${days}d</td></tr>`;
   }).join("");
-  body.innerHTML = `
-    <div class="totals">
-      ${total(w5, 0, 5, "Next 5 days", rangeLabel(fc.time, 0, 4).replace(/^today/, "Today") + rainNote(r5, w5 ? w5.median : 0))}
-      ${total(w10, 0, 10, "Next 10 days", rangeLabel(fc.time, 0, N - 1).replace(/^today/, "Today") + rainNote(r10, w10 ? w10.median : 0))}
-    </div>
-    <div class="chart"><div class="seglbl">${segs}</div>${days}</div>
-    <div class="agree">1–5 days: ${agreement(fc.w1)}${fc.w2 ? `<span class="sr">6–10 days: ${agreement(fc.w2)}</span>` : ""}${shortTxt}
-      <span class="sr">Bars are the daily median; totals are the median of each model's total. A day or window counts only when at least ${MIN_MODELS} models cover it (dashed days don't).</span></div>
-    <details class="models"><summary>Model by model</summary>
-      <table><thead><tr><th>Model</th><th>48h</th><th>5 days</th><th>10 days</th><th>Covers</th></tr></thead><tbody>${rows}</tbody></table>
+  body.innerHTML = `<details class="models"><summary>Model by model</summary><div class="mrange"></div>
+      <table><thead><tr><th>Model</th><th>48h</th><th>7 days</th><th>14 days</th><th>Covers</th></tr></thead><tbody>${rows}</tbody></table>
     </details>`;
 }
 
@@ -1127,6 +1117,11 @@ function renderWind(loc) {
     return `${lead} ${spd}, so <b class="lee">${leeText(s.dir)}-facing slopes</b> and the gullies and bowls below them ${s.steady < 0.5 ? "may" : "likely"} hold deeper, wind-drifted snow.`;
   };
   const main = fs || ps;
+  const when = fs ? `the ${rangeLabel(h.days, h.dayOf(h.t[storm[0]]), h.dayOf(h.t[storm[storm.length - 1]]))} storm` : "the last 72h of snow";
+  const spdTxt = s => `${dir16(s.dir)} ${s.lo === s.hi ? s.lo : `${s.lo}–${s.hi}`} mph`;
+  const one = !main ? `<b>No new loading</b> · no snowfall in the last 72h or the next 10 days`
+    : main.hi < 15 ? `<b>Too light to drift</b> · ${spdTxt(main)} during ${when}`
+    : `<b class="lee">${leeText(main.dir)}-facing slopes loaded</b> · ${spdTxt(main)} during ${when}${main.steady < 0.5 ? " (shifting)" : ""}`;
   let txt = "";
   if (ps) txt += line(ps, "Last 72h:");
   else {
@@ -1136,7 +1131,8 @@ function renderWind(loc) {
   }
   if (fs) txt += ` <br>${line(fs, `Next storm (${rangeLabel(h.days, h.dayOf(h.t[storm[0]]), h.dayOf(h.t[storm[storm.length - 1]]))}):`)}`;
   else txt += " No snowfall in the next 10 days, so nothing new to load.";
-  el.innerHTML = `${compass(main ? main.dir : null, main ? main.steady : 0)}<div><div class="l">Wind loading · <b>estimate</b> · ridge-level (700 mb) winds, storm timing from GFS</div>${txt}${windSlabCheck(loc)}</div>`;
+  el.innerHTML = `${compass(main ? main.dir : null, main ? main.steady : 0)}<div style="flex:1;min-width:0"><div class="l">Wind loading · <b>estimate</b></div>${one}`
+    + `<details class="x"><summary><span class="t">Details</span><span class="s">ridge-level (700 mb) winds · storm timing from GFS</span></summary><div class="xb">${txt}${windSlabCheck(loc)}</div></details></div>`;
 }
 
 const WIND_URL = "https://api.open-meteo.com/v1/forecast"
@@ -1225,11 +1221,12 @@ function hourlyWindow(h, hours) {
   h.t.forEach((t, i) => { if (t > now && t <= end) idx.push(i); });
   if (!idx.length || h.t[idx[idx.length - 1]] + HOUR < end) return null;
   const totals = [];
-  for (const n of h.globals) { const seg = idx.map(i => h.snow[n][i]); if (seg.every(v => v != null)) totals.push(seg.reduce((a, b) => a + b, 0)); }
+  for (const n of h.globals) { const seg = idx.map(i => h.snow[n][i]); if (seg.every(v => v != null)) totals.push({name:n, total:seg.reduce((a, b) => a + b, 0)}); }
   if (totals.length < MIN_MODELS) return null;
   const covered = idx.filter(i => h.med[i] != null);
   if (covered.length < idx.length) return null;
-  return {median:covered.reduce((a, i) => a + h.med[i], 0), lo:Math.min(...totals), hi:Math.max(...totals), list:totals.map(total => ({total}))};
+  const tt = totals.map(x => x.total);
+  return {median:covered.reduce((a, i) => a + h.med[i], 0), lo:Math.min(...tt), hi:Math.max(...tt), list:totals};
 }
 
 /* ---------------- Expanded card: window control, totals line, chart ---------------- */
@@ -1238,21 +1235,34 @@ function hourlyWindow(h, hours) {
 const detWins = () => MAP_WINDOWS.map(([id, short, long], i) => ({id, label:id === "d3" ? "72H" : short, long:id === "d3" ? "Next 72 hours" : long,
   hours:[24, 48, 72, 168, 336][i], col:NEXT_COLS[i], past:["d24", "d48", "d72", "d168", "d168"][i], pastLabel:["24h", "48h", "72h", "7d", "7d"][i], nextLabel:["24h", "48h", "72h", "7d", "14d"][i]}));
 
-function detTotals(loc, w) {
-  const parts = [];
-  if (loc.triplet) { const sn = snotelState[loc.id], v = sn ? sn[w.past] : null; parts.push(`Past ${w.pastLabel}: <b class="${deltaCls(v)}">${fmtDelta(v)}</b> depth`); }
-  const r = nextW(loc, w.col), nw = r && r.w;
-  parts.push(`Next ${w.nextLabel}: ` + (nw ? `<b style="color:${nw.median >= 0.05 ? snowColor(nw.median) : "var(--text)"}">${fmtIn(nw.median)}"</b>`
-    + (nw.list.length > 1 ? ` (models ${fmtIn(nw.lo)}–${fmtIn(nw.hi)}")` : "") : "—"));
-  return parts.join(" · ");
+function confidence(w) {
+  if (!w) return "";
+  const n = w.list.length, spread = w.hi - w.lo, m = w.median;
+  const lvl = n >= 4 && spread <= Math.max(1, 0.5 * m) ? "High" : n >= 3 && spread <= Math.max(3, 1.5 * m) ? "Medium" : "Low";
+  return `<span class="conf ${lvl.toLowerCase()}" title="${esc(`Range ${fmtIn(w.lo)}–${fmtIn(w.hi)}" · ${n} models`)}">${lvl}</span>`;
+}
+
+function detTotals(loc, w, nw) {
+  const fc = fcState[loc.id], v = nw ? nw.median : null;
+  const one = `<div class="tl1"><span class="lbl">Next ${w.nextLabel}</span><b class="big" style="${v >= 0.05 ? `color:${snowColor(v)}` : ""}">${fmtIn(v)}${v == null ? "" : '"'}</b>${confidence(nw)}</div>`;
+  const more = [];
+  if (loc.triplet) { const sn = snotelState[loc.id], d = sn ? sn[w.past] : null; more.push(`Past ${w.pastLabel}: <b class="${deltaCls(d)}">${fmtDelta(d)}</b> depth`); }
+  // Rain comes from the daily forecast, so the 24–72h windows count whole calendar days.
+  const days = Math.ceil(w.hours / 24), rain = fc ? sum(fc.rain, 0, days) : 0;
+  if (fc && rainMatters(rain, v || 0)) more.push(`<span style="color:var(--rain)"><span class="drop"></span>${rain.toFixed(1)}" rain</span>`);
+  return one + (more.length ? `<div class="tl2">${more.join(" · ")}</div>` : "");
 }
 
 function renderDetail(loc) {
-  const box = $("dw-" + loc.id);
+  const box = $("fc-" + loc.id);
   if (!box) return;
   const wins = detWins(), w = wins.find(x => x.id === detWin) || wins[2], fc = fcState[loc.id];
   box.querySelector(".wins").innerHTML = wins.map(x => `<button type="button" data-w="${x.id}" aria-pressed="${x.id === w.id}" title="${esc(x.long)}">${x.label}</button>`).join("");
-  box.querySelector(".tline").innerHTML = detTotals(loc, w);
+  const r = nextW(loc, w.col), nw = r && r.w;
+  box.querySelector(".tline").innerHTML = detTotals(loc, w, nw);
+  box.querySelector(".agree").innerHTML = nw ? agreement(nw) : r ? `Fewer than ${MIN_MODELS} models cover the next ${w.nextLabel}.` : "Loading…";
+  const mr = box.querySelector(".mrange");
+  if (mr) mr.textContent = nw ? `Next ${w.nextLabel}: range ${fmtIn(nw.lo)}–${fmtIn(nw.hi)}" · ${nw.list.length} models` : "";
   box.querySelector(".hchart").innerHTML = w.hours <= 72 ? hourlyChart(loc, w.hours, box.clientWidth)
     : fc ? `<div class="chart">${dailyStrip(fc, Math.min(w.hours / 24, fc.time.length), w.hours > 168 ? 7 : -1)}</div>`
     : `<div class="hnote">Loading the daily forecast…</div>`;
@@ -1461,7 +1471,7 @@ const MAP_CITIES = [["Durango",37.275,-107.88],["Silverton",37.812,-107.664],["T
   ["Logan",41.737,-111.834],["Jackson",43.48,-110.762],["Boise",43.615,-116.202],["McCall",44.911,-116.099],["Reno",39.53,-119.814],["Missoula",46.872,-113.994],
   ["Bozeman",45.677,-111.043],["Albuquerque",35.084,-106.65],["Phoenix",33.448,-112.074],["Cheyenne",41.14,-104.82]];
 let mapData = null, mapBorders = null, mapRead = null;
-const mapState = (() => { try { return {view:"west", win:"d7", ...JSON.parse(localStorage.getItem("snowMap") || "{}")}; } catch (_) { return {view:"west", win:"d7"}; } })();
+const mapState = (() => { try { return {view:"sanjuans", win:"d7", ...JSON.parse(localStorage.getItem("snowMap") || "{}")}; } catch (_) { return {view:"sanjuans", win:"d7"}; } })();
 const saveMapState = () => { try { localStorage.setItem("snowMap", JSON.stringify({view:mapState.view, win:mapState.win})); } catch (_) {} };
 
 const mercY = lat => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
