@@ -1,31 +1,31 @@
 {
-  "generated_at": "2026-10-20T14:28:12+00:00",
+  "generated_at": "2026-10-21T15:27:30+00:00",
   "video": {
-    "id": "DFae1DwopGE",
-    "title": "Mountain Weather Update 10/20, Meteorologist Chris Tomer",
-    "url": "https://www.youtube.com/watch?v=DFae1DwopGE",
-    "published": "2026-10-20T14:10:14+00:00",
-    "thumbnail": "https://i.ytimg.com/vi/DFae1DwopGE/hqdefault.jpg"
+    "id": "5gGuvmxJ0sY",
+    "title": "Mountain Weather Update 10/21, Meteorologist Chris Tomer",
+    "url": "https://www.youtube.com/watch?v=5gGuvmxJ0sY",
+    "published": "2026-10-21T14:29:34+00:00",
+    "thumbnail": "https://i.ytimg.com/vi/5gGuvmxJ0sY/hqdefault.jpg"
   },
-  "description": "Snowmaking is underway in CO.  Next storm system hits the West 10/21-10/23 with splits into two areas of low pressure.  One goes north and one might go south and develop 10/24-10/26 in NM/CO.  Freezing levels start at higher elevations then gradually drop.  There is another storm system end of month into the first week of November but it is delayed.",
+  "description": "Rare setup in AZ today with developing storm system and severe weather.  This storm splits with energy going north (10/21-10/23) and also into Southern Tier (10/24-10/25).  Very warm upon arrival with high elevation freezing levels that gradually drop.",
   "transcript": {
     "status": "unavailable",
     "source": null,
     "chars": 0,
     "errors": [
-      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=DFae1DwopGE! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
-      "yt-dlp: RuntimeError: ERROR: [youtube] DFae1DwopGE: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTube cookies"
+      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=5gGuvmxJ0sY! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
+      "yt-dlp: RuntimeError: ERROR: [youtube] 5gGuvmxJ0sY: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTube cookies"
     ]
   },
   "summary": {
     "method": "extractive",
-    "headline": "Snowmaking is underway in CO.",
+    "headline": "Rare setup in AZ today with developing storm system and severe weather.",
     "storms": [
       {
         "when": "Oct 21–23",
         "start": "2026-10-21",
         "end": "2026-10-23",
-        "text": "Next storm system hits the West 10/21-10/23 with splits into two areas of low pressure.",
+        "text": "This storm splits with energy going north (10/21-10/23) and also into Southern Tier (10/24-10/25).",
         "states": []
       }
     ],
