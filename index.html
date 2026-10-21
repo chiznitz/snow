@@ -126,11 +126,8 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .glance th.on{color:var(--ice)}
 .glance th.on:after{content:" ↓"}
 .glance th.on.asc:after{content:" ↑"}
-.glance th.dy{text-transform:none;letter-spacing:0;padding:4px 3px 3px;min-width:34px}
-.glance th.dy span{display:block;font-size:10px;color:var(--muted)}
-.glance th.dy b{display:block;font-size:12px;color:var(--text);font-weight:650}
-.glance th.dy.we b{color:var(--text)}.glance th.dy.we span{color:var(--text);font-weight:700}
-.glance th.dy.today span,.glance th.dy.today b{color:var(--ice)}
+.glance tr.grp th{font-size:10px;letter-spacing:.08em;color:var(--muted);padding:8px 5px 0;cursor:default;font-weight:600}
+.glance tr.grp th.g{border-bottom:1px solid #ffffff14}
 .glance th.sep,.glance td.sep{border-left:1px dashed #3a4778}
 .glance td{padding:6px 5px;text-align:center;font-size:13.5px;font-weight:650;border-top:1px solid #ffffff0a;white-space:nowrap}
 .glance th.st,.glance td.st{position:sticky;left:0;z-index:2;text-align:left;padding-left:12px;padding-right:10px;background:var(--card);box-shadow:4px 0 8px -4px #0008}
@@ -145,12 +142,19 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .glance .na{color:var(--dim);font-weight:400}
 .glance .bad{color:var(--bad)}
 .glance td.dc{padding:4px 2px}
+.glance td:last-child,.glance th:last-child{padding-right:10px}
 .glance td.dc i{display:inline-block;min-width:26px;padding:3px 3px;border-radius:7px;font-style:normal;font-size:12px;font-weight:700;color:#fff;line-height:1}
-.glance td.dc i.z{background:#ffffff0c;color:var(--dim);font-weight:500}
+.glance td.dc i.z{background:none;color:#ffffff30;font-weight:500}
+.glance td[data-c="n14"] i{opacity:.8}
+.glance td.dc small{font-size:10px;margin-top:2px}
+.gside{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0b1330;border:1px solid var(--line);border-radius:12px;padding:3px;margin:0 0 8px}
+.gside button{font:inherit;font-size:13px;font-weight:750;color:var(--muted);background:none;border:0;border-radius:9px;padding:7px 0;cursor:pointer}
+.gside button[aria-pressed="true"]{color:#fff;background:linear-gradient(135deg,#2563eb,#9333ea)}
+@media(max-width:759px){.glance.side-next .pa,.glance.side-past .nx{display:none}.glance td.st{max-width:140px}}
 .glance td.dc i.x{background:none;color:#ffffff40;font-weight:400}
 .glance td.dc i.s1{color:#0b1330}
 .glance-leg{margin:8px 4px 0}
-@media(min-width:760px){.glance td{font-size:14.5px}.glance td.dc i{min-width:34px;font-size:13px;padding:5px 4px}.glance th.dy{min-width:46px}}
+@media(min-width:760px){.glance td{font-size:14.5px}.glance td.dc i{min-width:34px;font-size:13px;padding:5px 4px}.gside{display:none}}
 .day .wh{position:absolute;left:50%;width:2px;margin-left:-1px;background:#ffffff38;border-radius:1px}
 .day.thin .bar{opacity:.6}
 .rng{font-size:12px;color:var(--muted);margin-top:1px;font-variant-numeric:tabular-nums}
@@ -290,8 +294,6 @@ footer .ask{color:var(--muted);margin-top:4px}
     </button>
   </header>
 
-  </div>
-
   <section class="card tomer" id="tomer">
     <div class="ptitle">Chris Tomer's daily forecast <span>auto · daily</span></div>
     <div class="body"><div class="skel" style="height:140px"></div></div>
@@ -299,9 +301,13 @@ footer .ask{color:var(--muted);margin-top:4px}
 
   <nav class="jump" id="jump" aria-label="Jump to region"><a href="#glance">Overview</a><a href="#tomer">Tomer</a><a href="#map">Map</a><a href="#cams">Webcams</a></nav>
 
-  <h2 class="sec" id="glance">Snow forecast <small>daily inches · model consensus</small></h2>
-  <div class="glance" id="glance-wrap"><table><thead id="glance-head"><tr><th data-k="loc" class="st">Location</th><th data-k="depth">Depth</th><th data-k="n1">5d</th><th data-k="n2">10d</th><th data-k="d0" class="dy" id="gh-d0"><span>…</span><b>·</b></th><th data-k="d1" class="dy" id="gh-d1"><span>…</span><b>·</b></th><th data-k="d2" class="dy" id="gh-d2"><span>…</span><b>·</b></th><th data-k="d3" class="dy" id="gh-d3"><span>…</span><b>·</b></th><th data-k="d4" class="dy" id="gh-d4"><span>…</span><b>·</b></th><th data-k="d5" class="dy" id="gh-d5"><span>…</span><b>·</b></th><th data-k="d6" class="dy" id="gh-d6"><span>…</span><b>·</b></th><th data-k="d7" class="dy" id="gh-d7"><span>…</span><b>·</b></th><th data-k="d8" class="dy" id="gh-d8"><span>…</span><b>·</b></th><th data-k="d9" class="dy" id="gh-d9"><span>…</span><b>·</b></th></tr></thead><tbody id="glance-body"></tbody></table></div>
-  <div class="legend glance-leg">Daily snow: <i style="background:var(--s1)"></i>&lt;1" <i style="background:var(--s2)"></i>1–3 <i style="background:var(--s3)"></i>3–6 <i style="background:var(--s4)"></i>6–12 <i style="background:var(--s5)"></i>12–18 <i style="background:var(--s6)"></i>18+ <span style="margin-left:auto">Tap a header to sort · tap a row for details</span></div>
+  <h2 class="sec" id="glance">Snow forecast <small>past from SNOTEL · next from models</small></h2>
+  <div class="gside" id="glance-side" role="group" aria-label="Show past or next"><button type="button" data-side="past" aria-pressed="false">Past</button><button type="button" data-side="next" aria-pressed="true">Next</button></div>
+  <div class="glance" id="glance-wrap"><table><thead id="glance-head">
+    <tr class="grp"><th class="st"></th><th class="g">Now</th><th class="g pa" colspan="4" title="Net change in SNOTEL snow depth over the trailing window">Past · depth change</th><th class="g nx" colspan="5" title="Forecast snowfall, model consensus">Next · forecast</th></tr>
+    <tr><th data-k="loc" class="st">Location</th><th data-k="depth" title="Current SNOTEL snow depth">Depth</th><th data-k="p24" class="pa sep">24h</th><th data-k="p48" class="pa">48h</th><th data-k="p72" class="pa">72h</th><th data-k="p7" class="pa">7d</th><th data-k="n24" class="nx sep" title="Next 24 hours from now">24h</th><th data-k="n48" class="nx" title="Next 48 hours from now">48h</th><th data-k="n72" class="nx" title="Next 72 hours from now">72h</th><th data-k="n7" class="nx" title="Next 7 days">7d</th><th data-k="n14" class="nx" title="Next 14 days · only 2–3 models reach that far">14d</th></tr>
+  </thead><tbody id="glance-body"></tbody></table></div>
+  <div class="legend glance-leg">Snow: <i style="background:var(--s1)"></i>&lt;1" <i style="background:var(--s2)"></i>1–3 <i style="background:var(--s3)"></i>3–6 <i style="background:var(--s4)"></i>6–12 <i style="background:var(--s5)"></i>12–18 <i style="background:var(--s6)"></i>18+ <span><span class="drop" style="margin-left:6px"></span>rain</span><span>bar = median · line = model range</span><span style="margin-left:auto">Tap a header to sort · tap a row to expand</span></div>
 
   <h2 class="sec" id="map">Snowfall map <small>tap the map for a reading</small></h2>
   <section class="card smap" id="map-card">
@@ -455,7 +461,7 @@ function buildPage() {
     if (!locs.length) continue;
     host.insertAdjacentHTML("beforeend", regionHTML(r));
     jump.insertAdjacentHTML("beforeend", `<a href="#r-${r.id}">${esc(r.name)}</a>`);
-    glance.insertAdjacentHTML("beforeend", `<tr class="rg"><td class="st">${esc(r.name)}</td><td colspan="13"></td></tr>`);
+    glance.insertAdjacentHTML("beforeend", `<tr class="rg"><td class="st">${esc(r.name)}</td><td colspan="10"></td></tr>`);
     const grid = $("g-" + r.id);
     for (const loc of locs) {
       grid.insertAdjacentHTML("beforeend", `<section class="card" id="loc-${loc.id}">
@@ -471,8 +477,9 @@ function buildPage() {
       </section>`);
       const na = loc.triplet ? "…" : "—";
       glance.insertAdjacentHTML("beforeend", `<tr class="loc" data-id="${loc.id}"><td class="st">${esc(loc.name)}<small>${esc(loc.note)}</small></td>`
-        + `<td data-c="depth" class="${loc.triplet ? "" : "na"}">${na}</td><td data-c="n1" class="tot">…</td><td data-c="n2" class="tot">…</td>`
-        + Array.from({length:10}, (_, i) => `<td data-c="d${i}" class="dc${i === 5 ? " sep" : ""}"><i class="x">…</i></td>`).join("") + `</tr>`);
+        + `<td data-c="depth" class="${loc.triplet ? "" : "na"}">${na}</td>`
+        + PAST_COLS.map((c, i) => `<td data-c="${c}" class="pa${i === 0 ? " sep" : ""}${loc.triplet ? "" : " na"}">${na}</td>`).join("")
+        + NEXT_COLS.map((c, i) => `<td data-c="${c}" class="dc nx${i === 0 ? " sep" : ""}"><i class="x">…</i></td>`).join("") + `</tr>`);
     }
   }
   glance.addEventListener("click", e => {
@@ -481,6 +488,30 @@ function buildPage() {
   });
   glanceOrig = [...glance.children];
   try { wireGlanceSort(); } catch (e) { console.error("glance sort disabled:", e); }
+  try { wireGlanceSide(); } catch (e) { console.error("past/next toggle disabled:", e); }
+}
+
+// Table columns: trailing SNOTEL depth change and forecast windows ahead, matching the map's windows.
+const PAST_COLS = ["p24", "p48", "p72", "p7"], PAST_HOURS = [24, 48, 72, 168];
+const NEXT_COLS = ["n24", "n48", "n72", "n7", "n14"];
+
+// Below 760px only one group fits beside the sticky location column; the control picks which.
+function wireGlanceSide() {
+  let side = "next";
+  try { if (localStorage.getItem("snowGlanceSide") === "past") side = "past"; } catch (_) {}
+  const apply = () => {
+    $("glance-wrap").classList.toggle("side-past", side === "past");
+    $("glance-wrap").classList.toggle("side-next", side === "next");
+    for (const b of document.querySelectorAll("#glance-side button")) b.setAttribute("aria-pressed", b.dataset.side === side ? "true" : "false");
+  };
+  $("glance-side").addEventListener("click", e => {
+    const b = e.target.closest("button[data-side]");
+    if (!b || b.dataset.side === side) return;
+    side = b.dataset.side;
+    try { localStorage.setItem("snowGlanceSide", side); } catch (_) {}
+    apply();
+  });
+  apply();
 }
 
 function wireGlanceSort() {
@@ -499,24 +530,10 @@ function wireGlanceSort() {
 function setCell(id, col, html, cls = "", style = "", v = null) {
   const td = document.querySelector(`#glance-body tr[data-id="${id}"] td[data-c="${col}"]`);
   if (!td) return;
-  const keep = [...td.classList].filter(c => ["st", "dc", "tot", "sep"].includes(c)).join(" ");
+  const keep = [...td.classList].filter(c => ["st", "dc", "tot", "sep", "pa", "nx"].includes(c)).join(" ");
   td.innerHTML = html; td.className = (keep + " " + cls).trim(); td.style.cssText = style;
   td.dataset.v = v == null || !isFinite(v) ? "" : v;
   if (glanceSort.col !== "loc") { try { applyGlanceSort(); } catch (e) { console.error(e); } }
-}
-
-let dayHeadersFor = "";
-function setDayHeaders(time) {
-  if (dayHeadersFor === time[0]) return;
-  dayHeadersFor = time[0];
-  const today = todayMT();
-  for (let i = 0; i < 10; i++) {
-    const th = $("gh-d" + i), t = time[i];
-    if (!th || !t) continue;
-    const d = ymd(t), dow = d.getUTCDay();
-    th.className = ["dy", i === 5 ? "sep" : "", dow === 0 || dow === 6 ? "we" : "", t === today ? "today" : ""].join(" ").replace(/\s+/g, " ").trim();
-    th.innerHTML = `<span>${t === today ? "Today" : DOW[dow]}</span><b>${d.getUTCDate()}</b>`;
-  }
 }
 
 // Sorting by a number column flattens the region groups; "Location" restores them.
@@ -553,7 +570,8 @@ function changeOver(s, hours) {
   const last = s[s.length - 1], cutoff = last.t - hours * HOUR;
   let ref = null;
   for (const p of s) { if (p.t <= cutoff) ref = p; else break; }
-  if (!ref || last.t - ref.t > (hours + 3) * HOUR) return null;
+  // Stations skip hours now and then; allow the reference reading to sit a little before the window.
+  if (!ref || last.t - ref.t > (hours + Math.max(3, hours * 0.15)) * HOUR) return null;
   return last.v - ref.v;
 }
 
@@ -582,7 +600,7 @@ const snotelState = {};
 async function loadSnotelAll() {
   const stations = LOCATIONS.filter(l => l.triplet);
   for (const st of stations) {
-    if (!snotelState[st.id]) { panelBody("sn", st).innerHTML = `<div class="skel" style="height:190px"></div>`; setCell(st.id, "depth", "…"); }
+    if (!snotelState[st.id]) { panelBody("sn", st).innerHTML = `<div class="skel" style="height:190px"></div>`; setCell(st.id, "depth", "…"); for (const c of PAST_COLS) setCell(st.id, c, "…"); }
   }
   const retry = () => loadSnotelAll();
   let res;
@@ -590,7 +608,7 @@ async function loadSnotelAll() {
     const now = Date.now();
     const url = "https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data"
       + `?stationTriplets=${stations.map(s => s.triplet).join(",")}&elements=SNWD,WTEQ&duration=HOURLY`
-      + `&beginDate=${encodeURIComponent(awdbFmt(now - 50 * HOUR))}&endDate=${encodeURIComponent(awdbFmt(now + HOUR))}`;
+      + `&beginDate=${encodeURIComponent(awdbFmt(now - 170 * HOUR))}&endDate=${encodeURIComponent(awdbFmt(now + HOUR))}`;
     res = await fetchCached("snotel", url, d => { if (!Array.isArray(d) || !d.length) throw new Error("SNOTEL returned no stations."); }, () => snapshot && snapshot.snotel);
   } catch (e) {
     for (const st of stations) snotelFail(st, e, retry);
@@ -613,6 +631,7 @@ function applySnotel(res, retry) {
 function snotelFail(st, e, retry) {
   delete snotelState[st.id];
   setCell(st.id, "depth", "!", "bad");
+  for (const c of PAST_COLS) setCell(st.id, c, "!", "bad");
   const body = panelBody("sn", st);
   body.innerHTML = "";
   body.appendChild(errorBox("Couldn't load SNOTEL data", e, retry));
@@ -625,13 +644,18 @@ function renderSnotel(st, rec, saved, retry) {
   const el = {};
   rec.data.forEach(d => { el[d.stationElement.elementCode] = series(d.values); });
   const depth = el.SNWD || [], swe = el.WTEQ || [];
-  if (!depth.length && !swe.length) throw new Error("No hourly readings in the last 48 hours (station may be offline).");
+  if (!depth.length && !swe.length) throw new Error("No hourly readings in the last 7 days (station may be offline).");
   const dl = depth[depth.length - 1], wl = swe[swe.length - 1];
   const asOf = Math.max(dl ? dl.t : 0, wl ? wl.t : 0);
   const stale = now - asOf > 6 * HOUR;
-  const d6 = changeOver(depth, 6), d24 = changeOver(depth, 24), w6 = changeOver(swe, 6), w24 = changeOver(swe, 24);
-  snotelState[st.id] = {name:st.name, depth:dl && dl.v, d24};
+  const d6 = changeOver(depth, 6), d24 = changeOver(depth, 24), d48 = changeOver(depth, 48), d72 = changeOver(depth, 72), d168 = changeOver(depth, 168);
+  const w6 = changeOver(swe, 6), w24 = changeOver(swe, 24);
+  snotelState[st.id] = {name:st.name, depth:dl && dl.v, d24, d48, d72, d168};
   setCell(st.id, "depth", dl ? Math.round(dl.v) + '"' : "—", dl ? "" : "na", dl && dl.v >= 0.5 ? `color:${snowColor(dl.v)}` : "", dl ? dl.v : null);
+  [d24, d48, d72, d168].forEach((v, i) => {
+    if (v == null) { setCell(st.id, PAST_COLS[i], "—", "na"); return; }
+    setCell(st.id, PAST_COLS[i], `<span title="Net change in snow depth — the pack settles, so new snow is usually more than this">${fmtDelta(v)}</span>`, deltaCls(v), "", v);
+  });
   body.innerHTML = `
     <div class="stats">
       <div class="stat"><div class="l">Snow depth</div><div class="v" style="color:${dl ? snowColor(dl.v) : "inherit"}">${dl ? Math.round(dl.v) : "—"}<small>"</small></div>
@@ -727,8 +751,7 @@ async function loadForecast(loc) {
   const body = panelBody("fc", loc);
   if (!fcState[loc.id]) {
     body.innerHTML = `<div class="skel" style="height:92px;margin-bottom:10px"></div><div class="skel" style="height:170px"></div>`;
-    setCell(loc.id, "n1", "…"); setCell(loc.id, "n2", "…");
-    for (let i = 0; i < 10; i++) setCell(loc.id, "d" + i, `<i class="x">…</i>`);
+    for (const c of NEXT_COLS) if (!(hrState[loc.id] && HOURLY_COLS.includes(c))) setCell(loc.id, c, `<i class="x">…</i>`);
   }
   try {
     const res = await fetchCached("fc:" + loc.id, forecastURL(loc), checkForecast, () => snapshot && snapshot.forecast && snapshot.forecast[loc.id]);
@@ -741,8 +764,7 @@ async function loadForecast(loc) {
 
 function forecastFail(loc, e) {
   delete fcState[loc.id];
-  setCell(loc.id, "n1", "!", "bad"); setCell(loc.id, "n2", "!", "bad");
-  for (let i = 0; i < 10; i++) setCell(loc.id, "d" + i, `<i class="x">!</i>`);
+  for (const c of NEXT_COLS) if (!(hrState[loc.id] && HOURLY_COLS.includes(c))) setCell(loc.id, c, `<i class="x">!</i>`);
   const body = panelBody("fc", loc);
   body.innerHTML = "";
   body.appendChild(errorBox("Couldn't load the forecast", e, () => loadForecast(loc)));
@@ -773,16 +795,7 @@ function applyForecast(loc, res) {
     fcState[loc.id] = fc;
     renderForecast(body, fc);
     if (res.savedAt) body.prepend(savedNote(res, () => loadForecast(loc)));
-    for (const [col, w] of [["n1", winT(fc, 0, 5)], ["n2", winT(fc, 0, 10)]]) {
-      if (!w) { setCell(loc.id, col, "—", "na"); continue; }
-      const v = w.median, rng = w.hi - w.lo >= 0.5 ? `<small>${fmtIn(w.lo)}–${fmtIn(w.hi)}</small>` : "";
-      setCell(loc.id, col, fmtIn(v) + '"' + rng, v < 0.05 ? "na" : "", v >= 0.05 ? `color:${snowColor(v)}` : "", v);
-    }
-    setDayHeaders(fc.time);
-    for (let i = 0; i < 10; i++) {
-      const v = fc.nAt[i] >= MIN_MODELS ? fc.snow[i] : null;
-      setCell(loc.id, "d" + i, v == null ? `<i class="x" title="fewer than ${MIN_MODELS} models">–</i>` : v < 0.05 ? `<i class="z">0</i>` : `<i class="${v < 1 ? "s1" : ""}" style="background:${snowColor(v)}">${fmtIn(v)}</i>`, "", "", v);
-    }
+    setNextDaily(loc);
     return res.savedAt ? "saved" : true;
   } catch (e) {
     forecastFail(loc, e);
@@ -793,6 +806,30 @@ function applyForecast(loc, res) {
 // Window total = median of the totals from models that cover every day of the window, and only
 // when at least MIN_MODELS do. Cards and the forecast table both use this.
 const winT = (fc, a, b) => { const w = windowStats(fc.models, a, Math.min(b, fc.time.length)); return w && w.list.length >= MIN_MODELS ? w : null; };
+
+// One NEXT cell: blank dot for zero, colored pill otherwise, small model range when it is wide.
+function setNextCell(id, col, w, title) {
+  if (!w) { setCell(id, col, `<i class="x" title="${esc(title || `fewer than ${MIN_MODELS} models cover this window`)}">–</i>`); return; }
+  const v = w.median, t = title ? ` title="${esc(title)}"` : "";
+  const rng = w.hi - w.lo >= 0.5 ? `<small>${fmtIn(w.lo)}–${fmtIn(w.hi)}</small>` : "";
+  setCell(id, col, v < 0.05 ? `<i class="z"${t}>·</i>` : `<i class="${v < 1 ? "s1" : ""}" style="background:${snowColor(v)}"${t}>${fmtIn(v)}"</i>${rng}`, "", "", v);
+}
+
+// 7d / 14d always come from the daily consensus. 24/48/72h come from the hourly request once it
+// has arrived; until then (or if it fails) they show the daily totals for today + k−1 days.
+function setNextDaily(loc) {
+  const fc = fcState[loc.id];
+  if (!fc) return;
+  const nm = w => w ? `${w.list.length} models` : "";
+  setNextCell(loc.id, "n7", winT(fc, 0, 7), `Next 7 days (${rangeLabel(fc.time, 0, 6)}) · ${nm(winT(fc, 0, 7))}`);
+  setNextCell(loc.id, "n14", winT(fc, 0, 14), `Next 14 days (${rangeLabel(fc.time, 0, Math.min(13, fc.time.length - 1))}) · ${nm(winT(fc, 0, 14))}`);
+  if (hrState[loc.id]) { setNextHourly(loc); return; }
+  const why = hourlyErr ? "hourly data unavailable" : "hourly data loading";
+  [1, 2, 3].forEach((k, i) => {
+    const w = winT(fc, 0, k);
+    setNextCell(loc.id, HOURLY_COLS[i], w, `${rangeLabel(fc.time, 0, k - 1)} from the daily forecast (calendar days, ${why}) · ${nm(w)}`);
+  });
+}
 
 function renderForecast(body, fc) {
   const N = Math.min(10, fc.time.length), today = todayMT();
@@ -842,10 +879,6 @@ function renderForecast(body, fc) {
       ${total(w10, 0, 10, "Next 10 days", rangeLabel(fc.time, 0, N - 1).replace(/^today/, "Today") + rainNote(r10, w10 ? w10.median : 0))}
     </div>
     <div class="chart"><div class="seglbl">${segs}</div><div class="days">${days}</div></div>
-    <div class="legend">Snow:
-      <i style="background:var(--s1)"></i>&lt;1" <i style="background:var(--s2)"></i>1–3 <i style="background:var(--s3)"></i>3–6
-      <i style="background:var(--s4)"></i>6–12 <i style="background:var(--s5)"></i>12–18 <i style="background:var(--s6)"></i>18+
-      <span><span class="drop" style="margin-left:6px"></span>rain</span><span style="margin-left:auto">Bar = median · line = model range</span></div>
     <div class="agree">1–5 days: ${agreement(fc.w1)}${fc.w2 ? `<span class="sr">6–10 days: ${agreement(fc.w2)}</span>` : ""}${shortTxt}
       <span class="sr">Bars are the daily median; totals are the median of each model's total. A day or window counts only when at least ${MIN_MODELS} models cover it (dashed days don't).</span></div>
     <details class="models"><summary>Model by model</summary>
@@ -1050,6 +1083,79 @@ function applyWind(res) {
     renderWind(loc);
   });
   return res.savedAt ? "saved" : true;
+}
+
+/* ---------------- Hourly forecast (table 24/48/72h from now) ---------------- */
+
+// One request for every location and the six global models plus HRRR; the table's short windows
+// are summed from the hour after now, not from midnight, so they match the snowfall map.
+const HOURLY_COLS = ["n24", "n48", "n72"], HOURLY_HOURS = [24, 48, 72];
+const HOURLY_URL = "https://api.open-meteo.com/v1/forecast"
+  + `?latitude=${LOCATIONS.map(l => l.lat).join(",")}&longitude=${LOCATIONS.map(l => l.lon).join(",")}&elevation=${LOCATIONS.map(l => l.m).join(",")}`
+  + `&hourly=snowfall,temperature_2m&models=${[...MODELS, SHORT_MODELS[0]].map(m => m[0]).join(",")}`
+  + "&past_days=1&forecast_days=4&timezone=America%2FDenver&precipitation_unit=inch&temperature_unit=fahrenheit";
+const checkHourly = d => {
+  if (d && d.error) throw new Error(d.reason || "Open-Meteo returned an error.");
+  if (!Array.isArray(d) || d.length !== LOCATIONS.length || !d.every(r => r.hourly && Array.isArray(r.hourly.time))) throw new Error("Open-Meteo hourly response was incomplete.");
+};
+const hrState = {};
+let hourlyErr = null;
+
+async function loadHourly() {
+  try {
+    const res = await fetchCached("hourly", HOURLY_URL, checkHourly);
+    hourlyErr = null;
+    return applyHourly(res);
+  } catch (e) {
+    hourlyErr = e;
+    console.warn("hourly forecast unavailable:", e.message);
+    for (const loc of LOCATIONS) if (!hrState[loc.id]) setNextDaily(loc);
+    return false;
+  }
+}
+
+function applyHourly(res) {
+  checkHourly(res.data);
+  res.data.forEach((rec, k) => {
+    const loc = LOCATIONS[k], hh = rec.hourly, u = rec.hourly_units || {}, off = (rec.utc_offset_seconds || 0) * 1000;
+    const t = hh.time.map(x => Date.parse(x + ":00Z") - off);
+    const snow = {}, temp = {};
+    for (const [key, name] of [...MODELS, ...SHORT_MODELS]) {
+      const arr = hh[`snowfall_${key}`];
+      if (!Array.isArray(arr) || !arr.some(v => v != null)) continue;
+      snow[name] = toInches(arr, u[`snowfall_${key}`]).map(v => v == null ? null : Math.max(0, v));
+      temp[name] = hh[`temperature_2m_${key}`] || [];
+    }
+    const globals = MODELS.map(m => m[1]).filter(n => snow[n]);
+    const med = t.map((_, i) => { const v = globals.map(n => snow[n][i]).filter(x => x != null); return v.length >= MIN_MODELS ? median(v) : null; });
+    hrState[loc.id] = {t, snow, temp, globals, med, savedAt:res.savedAt};
+    setNextHourly(loc);
+  });
+  return res.savedAt ? "saved" : true;
+}
+
+// Sum of the hourly median over (now, now + hours]; the range is the spread of each model's own
+// total. Null when the series doesn't reach the end of the window or fewer than MIN_MODELS cover it.
+function hourlyWindow(h, hours) {
+  const now = Date.now(), end = now + hours * HOUR;
+  const idx = [];
+  h.t.forEach((t, i) => { if (t + HOUR > now && t + HOUR <= end) idx.push(i); });
+  if (!idx.length || h.t[idx[idx.length - 1]] + 2 * HOUR < end) return null;
+  const totals = [];
+  for (const n of h.globals) { const seg = idx.map(i => h.snow[n][i]); if (seg.every(v => v != null)) totals.push(seg.reduce((a, b) => a + b, 0)); }
+  if (totals.length < MIN_MODELS) return null;
+  const covered = idx.filter(i => h.med[i] != null);
+  if (covered.length < idx.length) return null;
+  return {median:covered.reduce((a, i) => a + h.med[i], 0), lo:Math.min(...totals), hi:Math.max(...totals), list:totals.map(total => ({total}))};
+}
+
+function setNextHourly(loc) {
+  const h = hrState[loc.id];
+  if (!h) return;
+  HOURLY_HOURS.forEach((hours, i) => {
+    const w = hourlyWindow(h, hours);
+    setNextCell(loc.id, HOURLY_COLS[i], w, w ? `Next ${hours} hours from now · hourly median of ${w.list.length} models${h.savedAt ? " · saved data" : ""}` : `Hourly data doesn't cover the next ${hours} hours`);
+  });
 }
 
 /* ---------------- Chris Tomer ---------------- */
@@ -1419,7 +1525,7 @@ async function loadAll(force = false) {
 
   // Step 2: live fetches, each rendering on its own as it finishes. Nothing waits on anything else,
   // and the snapshot download runs alongside the small same-origin JSON files.
-  const jobs = [loadSnotelAll()];
+  const jobs = [loadSnotelAll(), loadHourly()];
   // On a slow link the snapshot gets the bandwidth first; on a normal one this wait is ~200 ms.
   if (firstLoad) { firstLoad = false; snapshotReady = loadSnapshot(); await snapshotReady; }
   const fresh = !force && snapAge() < SNAP_FRESH;

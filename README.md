@@ -30,10 +30,14 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
   page draws the field on a canvas over Esri World Imagery tiles with state lines from `borders.json`. A run is
   about 3,500 points, roughly a third of Open-Meteo's free 10k daily calls. When you add a location, add it to
   `POINTS` in the script too.
-- **Snow forecast table:** one row per spot with current depth, 5- and 10-day consensus totals, and ten daily
-  cells colored on the OpenSnow-style scale. A day or window only counts when at least two models cover it
-  (`MIN_MODELS`), so a lone long-range model can't pose as the consensus. First column is sticky so the table
-  scrolls sideways on a phone; tap a header to sort, tap a row to jump to that spot's card.
+- **Snow forecast table:** one row per spot: Now (SNOTEL depth), Past (net depth change over the trailing 24h /
+  48h / 72h / 7d from SNOTEL hourly, so settling means new snow is usually more than shown) and Next (forecast
+  consensus for the next 24h / 48h / 72h / 7d / 14d, the same windows as the map). 24–72h are summed from the hour
+  after now using one hourly Open-Meteo request for all 13 spots and the six global models (HRRR stored alongside);
+  7d and 14d come from the daily forecast. A window only counts when at least two models cover it (`MIN_MODELS`),
+  so a lone long-range model can't pose as the consensus. Zeros are blank dots; non-zero cells are colored pills
+  with the model range underneath. Below 760px a Past / Next toggle picks which group shows beside the sticky
+  location column; tap a header to sort, tap a row to jump to that spot's card.
 - **Conditions (NWS + avalanche):** `.github/workflows/conditions.yml` runs `scripts/conditions.py` every 6 hours
   and writes `conditions.json`. NWS: api.weather.gov `/points` resolves each spot to its forecast office and the
   latest Area Forecast Discussion is stored once per office (aviation/fire/marine sections dropped). Avalanche:
