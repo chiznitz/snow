@@ -1,31 +1,52 @@
 {
-  "generated_at": "2026-10-22T14:29:59+00:00",
+  "generated_at": "2026-10-22T15:28:09+00:00",
   "video": {
-    "id": "5gGuvmxJ0sY",
-    "title": "Mountain Weather Update 10/21, Meteorologist Chris Tomer",
-    "url": "https://www.youtube.com/watch?v=5gGuvmxJ0sY",
-    "published": "2026-10-21T14:29:34+00:00",
-    "thumbnail": "https://i.ytimg.com/vi/5gGuvmxJ0sY/hqdefault.jpg"
+    "id": "Be44PoLcyII",
+    "title": "Mountain Weather Update 10/22, Meteorologist Chris Tomer",
+    "url": "https://www.youtube.com/watch?v=Be44PoLcyII",
+    "published": "2026-10-22T14:26:56+00:00",
+    "thumbnail": "https://i.ytimg.com/vi/Be44PoLcyII/hqdefault.jpg"
   },
-  "description": "Rare setup in AZ today with developing storm system and severe weather.  This storm splits with energy going north (10/21-10/23) and also into Southern Tier (10/24-10/25).  Very warm upon arrival with high elevation freezing levels that gradually drop.",
+  "description": "Storm system continues across the West through 10/23, but it's very warm upon arrival with high elevation freezing levels.  This storm system splits with energy going north into UT/WY/ID/MT and a southern piece that develops 10/24-10/26 in NM/CO.  Freezing levels eventually drop to lower elevations.  A cold front runs across the Northern Rockies 10/27-10/28 with snow.",
   "transcript": {
     "status": "unavailable",
     "source": null,
     "chars": 0,
     "errors": [
-      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=5gGuvmxJ0sY! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
-      "yt-dlp: RuntimeError: ERROR: [youtube] 5gGuvmxJ0sY: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
+      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=Be44PoLcyII! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
+      "yt-dlp: RuntimeError: ERROR: [youtube] Be44PoLcyII: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
     ]
   },
   "summary": {
     "method": "extractive",
-    "headline": "Rare setup in AZ today with developing storm system and severe weather.",
+    "headline": "Storm system continues across the West through 10/23, but it's very warm upon arrival with high elevation freezing levels.",
     "storms": [
       {
-        "when": "Oct 21–23",
-        "start": "2026-10-21",
+        "when": "Oct 23",
+        "start": "2026-10-23",
         "end": "2026-10-23",
-        "text": "This storm splits with energy going north (10/21-10/23) and also into Southern Tier (10/24-10/25).",
+        "text": "Storm system continues across the West through 10/23, but it's very warm upon arrival with high elevation freezing levels.",
+        "states": []
+      },
+      {
+        "when": "Oct 24–26",
+        "start": "2026-10-24",
+        "end": "2026-10-26",
+        "text": "This storm system splits with energy going north into UT/WY/ID/MT and a southern piece that develops 10/24-10/26 in NM/CO.",
+        "states": [
+          "Utah",
+          "Wyoming",
+          "Idaho",
+          "Montana",
+          "New Mexico",
+          "Colorado"
+        ]
+      },
+      {
+        "when": "Oct 27–28",
+        "start": "2026-10-27",
+        "end": "2026-10-28",
+        "text": "A cold front runs across the Northern Rockies 10/27-10/28 with snow.",
         "states": []
       }
     ],
