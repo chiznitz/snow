@@ -1,34 +1,26 @@
 {
-  "generated_at": "2026-10-23T14:32:02+00:00",
+  "generated_at": "2026-10-24T14:25:04+00:00",
   "video": {
-    "id": "nPXeKtRThTw",
-    "title": "Mountain Weather Update 10/23, Meteorologist Chris Tomer",
-    "url": "https://www.youtube.com/watch?v=nPXeKtRThTw",
-    "published": "2026-10-23T14:14:17+00:00",
-    "thumbnail": "https://i.ytimg.com/vi/nPXeKtRThTw/hqdefault.jpg"
+    "id": "-cE5orSWPq8",
+    "title": "Mountain Weather Update 10/24, Meteorologist Chris Tomer",
+    "url": "https://www.youtube.com/watch?v=-cE5orSWPq8",
+    "published": "2026-10-24T13:43:02+00:00",
+    "thumbnail": "https://i.ytimg.com/vi/-cE5orSWPq8/hqdefault.jpg"
   },
-  "description": "Flash flooding and very high elevation mountain snow through tonight.  The freezing level drops quickly tonight.  Then a southern track low develops 10/24-10/25 NM/CO.  This is followed by a cold front across the Northern Rockies with snow accumulation 10/26-10/27.",
+  "description": "Active storm track through early November with 3 separate storm systems.  I also look at the flooding in Southern Colorado.",
   "transcript": {
     "status": "unavailable",
     "source": null,
     "chars": 0,
     "errors": [
-      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=nPXeKtRThTw! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
-      "yt-dlp: RuntimeError: ERROR: [youtube] nPXeKtRThTw: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
+      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=-cE5orSWPq8! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
+      "yt-dlp: RuntimeError: ERROR: [youtube] -cE5orSWPq8: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
     ]
   },
   "summary": {
     "method": "extractive",
-    "headline": "Flash flooding and very high elevation mountain snow through tonight.",
-    "storms": [
-      {
-        "when": "Oct 26–27",
-        "start": "2026-10-26",
-        "end": "2026-10-27",
-        "text": "This is followed by a cold front across the Northern Rockies with snow accumulation 10/26-10/27.",
-        "states": []
-      }
-    ],
+    "headline": "Active storm track through early November with 3 separate storm systems.",
+    "storms": [],
     "amounts": [],
     "snow_levels": [],
     "confidence": null,
