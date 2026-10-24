@@ -5,6 +5,7 @@ The browser renders from this file first (same-origin, fast, never rate-limited)
 tries the live APIs. Phones on carrier NAT share one public IP with thousands of users, so
 Open-Meteo's per-IP limits and NRCS's firewall can both fail for them; this keeps the page usable.
 URLs here must match the ones in index.html so the page can parse the snapshot with the same code.
+nws[id] is a slim api.weather.gov gridpoint (snowfallAmount only) for the headline Next totals.
 """
 import json
 import os
@@ -20,15 +21,18 @@ from snowmap import POINTS  # noqa: E402
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "live.json")
 UA = "chiznitz-snow (github.com/chiznitz/snow)"
-MODELS = "ecmwf_ifs025,gfs_seamless,icon_seamless,gem_seamless,ukmo_seamless,jma_seamless,ncep_hrrr_conus,ncep_nam_conus"
+MODELS = "ncep_nbm_conus,ecmwf_ifs025,gfs_seamless,ncep_hrrr_conus"
 TRIPLETS = ["1060:CO:SNTL", "904:CO:SNTL", "780:CO:SNTL", "632:CO:SNTL", "797:CO:SNTL", "709:CO:SNTL",
             "668:WY:SNTL", "317:WY:SNTL", "823:UT:SNTL", "439:ID:SNTL", "370:ID:SNTL"]
 
 
-def get(url, tries=3):
+def get(url, tries=3, headers=None):
+    hdrs = {"User-Agent": UA}
+    if headers:
+        hdrs.update(headers)
     for attempt in range(tries):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": UA}), timeout=60) as r:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=hdrs), timeout=60) as r:
                 return json.load(r)
         except (urllib.error.URLError, TimeoutError, ValueError) as e:
             if attempt == tries - 1:
@@ -58,7 +62,34 @@ def main():
             out["forecast"][pid] = j
         except Exception as e:
             out["errors"].append(f"forecast {pid}: {type(e).__name__}: {e}")
-        time.sleep(1.2)
+            time.sleep(1.2)
+
+    out["nws"] = {}
+    for pid, lat, lon, m in POINTS:
+        try:
+            nws_h = {"Accept": "application/geo+json"}
+            pts = get(f"https://api.weather.gov/points/{lat:.4f},{lon:.4f}", headers=nws_h)
+            pr = pts.get("properties") or {}
+            grid_url = pr.get("forecastGridData")
+            if not grid_url:
+                raise RuntimeError("no forecastGridData")
+            grid = get(grid_url, headers=nws_h)
+            gp = grid.get("properties") or {}
+            sa = gp.get("snowfallAmount")
+            if not sa or not sa.get("values"):
+                raise RuntimeError("no snowfallAmount")
+            out["nws"][pid] = {
+                "updateTime": gp.get("updateTime"),
+                "validTimes": gp.get("validTimes"),
+                "elevation": gp.get("elevation"),
+                "gridId": pr.get("gridId"),
+                "gridX": pr.get("gridX"),
+                "gridY": pr.get("gridY"),
+                "snowfallAmount": sa,
+            }
+        except Exception as e:
+            out["errors"].append(f"nws {pid}: {type(e).__name__}: {e}")
+        time.sleep(0.4)
 
     try:
         url = ("https://api.open-meteo.com/v1/forecast"
@@ -79,7 +110,7 @@ def main():
                f"?latitude={','.join(str(p[1]) for p in POINTS)}&longitude={','.join(str(p[2]) for p in POINTS)}"
                f"&elevation={','.join(str(p[3]) for p in POINTS)}"
                "&hourly=snowfall,temperature_2m"
-               "&models=ecmwf_ifs025,gfs_seamless,icon_seamless,gem_seamless,ukmo_seamless,jma_seamless,ncep_hrrr_conus"
+               "&models=ncep_nbm_conus,ecmwf_ifs025,gfs_seamless,ncep_hrrr_conus"
                "&past_days=1&forecast_days=4&timezone=America%2FDenver&precipitation_unit=inch&temperature_unit=fahrenheit")
         h = get(url)
         if not isinstance(h, list) or len(h) != len(POINTS):
@@ -112,6 +143,10 @@ def main():
                 if pid not in out["forecast"]:
                     out["forecast"][pid] = old["forecast"][pid]
                     out.setdefault("stale", {})["forecast:" + pid] = old.get("generated_at")
+            for pid in old.get("nws", {}):
+                if pid not in out.get("nws", {}):
+                    out.setdefault("nws", {})[pid] = old["nws"][pid]
+                    out.setdefault("stale", {})["nws:" + pid] = old.get("generated_at")
         except (OSError, ValueError):
             pass
 
@@ -119,7 +154,7 @@ def main():
         print(err, file=sys.stderr)
     with open(OUT, "w") as f:
         json.dump(out, f, separators=(",", ":"))
-    print(f"wrote {OUT} ({os.path.getsize(OUT):,} bytes): {len(out['forecast'])} forecasts, wind={'wind' in out}, hourly={'hourly' in out}, snotel={'snotel' in out}", file=sys.stderr)
+    print(f"wrote {OUT} ({os.path.getsize(OUT):,} bytes): {len(out['forecast'])} forecasts, nws={len(out.get('nws', {}))}, wind={'wind' in out}, hourly={'hourly' in out}, snotel={'snotel' in out}", file=sys.stderr)
 
 
 if __name__ == "__main__":

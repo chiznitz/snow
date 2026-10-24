@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build snowmap.json: gridded snowfall totals (24h, 48h, 3d, 7d, 14d) for the map.
 
-Same method as the forecast cards: for each point, total each model's hourly snowfall
-over the window, then take the median of the models that cover the whole window.
+Grid colors stay a model blend (NBM, ECMWF, GFS) because a weather.gov call per cell
+is not practical. Headline table totals are the official NWS gridpoint, not this median.
 Runs in GitHub Actions so phones never make thousands of forecast calls.
 """
 import json
@@ -17,8 +17,7 @@ from datetime import datetime, timezone
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "snowmap.json")
 
-MODELS = [("ecmwf_ifs025", "ECMWF"), ("gfs_seamless", "GFS"), ("icon_seamless", "ICON"),
-          ("gem_seamless", "GEM"), ("ukmo_seamless", "UKMO"), ("jma_seamless", "JMA")]
+MODELS = [("ncep_nbm_conus", "NBM"), ("ecmwf_ifs025", "ECMWF"), ("gfs_seamless", "GFS")]
 WINDOWS = [("h24", 24), ("h48", 48), ("d3", 72), ("d7", 168), ("d14", 336)]
 FORECAST_DAYS = 15  # 360 h: enough for a 14-day window starting at any hour today
 
@@ -161,8 +160,8 @@ def main():
         "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "start": now.strftime("%Y-%m-%dT%H:00:00Z"),
         "source": "Open-Meteo",
-        "method": "Median of each model's window total; models that don't reach the end of a window are left out. "
-                  "Longer windows never show less than shorter ones.",
+        "method": "Median of NBM, ECMWF and GFS window totals; models that don't reach the end of a window are left out. "
+                  "Longer windows never show less than shorter ones. Table Next totals use the NWS gridpoint, not this map.",
         "models": models_used,
         "windows": [{"id": wid, "hours": hrs} for wid, hrs in WINDOWS],
         "views": views,
