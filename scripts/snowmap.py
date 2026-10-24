@@ -29,15 +29,16 @@ VIEWS = [
     {"id": "utid", "name": "UT / ID", "lon0": -117.6, "lon1": -110.0, "lat0": 40.4, "lat1": 46.0, "step": 0.25},
 ]
 
-# Keep in sync with LOCATIONS in index.html (lat, lon, elevation in metres).
+# Keep in sync with LOCATIONS in index.html. lat/lon here are the forecast lookup
+# (fcLat/fcLon when set) so NWS/Open-Meteo match loc.ft; elevation is always metres of loc.m.
 POINTS = [
-    ("sharkstooth", 37.50356, -108.11405, 3271), ("columbus", 37.44146, -108.02468, 3286),
-    ("spud", 37.69883, -107.77841, 3249), ("molas", 37.74929, -107.68933, 3236),
-    ("stump", 37.47647, -107.63348, 3423), ("purg", 37.6150, -107.8540, 3292),
-    ("wolf", 37.4747, -106.7932, 3353), ("rabbit", 40.36735, -106.74118, 2862),
-    ("nfrench", 41.33087, -106.37558, 3094), ("battle", 41.05402, -107.26674, 2274),
-    ("tonygrove", 41.89833, -111.62957, 2576), ("deadwood", 44.54492, -115.56386, 2131),
-    ("brundage", 45.0050, -116.1540, 2329),
+    ("sharkstooth", 37.50356, -108.11405, 3271), ("sharkpeak", 37.4599, -108.0732, 3545),
+    ("columbus", 37.4415, -108.0520, 3286), ("spud", 37.7108, -107.8104, 3249),
+    ("molas", 37.74929, -107.68933, 3236), ("stump", 37.47647, -107.63348, 3423),
+    ("purg", 37.6150, -107.8540, 3292), ("wolf", 37.4747, -106.7932, 3353),
+    ("rabbit", 40.36735, -106.74118, 2862), ("nfrench", 41.33087, -106.37558, 3094),
+    ("battle", 41.05402, -107.26674, 2274), ("tonygrove", 41.89833, -111.62957, 2576),
+    ("deadwood", 44.54492, -115.56386, 2131), ("brundage", 45.0050, -116.1540, 2329),
 ]
 
 BATCH = 100

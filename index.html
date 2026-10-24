@@ -376,11 +376,15 @@ const REGIONS = [
   {id:"ut", name:"Utah", sub:"Bear River Range"},
   {id:"id", name:"Idaho", sub:"West Central Mtns · McCall"},
 ];
-// Elevations come from the NRCS station metadata (feet); forecasts are downscaled to that elevation.
+// lat/lon is the station (or peak) on the map and in SNOTEL metadata.
+// fcLat/fcLon, when set, is the NWS + Open-Meteo lookup so the grid cell matches loc.ft.
+// Open-Meteo always gets loc.m (the station or declared elevation).
+// tag (e.g. "treeline") is appended to the name; add more peak/treeline spots the same way.
 const LOCATIONS = [
   {id:"sharkstooth", region:"sanjuans", name:"Sharkstooth", note:"La Plata Mtns", ft:10730, m:3271, lat:37.50356, lon:-108.11405, triplet:"1060:CO:SNTL"},
-  {id:"columbus", region:"sanjuans", name:"Columbus Basin", note:"La Plata Mtns", ft:10780, lat:37.44146, lon:-108.02468, triplet:"904:CO:SNTL"},
-  {id:"spud", region:"sanjuans", name:"Spud Mountain", note:"Coal Bank Pass", ft:10660, lat:37.69883, lon:-107.77841, triplet:"780:CO:SNTL"},
+  {id:"sharkpeak", region:"sanjuans", name:"Sharkstooth Peak", tag:"treeline", note:"La Plata Mtns", ft:11630, m:3545, lat:37.4599, lon:-108.0732},
+  {id:"columbus", region:"sanjuans", name:"Columbus Basin", note:"La Plata Mtns", ft:10780, lat:37.44146, lon:-108.02468, triplet:"904:CO:SNTL", fcLat:37.4415, fcLon:-108.0520},
+  {id:"spud", region:"sanjuans", name:"Spud Mountain", note:"Coal Bank Pass", ft:10660, lat:37.69883, lon:-107.77841, triplet:"780:CO:SNTL", fcLat:37.7108, fcLon:-107.8104},
   {id:"molas", region:"sanjuans", name:"Molas Pass", note:"SNOTEL: Molas Lake", ft:10610, m:3236, lat:37.74929, lon:-107.68933, triplet:"632:CO:SNTL"},
   {id:"stump", region:"sanjuans", name:"Stump Lakes", note:"Weminuche", ft:11230, lat:37.47647, lon:-107.63348, triplet:"797:CO:SNTL"},
   {id:"purg", region:"sanjuans", name:"Purgatory", note:"Ski area · top of Lift 8 · forecast only", ft:10800, m:3292, lat:37.6150, lon:-107.8540},
@@ -393,6 +397,10 @@ const LOCATIONS = [
   {id:"brundage", region:"id", name:"Brundage Mountain", note:"McCall · summit forecast", ft:7640, lat:45.0050, lon:-116.1540,
    triplet:"370:ID:SNTL", snotelName:"Brundage Reservoir", snotelFt:6280, report:"https://brundage.com/snow-report/"},
 ].map(l => ({...l, m: l.m || Math.round(l.ft * 0.3048)}));
+const fcLat = loc => loc.fcLat != null ? loc.fcLat : loc.lat;
+const fcLon = loc => loc.fcLon != null ? loc.fcLon : loc.lon;
+const locTitle = loc => loc.tag ? `${loc.name} (${loc.tag})` : loc.name;
+const locRowNote = loc => loc.tag ? `${loc.ft.toLocaleString()} ft · ${loc.note}` : loc.note;
 const TZ = "America/Denver";
 const HOUR = 36e5;
 const SNOW_SCALE = [[0.05,"--s0"],[1,"--s1"],[3,"--s2"],[6,"--s3"],[12,"--s4"],[18,"--s5"],[Infinity,"--s6"]];
@@ -515,7 +523,7 @@ function errorBox(title, err, retryFn) {
 const ftLabel = loc => `${loc.ft.toLocaleString()} ft`;
 
 const cardHTML = loc => `<section class="card" id="loc-${loc.id}">
-  <div class="top"><div><h3>${esc(loc.name)}</h3><div class="sub">${ftLabel(loc)} · ${esc(loc.note)}</div></div><span class="badge">${loc.triplet ? "SNOTEL " + esc(loc.triplet.split(":")[0]) : "Forecast only"}</span></div>
+  <div class="top"><div><h3>${esc(locTitle(loc))}</h3><div class="sub">${ftLabel(loc)} · ${esc(loc.note)}</div></div><span class="badge">${loc.triplet ? "SNOTEL " + esc(loc.triplet.split(":")[0]) : "Forecast only"}</span></div>
   <div class="cols"><div class="col">
     <div class="panel dwin" id="fc-${loc.id}"><div class="ptitle">Forecast <span>NWS forecast</span></div><div class="wins" role="group" aria-label="Window"></div><div class="tline"></div><div class="hchart"></div><div class="agree"></div><div class="body"></div></div>
   </div><div class="col">
@@ -539,7 +547,7 @@ function buildPage() {
     glance.insertAdjacentHTML("beforeend", `<tr class="rg${open ? "" : " shut"}" id="r-${r.id}" data-r="${r.id}" aria-expanded="${open}"><td class="st"><span class="chev">▾</span>${esc(r.name)}<span class="cnt">${locs.length}</span></td><td colspan="10"></td></tr>`);
     for (const loc of locs) {
       const na = loc.triplet ? "…" : "—";
-      glance.insertAdjacentHTML("beforeend", `<tr class="loc${open ? "" : " off"}" data-id="${loc.id}" data-r="${r.id}"><td class="st">${esc(loc.name)}<small>${esc(loc.note)}</small></td>`
+      glance.insertAdjacentHTML("beforeend", `<tr class="loc${open ? "" : " off"}" data-id="${loc.id}" data-r="${r.id}"><td class="st">${esc(locTitle(loc))}<small>${esc(locRowNote(loc))}</small></td>`
         + `<td data-c="depth" class="${loc.triplet ? "" : "na"}">${na}</td>`
         + PAST_COLS.map((c, i) => `<td data-c="${c}" class="pa${i === 0 ? " sep" : ""}${loc.triplet ? "" : " na"}">${na}</td>`).join("")
         + NEXT_COLS.map((c, i) => `<td data-c="${c}" class="dc nx${i === 0 ? " sep" : ""}"><i class="x">…</i></td>`).join("") + `</tr>`
@@ -872,7 +880,7 @@ async function loadNws(loc) {
     const snap = () => snapshot && snapshot.nws && snapshot.nws[loc.id];
     const pt = await fetchNwsCached(
       "nws-pt:" + loc.id,
-      `https://api.weather.gov/points/${loc.lat.toFixed(4)},${loc.lon.toFixed(4)}`,
+      `https://api.weather.gov/points/${fcLat(loc).toFixed(4)},${fcLon(loc).toFixed(4)}`,
       checkPoints,
       () => {
         const s = snap();
@@ -964,7 +972,7 @@ function agreement(st) {
 }
 
 const forecastURL = loc => "https://api.open-meteo.com/v1/forecast"
-  + `?latitude=${loc.lat}&longitude=${loc.lon}&elevation=${loc.m}`
+  + `?latitude=${fcLat(loc)}&longitude=${fcLon(loc)}&elevation=${loc.m}`
   + "&daily=snowfall_sum,rain_sum,temperature_2m_max,temperature_2m_min"
   + `&models=${[...MODELS, ...SHORT_MODELS].map(m => m[0]).join(",")}`
   + "&forecast_days=16&timezone=America%2FDenver&precipitation_unit=inch&temperature_unit=fahrenheit";
@@ -1359,7 +1367,7 @@ function renderWind(loc) {
 }
 
 const WIND_URL = "https://api.open-meteo.com/v1/forecast"
-  + `?latitude=${LOCATIONS.map(l => l.lat).join(",")}&longitude=${LOCATIONS.map(l => l.lon).join(",")}&elevation=${LOCATIONS.map(l => l.m).join(",")}`
+  + `?latitude=${LOCATIONS.map(fcLat).join(",")}&longitude=${LOCATIONS.map(fcLon).join(",")}&elevation=${LOCATIONS.map(l => l.m).join(",")}`
   + "&hourly=snowfall,wind_speed_700hPa,wind_direction_700hPa&past_days=3&forecast_days=10&timezone=America%2FDenver&wind_speed_unit=mph&precipitation_unit=inch";
 const checkWind = d => { if (!Array.isArray(d) || d.length !== LOCATIONS.length) throw new Error("Open-Meteo wind response was incomplete."); };
 
@@ -1393,7 +1401,7 @@ function applyWind(res) {
 // this feed is the model range, the HRRR line, temperatures, and the NBM fallback.
 const HOURLY_COLS = ["n24", "n48", "n72"], HOURLY_HOURS = [24, 48, 72];
 const HOURLY_URL = "https://api.open-meteo.com/v1/forecast"
-  + `?latitude=${LOCATIONS.map(l => l.lat).join(",")}&longitude=${LOCATIONS.map(l => l.lon).join(",")}&elevation=${LOCATIONS.map(l => l.m).join(",")}`
+  + `?latitude=${LOCATIONS.map(fcLat).join(",")}&longitude=${LOCATIONS.map(fcLon).join(",")}&elevation=${LOCATIONS.map(l => l.m).join(",")}`
   + `&hourly=snowfall,temperature_2m&models=${[...MODELS, ...SHORT_MODELS].map(m => m[0]).join(",")}`
   + "&past_days=1&forecast_days=4&timezone=America%2FDenver&precipitation_unit=inch&temperature_unit=fahrenheit";
 const checkHourly = d => {
