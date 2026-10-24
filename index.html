@@ -195,6 +195,7 @@ details.models table{width:100%;border-collapse:collapse;margin-top:6px;font-var
 details.models th{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;text-align:right;padding:4px 6px;font-weight:650}
 details.models td{text-align:right;padding:5px 6px;border-top:1px solid #ffffff0a;font-weight:600}
 details.models th:first-child,details.models td:first-child{text-align:left}
+details.models th:not(:first-child),details.models td:not(:first-child){white-space:nowrap;padding-left:4px;padding-right:4px}
 details.models td.na{color:var(--dim);font-weight:400}
 .wind{display:flex;gap:10px;align-items:flex-start;background:#0b1330;border-radius:12px;padding:9px 11px;font-size:13px;line-height:1.4}
 .wind svg{flex:none;width:52px;height:52px}
@@ -399,7 +400,9 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const pad = n => String(n).padStart(2, "0");
 const snowColor = v => `var(${(SNOW_SCALE.find(([max]) => v < max) || SNOW_SCALE[6])[1]})`;
-const fmtIn = v => v == null || !isFinite(v) ? "—" : v < 0.05 ? "0" : v < 1 ? v.toFixed(1) : String(Math.round(v));
+// Snow amounts are whole inches everywhere; a trace under 1" reads "<1" to match the legend's <1" band.
+// Returns plain text, so esc() it before putting it in HTML.
+const fmtIn = v => v == null || !isFinite(v) ? "—" : v < 0.05 ? "0" : v < 1 ? "<1" : String(Math.round(v));
 const fmtDelta = v => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "±") + Math.abs(+v.toFixed(1)) + '"';
 const deltaCls = v => v == null || Math.abs(v) < 0.05 ? "flat" : v > 0 ? "up" : "down";
 const mtTime = ms => new Date(ms).toLocaleString("en-US", {timeZone:TZ, weekday:"short", hour:"numeric", minute:"2-digit"});
@@ -804,11 +807,11 @@ function agreement(st) {
   const agree = st.list.filter(x => Math.abs(x.total - M) <= tol);
   const hi = st.list.filter(x => x.total > M + tol), lo = st.list.filter(x => x.total < M - tol);
   const names = xs => xs.map(x => x.name).join(", ");
-  if (!hi.length && !lo.length) return `<b>All ${st.list.length} models agree</b> (${fmtIn(st.lo) === fmtIn(st.hi) ? fmtIn(st.lo) : `${fmtIn(st.lo)}–${fmtIn(st.hi)}`}")`;
+  if (!hi.length && !lo.length) return `<b>All ${st.list.length} models agree</b> (${esc(fmtIn(st.lo) === fmtIn(st.hi) ? fmtIn(st.lo) : `${fmtIn(st.lo)}–${fmtIn(st.hi)}`)}")`;
   const agreeTxt = agree.length * 2 > st.list.length
-    ? `<b>${names(agree)}</b> agree on ~${fmtIn(median(agree.map(x => x.total)))}"`
-    : `<b>Models split</b> (median ${fmtIn(M)}")${agree.length ? `: ${names(agree)} near it` : ""}`;
-  const out = xs => xs.map(x => `${x.name} ${fmtIn(x.total)}"`).join(", ");
+    ? `<b>${names(agree)}</b> agree on ~${esc(fmtIn(median(agree.map(x => x.total))))}"`
+    : `<b>Models split</b> (median ${esc(fmtIn(M))}")${agree.length ? `: ${names(agree)} near it` : ""}`;
+  const out = xs => xs.map(x => `${x.name} ${esc(fmtIn(x.total))}"`).join(", ");
   return agreeTxt + (hi.length ? ` · <span class="hi">higher: ${out(hi)}</span>` : "") + (lo.length ? ` · <span class="lo">lower: ${out(lo)}</span>` : "");
 }
 
@@ -887,8 +890,8 @@ const winT = (fc, a, b) => { const w = windowStats(fc.models, a, Math.min(b, fc.
 function setNextCell(id, col, w, title) {
   if (!w) { setCell(id, col, `<i class="x" title="${esc(title || `fewer than ${MIN_MODELS} models cover this window`)}">–</i>`); return; }
   const v = w.median, t = title ? ` title="${esc(title)}"` : "";
-  const rng = w.hi - w.lo >= 0.5 ? `<small>${fmtIn(w.lo)}–${fmtIn(w.hi)}</small>` : "";
-  setCell(id, col, v < 0.05 ? `<i class="z"${t}>·</i>` : `<i class="${v < 1 ? "s1" : ""}" style="background:${snowColor(v)}"${t}>${fmtIn(v)}"</i>${rng}`, "", "", v);
+  const rng = w.hi - w.lo >= 0.5 && fmtIn(w.lo) !== fmtIn(w.hi) ? `<small>${esc(`${fmtIn(w.lo)}–${fmtIn(w.hi)}`)}</small>` : "";
+  setCell(id, col, v < 0.05 ? `<i class="z"${t}>·</i>` : `<i class="${v < 1 ? "s1" : ""}" style="background:${snowColor(v)}"${t}>${esc(fmtIn(v))}"</i>${rng}`, "", "", v);
 }
 
 // 7d / 14d always come from the daily consensus. 24/48/72h come from the hourly request once it
@@ -924,10 +927,10 @@ function dailyStrip(fc, N, sepAt = 5) {
     const dt = ymd(t), dow = dt.getUTCDay(), s = ok(i) ? fc.snow[i] : null, r = ok(i) ? fc.rain[i] || 0 : 0;
     const lo = hOf(fc.sMin[i]), hi = hOf(fc.sMax[i]);
     const cls = ["day", i === sepAt ? "sep" : "", ok(i) ? "" : "nd", t === today ? "today" : ""].join(" ");
-    const per = fc.models.map(m => `${m.name} ${m.snow[i] == null ? "–" : m.snow[i].toFixed(1)}`).join(", ");
+    const per = fc.models.map(m => `${m.name} ${m.snow[i] == null ? "–" : fmtIn(m.snow[i]) + '"'}`).join(", ");
     const th = fc.hi[i], tl = fc.lo[i];
-    return `<div class="${cls}" title="${shortDate(t)} · ${fc.nAt[i]} model${fc.nAt[i] === 1 ? "" : "s"}${ok(i) ? "" : " (not counted)"} · ${per}">
-      <div class="amt ${s == null || s < 0.1 ? "z" : ""}" style="${s >= 0.1 ? `color:${snowColor(s)}` : ""}">${s == null ? "–" : s < 0.1 ? "" : fmtIn(s)}</div>
+    return `<div class="${cls}" title="${esc(`${shortDate(t)} · ${fc.nAt[i]} model${fc.nAt[i] === 1 ? "" : "s"}${ok(i) ? "" : " (not counted)"} · ${per}`)}">
+      <div class="amt ${s == null || s < 0.1 ? "z" : ""}" style="${s >= 0.1 ? `color:${snowColor(s)}` : ""}">${s == null ? "–" : s < 0.1 ? "" : esc(fmtIn(s))}</div>
       <div class="barbox">${ok(i) && hi - lo >= 3 ? `<div class="wh" style="bottom:${lo.toFixed(1)}px;height:${(hi - lo).toFixed(1)}px"></div>` : ""}${ok(i) ? `<div class="bar" style="height:${Math.max(2, hOf(s)).toFixed(1)}px;background:${s >= 0.05 ? snowColor(s) : "var(--s0)"}"></div>` : ""}</div>
       <div class="rain">${r >= 0.05 ? `<span class="drop"></span>${r.toFixed(1)}` : ""}</div>
       <div class="dow ${dow === 0 || dow === 6 ? "we" : ""}">${t === today ? "Today" : DOW[dow]}</div>
@@ -947,14 +950,14 @@ const rainMatters = (r, snow) => r >= 0.1 && r > snow / 10;
 function renderForecast(body, fc) {
   const t = document.querySelector(`#fc-${fc.loc.id} .ptitle span`);
   if (t) t.textContent = `consensus of ${fc.models.length} models`;
-  const fmtCell = v => v == null ? `<td class="na">—</td>` : `<td style="${v >= 0.05 ? `color:${snowColor(v)}` : ""}">${fmtIn(v)}"</td>`;
+  const fmtCell = v => v == null ? `<td class="na">—</td>` : `<td style="${v >= 0.05 ? `color:${snowColor(v)}` : ""}">${esc(fmtIn(v))}"</td>`;
   const winTotal = (m, a, b) => { const seg = m.snow.slice(a, b); return seg.length === b - a && seg.every(v => v != null) ? seg.reduce((x, y) => x + y, 0) : null; };
   const rows = [...fc.models, ...fc.short].map(m => {
     const days = m.snow.filter(v => v != null).length;
-    return `<tr><td>${m.name}${fc.short.includes(m) ? " <small style=\"color:var(--dim)\">short-range</small>" : ""}</td>${fmtCell(winTotal(m, 0, 2))}${fmtCell(winTotal(m, 0, 7))}${fmtCell(winTotal(m, 0, 14))}<td class="na">${days}d</td></tr>`;
+    return `<tr><td>${m.name}${fc.short.includes(m) ? " <small style=\"color:var(--dim)\">short-range</small>" : ""}</td>${fmtCell(winTotal(m, 0, 1))}${fmtCell(winTotal(m, 0, 2))}${fmtCell(winTotal(m, 0, 7))}${fmtCell(winTotal(m, 0, 14))}<td class="na">${days}d</td></tr>`;
   }).join("");
   body.innerHTML = `<details class="models"><summary>Model by model</summary><div class="mrange"></div>
-      <table><thead><tr><th>Model</th><th>48h</th><th>7 days</th><th>14 days</th><th>Covers</th></tr></thead><tbody>${rows}</tbody></table>
+      <table><thead><tr><th>Model</th><th>24h</th><th>48h</th><th>7 days</th><th>14 days</th><th>Covers</th></tr></thead><tbody>${rows}</tbody></table>
     </details>`;
 }
 
@@ -1244,7 +1247,7 @@ function confidence(w) {
 
 function detTotals(loc, w, nw) {
   const fc = fcState[loc.id], v = nw ? nw.median : null;
-  const one = `<div class="tl1"><span class="lbl">Next ${w.nextLabel}</span><b class="big" style="${v >= 0.05 ? `color:${snowColor(v)}` : ""}">${fmtIn(v)}${v == null ? "" : '"'}</b>${confidence(nw)}</div>`;
+  const one = `<div class="tl1"><span class="lbl">Next ${w.nextLabel}</span><b class="big" style="${v >= 0.05 ? `color:${snowColor(v)}` : ""}">${esc(fmtIn(v))}${v == null ? "" : '"'}</b>${confidence(nw)}</div>`;
   const more = [];
   if (loc.triplet) { const sn = snotelState[loc.id], d = sn ? sn[w.past] : null; more.push(`Past ${w.pastLabel}: <b class="${deltaCls(d)}">${fmtDelta(d)}</b> depth`); }
   // Rain comes from the daily forecast, so the 24–72h windows count whole calendar days.
@@ -1606,7 +1609,7 @@ function renderMap() {
   }
   for (const s of spots) {
     const {bx:x, by:y} = s;
-    html.push(`<button type="button" class="mk${!s.val ? " zero" : ""}" data-id="${s.l.id}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px" aria-label="${esc(s.l.name)}: ${s.txt} inches"><b>${s.txt}</b></button>`);
+    html.push(`<button type="button" class="mk${!s.val ? " zero" : ""}" data-id="${s.l.id}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px" aria-label="${esc(s.l.name)}: ${esc(s.txt)} inches"><b>${esc(s.txt)}</b></button>`);
     const tw = textW(s.l.name, 11);
     for (const r of [{x0:x + s.w / 2 + 3, y0:y - 7}, {x0:x - s.w / 2 - 3 - tw, y0:y - 7}, {x0:x - tw / 2, y0:y + 10}, {x0:x - tw / 2, y0:y - 24}]) {
       r.x1 = r.x0 + tw; r.y1 = r.y0 + 14;
@@ -1623,7 +1626,7 @@ function renderMap() {
   }
   if (mapRead && mapRead.view === v.id) {
     const val = mapSample(v, g, mapRead.lat, mapRead.lon);
-    html.push(`<div class="read" style="left:${P.x(mapRead.lon).toFixed(1)}px;top:${P.y(mapRead.lat).toFixed(1)}px">≈ ${fmtIn(val)}" here</div>`);
+    html.push(`<div class="read" style="left:${P.x(mapRead.lon).toFixed(1)}px;top:${P.y(mapRead.lat).toFixed(1)}px">≈ ${esc(fmtIn(val))}" here</div>`);
   }
   box.querySelector(".labels").innerHTML = html.join("");
 
