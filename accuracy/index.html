@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Forecast accuracy · Durango Snow</title>
+<meta name="description" content="How NWS snow forecasts at the SNOTEL spots compare to observed SWE and depth.">
+<meta name="theme-color" content="#0a1024">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Snow">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="../icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon.png">
+<style>
+:root{
+  --bg:#0a1024;--bg2:#111a38;--card:#151f42;--card2:#1b2750;--line:#26335f;
+  --text:#eef3ff;--muted:#8d9cc7;--dim:#5d6b96;--ice:#7dd3fc;--good:#4ade80;--bad:#fb7185;--warn:#fbbf24;
+}
+*{box-sizing:border-box}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{
+  margin:0;color:var(--text);
+  font:15px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;
+  background:radial-gradient(1200px 500px at 50% -200px,#24346e 0%,transparent 70%),var(--bg);
+  min-height:100vh;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+.wrap{max-width:980px;margin:0 auto;padding:14px 14px 28px}
+header{display:flex;align-items:center;gap:12px;padding:6px 2px 12px}
+header .logo{width:40px;height:40px;border-radius:11px;flex:none;box-shadow:0 4px 14px #0008}
+header h1{font-size:22px;line-height:1.1;margin:0;letter-spacing:-.02em}
+header .stamp{font-size:12.5px;color:var(--muted);margin-top:2px}
+.back{
+  margin-left:auto;flex:none;color:var(--text);text-decoration:none;font-size:13px;font-weight:600;
+  padding:7px 13px;border-radius:999px;background:var(--card);border:1px solid var(--line);
+}
+.back:active{background:var(--card2)}
+.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:14px;min-width:0;margin-bottom:12px}
+.card p{margin:0 0 10px;color:var(--muted);font-size:13.5px;line-height:1.45}
+.card p:last-child{margin-bottom:0}
+.note{background:#0b1330;border-radius:12px;padding:10px 12px;color:var(--muted);font-size:13.5px}
+.note b{color:var(--text)}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:13px}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);font-weight:650;text-align:right;padding:6px 6px 4px}
+td{padding:7px 6px;border-top:1px solid #ffffff0a;text-align:right;font-weight:600}
+th:first-child,td:first-child{text-align:left}
+td.na{color:var(--dim);font-weight:400}
+tr.st td{color:var(--ice);font-size:12px;text-transform:uppercase;letter-spacing:.06em;padding-top:14px;border-top:0;font-weight:700}
+tr.st td small{display:block;text-transform:none;letter-spacing:0;color:var(--dim);font-weight:400;margin-top:2px}
+.over{color:var(--warn)}.under{color:#93c5fd}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+footer{color:var(--dim);font-size:12.5px;text-align:center;margin:26px 8px 6px;line-height:1.55}
+footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img class="logo" src="../icon.svg" alt="">
+    <div>
+      <h1>Forecast accuracy</h1>
+      <div class="stamp" id="stamp">SNOTEL spots · NWS vs observed</div>
+    </div>
+    <a class="back" href="../">← Forecast</a>
+  </header>
+  <section class="card" id="intro">
+    <p>Each morning the site stores the NWS gridpoint snow and QPF totals (24h, 72h, 7 days) at the same SNOTEL forecast points the table uses, then later compares them to NRCS SNOTEL. <b>SWE change is the primary score</b> (NWS QPF vs station WTEQ). Depth change is secondary — pillows settle, so a storm can add snow while the depth sensor barely moves or even drops.</p>
+    <p class="note" id="status">Loading snapshots…</p>
+  </section>
+  <section class="card">
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Station / window</th>
+            <th>n</th>
+            <th title="Mean absolute error of NWS QPF vs SNOTEL SWE change">SWE MAE</th>
+            <th title="Mean forecast minus observed SWE. Positive = over-forecast">SWE bias</th>
+            <th title="Share of windows where forecast ≥2&quot; and observed SWE ≥2&quot; agree">SWE storm</th>
+            <th title="Mean absolute error of NWS snowfall vs SNOTEL depth change">Depth MAE</th>
+            <th title="Mean forecast snowfall minus observed depth change">Depth bias</th>
+          </tr>
+        </thead>
+        <tbody id="body"><tr><td class="na" colspan="7">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+  <footer>
+    Forecasts from <a href="https://www.weather.gov/" rel="noopener">NWS</a> · observations from <a href="https://www.nrcs.usda.gov/wps/portal/wcc/home/" rel="noopener">NRCS SNOTEL</a>.
+    <a href="../">Forecast</a> · <a href="../contact/">Contact</a>
+  </footer>
+</div>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const WINDOWS = [
+  {id:"24h", hours:24, snow:"n24", qpf:"qpf24"},
+  {id:"72h", hours:72, snow:"n72", qpf:"qpf72"},
+  {id:"7d", hours:168, snow:"n7", qpf:"qpf7"},
+];
+const STORM = 2;
+const MATCH_MS = 4 * 3600 * 1000;
+const fmtIn = v => v == null || !isFinite(v) ? "—" : Math.abs(v) < 0.05 ? "0.0\"" : (v > 0 && v < 0.05 ? "0.0\"" : (v < 0 ? "−" : "") + Math.abs(v).toFixed(1) + "\"");
+const parseIso = s => Date.parse(s);
+const near = (series, t) => {
+  let best = null, bestD = Infinity;
+  for (const p of series) {
+    const d = Math.abs(parseIso(p.t) - t);
+    if (d < bestD) { best = p; bestD = d; }
+  }
+  return best && bestD <= MATCH_MS ? best : null;
+};
+const mean = a => a.length ? a.reduce((s, v) => s + v, 0) / a.length : null;
+const mae = pairs => mean(pairs.map(([f, o]) => Math.abs(f - o)));
+const bias = pairs => mean(pairs.map(([f, o]) => f - o));
+const stormHit = pairs => {
+  if (!pairs.length) return null;
+  let ok = 0;
+  for (const [f, o] of pairs) if ((f >= STORM) === (o >= STORM)) ok++;
+  return ok / pairs.length;
+};
+const signed = v => {
+  if (v == null) return {html:"—", cls:"na"};
+  const cls = Math.abs(v) < 0.05 ? "" : v > 0 ? "over" : "under";
+  return {html:fmtIn(v), cls};
+};
+
+function score(fc, obs) {
+  const snaps = fc.snapshots || [];
+  const stations = obs.stations || {};
+  const now = Date.now();
+  const by = {};
+  for (const snap of snaps) {
+    const issued = parseIso(snap.issued);
+    if (!isFinite(issued)) continue;
+    for (const [id, spot] of Object.entries(snap.spots || {})) {
+      const series = (stations[id] && stations[id].series) || [];
+      if (!series.length) continue;
+      const start = near(series, issued);
+      if (!start) continue;
+      for (const w of WINDOWS) {
+        const endAt = issued + w.hours * 3600 * 1000;
+        if (now < endAt + 30 * 60 * 1000) continue;
+        const end = near(series, endAt);
+        if (!end) continue;
+        const row = (by[id] ||= {name:spot.name || (stations[id] && stations[id].name) || id, note:spot.note, wins:{}});
+        const cell = (row.wins[w.id] ||= {swe:[], depth:[]});
+        const qpf = spot[w.qpf], snow = spot[w.snow];
+        if (qpf != null && start.swe != null && end.swe != null) cell.swe.push([qpf, end.swe - start.swe]);
+        if (snow != null && start.depth != null && end.depth != null) cell.depth.push([snow, end.depth - start.depth]);
+      }
+    }
+  }
+  return by;
+}
+
+function render(fc, obs) {
+  const started = fc.started ? new Date(fc.started) : (fc.snapshots && fc.snapshots[0] && new Date(fc.snapshots[0].issued));
+  const since = started && isFinite(started) ? started.toLocaleDateString("en-US", {timeZone:"America/Denver", month:"short", day:"numeric", year:"numeric"}) : "today";
+  const by = score(fc, obs);
+  const nDone = Object.values(by).reduce((n, st) => n + WINDOWS.reduce((a, w) => a + ((st.wins[w.id] && st.wins[w.id].swe.length) || 0), 0), 0);
+  const stamp = $("stamp"), status = $("status"), body = $("body");
+  const nSnap = (fc.snapshots || []).length;
+  stamp.textContent = nSnap ? `${nSnap} morning snapshot${nSnap === 1 ? "" : "s"}` : "No snapshots yet";
+  if (!nDone) {
+    status.innerHTML = `Collecting data since <b>${since}</b>. A window is scored only after it has fully elapsed and SNOTEL has readings at both ends, so the first 24h scores appear tomorrow, 72h in three days, and 7-day scores in a week.`;
+  } else {
+    status.innerHTML = `Collecting data since <b>${since}</b>. SWE is primary (QPF vs WTEQ change). Depth is secondary and often understates new snow because the sensor settles. Storm hit = share of windows where forecast ≥2" and observed ≥2" agree. Bias: gold = over, blue = under.`;
+  }
+  const ids = Object.keys(by);
+  if (!ids.length) {
+    body.innerHTML = `<tr><td class="na" colspan="7">Collecting data since ${since} — no completed windows yet.</td></tr>`;
+    return;
+  }
+  const html = [];
+  for (const id of ids) {
+    const st = by[id];
+    html.push(`<tr class="st"><td colspan="7">${st.name}${st.note ? `<small>${st.note}</small>` : ""}</td></tr>`);
+    for (const w of WINDOWS) {
+      const cell = st.wins[w.id] || {swe:[], depth:[]};
+      const sMae = mae(cell.swe), sBias = bias(cell.swe), sHit = stormHit(cell.swe);
+      const dMae = mae(cell.depth), dBias = bias(cell.depth);
+      const sb = signed(sBias), db = signed(dBias);
+      const n = Math.max(cell.swe.length, cell.depth.length);
+      html.push(`<tr>
+        <td>${w.id}</td>
+        <td>${n || "—"}</td>
+        <td class="${sMae == null ? "na" : ""}">${sMae == null ? "—" : fmtIn(sMae)}</td>
+        <td class="${sb.cls}">${sb.html}</td>
+        <td class="${sHit == null ? "na" : ""}">${sHit == null ? "—" : Math.round(sHit * 100) + "%"}</td>
+        <td class="${dMae == null ? "na" : ""}">${dMae == null ? "—" : fmtIn(dMae)}</td>
+        <td class="${db.cls}">${db.html}</td>
+      </tr>`);
+    }
+  }
+  body.innerHTML = html.join("");
+}
+
+Promise.all([
+  fetch("../data/forecast-history.json?t=" + Date.now()).then(r => { if (!r.ok) throw new Error("no forecast history"); return r.json(); }),
+  fetch("../data/observed-history.json?t=" + Date.now()).then(r => { if (!r.ok) throw new Error("no observed history"); return r.json(); }),
+]).then(([fc, obs]) => render(fc, obs)).catch(e => {
+  $("status").textContent = "Collecting data — snapshots have not been written yet.";
+  $("body").innerHTML = `<tr><td class="na" colspan="7">${e.message}</td></tr>`;
+});
+</script>
+<script>window.goatcounter = {path: "/snow/accuracy/"}</script>
+<script data-goatcounter="https://durangosnow.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
