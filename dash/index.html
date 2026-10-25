@@ -1,0 +1,1967 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Durango Snow · preview</title>
+<meta name="description" content="NWS and SNOTEL snow forecast preview for the San Juans and nearby ranges. Presented by Durango Dash.">
+<meta name="theme-color" content="#0a1024">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Snow">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="../icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon.png">
+<style>
+:root{
+  --bg:#0a1024;--bg2:#111a38;--card:#151f42;--card2:#1b2750;--line:#26335f;
+  --text:#eef3ff;--muted:#8d9cc7;--dim:#5d6b96;
+  --ice:#7dd3fc;--rain:#2dd4bf;--warn:#fbbf24;--bad:#fb7185;--good:#4ade80;
+  --s0:#334066;--s1:#60a5fa;--s2:#3b82f6;--s3:#6366f1;--s4:#a855f7;--s5:#e879f9;--s6:#f472b6;
+}
+*{box-sizing:border-box}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{
+  margin:0;color:var(--text);
+  font:15px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;
+  background:radial-gradient(1200px 500px at 50% -200px,#24346e 0%,transparent 70%),var(--bg);
+  min-height:100vh;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+.wrap{max-width:1180px;margin:0 auto;padding:14px 14px 28px}
+header{display:flex;align-items:center;gap:12px;padding:6px 2px 12px}
+header .logo{width:40px;height:40px;border-radius:11px;flex:none;box-shadow:0 4px 14px #0008}
+header h1{font-size:22px;line-height:1.1;margin:0;letter-spacing:-.02em}
+header .stamp{font-size:12.5px;color:var(--muted);margin-top:2px}
+header .stamp.err{color:var(--warn)}
+.refresh{
+  margin-left:auto;flex:none;width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--line);background:var(--card);color:var(--text);
+  display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.refresh:active{transform:scale(.94)}
+.refresh svg{width:22px;height:22px}
+.refresh.spin svg{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+h2.sec{font-size:13px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:20px 4px 10px;font-weight:650;display:flex;justify-content:space-between;align-items:baseline}
+h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--dim);font-size:12px}
+
+.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:14px;min-width:0}
+.card .top{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.card h3{margin:0;font-size:19px;letter-spacing:-.01em}
+.card .sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+.badge{margin-left:auto;font-size:11px;font-weight:650;border-radius:999px;padding:3px 9px;background:#ffffff12;color:var(--muted);white-space:nowrap}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:#0b1330;border-radius:12px;padding:10px 11px}
+.stat .l{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.stat .v{font-size:38px;font-weight:750;letter-spacing:-.03em;line-height:1.05;margin:2px 0 3px;font-variant-numeric:tabular-nums}
+.stat .v small{font-size:20px;font-weight:600;margin-left:1px}
+.chg{display:flex;gap:10px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.chg b{font-weight:650}
+.up{color:var(--good)}.down{color:var(--bad)}.flat{color:var(--muted)}
+.spark{margin-top:10px;background:#0b1330;border-radius:12px;padding:8px 10px 6px}
+.spark .row{display:flex;justify-content:space-between;font-size:11px;color:var(--dim)}
+.spark svg{display:block;width:100%;height:46px;margin:4px 0}
+.asof{font-size:11.5px;color:var(--dim);margin-top:8px}
+.saved{font-size:12px;color:#fde68a;background:#3a2f12;border:1px solid #6b5416;border-radius:10px;padding:6px 9px;margin-bottom:10px}
+.saved button{margin-left:6px;background:none;border:0;color:#fcd34d;font-weight:700;font-size:12px;text-decoration:underline;cursor:pointer;padding:0}
+
+.chart{margin:0 -4px}
+.days{display:grid;grid-template-columns:repeat(10,1fr);position:relative}
+.day{text-align:center;font-variant-numeric:tabular-nums;position:relative;min-width:0}
+.day.sep{border-left:1px dashed #3a4778}
+.day .amt{font-size:11px;font-weight:700;height:15px;line-height:15px;white-space:nowrap}
+.day .amt.z{color:var(--dim);font-weight:500}
+.day .barbox{position:relative;height:76px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;border-bottom:1px solid var(--line)}
+.day .bar{width:68%;border-radius:4px 4px 2px 2px;min-height:2px}
+.day.nd .barbox:before{content:"";position:absolute;inset:8px 25% 2px;border:1px dashed #3a4778;border-radius:4px}
+.day.nd .amt{color:var(--dim);font-weight:500}
+.day .rain{font-size:9.5px;color:var(--rain);height:13px;line-height:13px;margin-top:3px;white-space:nowrap;font-weight:600}
+.drop{display:inline-block;width:5px;height:5px;background:var(--rain);border-radius:0 50% 50% 50%;transform:rotate(45deg);margin-right:2px;vertical-align:1px}
+.day .dow{font-size:11px;color:var(--muted);margin-top:2px}
+.day .dow.we{color:var(--text);font-weight:700}
+.day .dt{font-size:12.5px;font-weight:650}
+.day.today .dt{color:var(--ice)}
+.day.today .dow{color:var(--ice);font-weight:700}
+.day .hi{font-size:11px;margin-top:4px;color:#fca5a5}
+.day .lo{font-size:11px;color:var(--dim)}
+@media(min-width:760px){.day .bar{width:60%}.day .barbox{height:96px}}
+.legend{display:flex;gap:4px;align-items:center;font-size:11px;color:var(--dim);margin-top:10px;flex-wrap:wrap}
+.legend i{display:inline-block;width:18px;height:8px;border-radius:2px}
+
+.skel{position:relative;overflow:hidden;background:#0b1330;border-radius:12px}
+.skel:after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,#ffffff0d,transparent);animation:sh 1.3s infinite}
+@keyframes sh{to{transform:translateX(100%)}}
+.error{background:#3a1626;border:1px solid #7f1d3a;color:#fecdd3;border-radius:12px;padding:12px;font-size:13.5px}
+.error b{display:block;color:#fff;margin-bottom:3px}
+.error button{margin-top:8px;background:#fb7185;color:#2a0a14;border:0;border-radius:999px;padding:6px 14px;font-weight:700;font-size:13px;cursor:pointer}
+
+.jump{position:sticky;top:0;z-index:5;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -14px 4px;padding:8px 14px;
+  padding-top:max(8px,env(safe-area-inset-top));background:linear-gradient(var(--bg) 75%,transparent)}
+.jump::-webkit-scrollbar{display:none}
+.jump a{flex:none;color:var(--text);text-decoration:none;font-size:13px;font-weight:600;padding:7px 13px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
+.jump a:active{background:var(--card2)}
+.card{scroll-margin-top:60px}
+.panel+.panel{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.ptitle{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;font-weight:650;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px}
+.ptitle span{text-transform:none;letter-spacing:0;font-weight:400;color:var(--dim)}
+.glance{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:4px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative}
+.glance::-webkit-scrollbar{display:none}
+.glance>table{border-collapse:separate;border-spacing:0;font-variant-numeric:tabular-nums;min-width:100%}
+#glance-head th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);font-weight:650;text-align:center;padding:6px 5px 4px;white-space:nowrap;cursor:pointer;user-select:none;-webkit-user-select:none}
+#glance-head th.on{color:var(--ice)}
+#glance-head th.on:after{content:" ↓"}
+#glance-head th.on.asc:after{content:" ↑"}
+#glance-head tr.grp th{font-size:10px;letter-spacing:.08em;color:var(--muted);padding:8px 5px 0;cursor:default;font-weight:600}
+#glance-head tr.grp th.g{border-bottom:1px solid #ffffff14}
+#glance-head th.sep,#glance-body>tr>td.sep{border-left:1px dashed #3a4778}
+#glance-body>tr>td{padding:6px 5px;text-align:center;font-size:13.5px;font-weight:650;border-top:1px solid #ffffff0a;white-space:nowrap}
+#glance-head th.st,#glance-body>tr>td.st{position:sticky;left:0;z-index:2;text-align:left;padding-left:12px;padding-right:10px;background:var(--card);box-shadow:4px 0 8px -4px #0008}
+#glance-head th.st{background:var(--card2)}
+#glance-body>tr>td.st{font-weight:600;white-space:normal;line-height:1.15;min-width:118px;max-width:150px}
+#glance-body>tr.loc>td small{display:block;font-size:10.5px;color:var(--dim);font-weight:400}
+#glance-body>tr.loc>td.tot small{display:inline;margin-left:2px;font-size:10px}
+#glance-body>tr.rg>td{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ice);font-weight:700;padding:10px 5px 3px 12px;border-top:0;text-align:left;white-space:nowrap}
+#glance-body>tr.rg>td.st{box-shadow:none;background:var(--card)}
+#glance-body>tr.loc{cursor:pointer}
+#glance-body>tr.loc:active>td{filter:brightness(1.15)}
+#glance-body>tr>.na{color:var(--dim);font-weight:400}
+#glance-body>tr>.bad{color:var(--bad)}
+#glance-body>tr>td.dc{padding:4px 2px}
+#glance-body>tr>td:last-child,#glance-head th:last-child{padding-right:10px}
+#glance-body>tr>td.dc i{display:inline-block;min-width:26px;padding:3px 3px;border-radius:7px;font-style:normal;font-size:12px;font-weight:700;color:#fff;line-height:1}
+#glance-body>tr>td.dc i.z{background:none;color:#ffffff30;font-weight:500}
+#glance-body>tr>td.dc small{font-size:10px;margin-top:2px}
+.gside{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0b1330;border:1px solid var(--line);border-radius:12px;padding:3px;margin:0 0 8px}
+.gside button{font:inherit;font-size:13px;font-weight:750;color:var(--muted);background:none;border:0;border-radius:9px;padding:7px 0;cursor:pointer}
+.gside button[aria-pressed="true"]{color:#fff;background:linear-gradient(135deg,#2563eb,#9333ea)}
+@media(max-width:759px){.glance.side-next .pa,.glance.side-past .nx{display:none}#glance-body>tr>td.st{max-width:140px}}
+#glance-body>tr>td.dc i.x{background:none;color:#ffffff40;font-weight:400}
+#glance-body>tr>td.dc i.s1{color:#0b1330}
+#glance-body>tr>td.dc i.fb{box-shadow:inset 0 0 0 1.5px var(--warn)}
+.glance-leg{margin:8px 4px 0}
+#glance-body>tr.rg{cursor:pointer}
+#glance-body>tr.rg .chev{display:inline-block;width:12px;color:var(--dim);transition:transform .15s}
+#glance-body>tr.rg.shut .chev{transform:rotate(-90deg)}
+#glance-body>tr.rg .cnt{margin-left:6px;color:var(--dim);font-weight:600;letter-spacing:0}
+#glance-body:not(.sorted)>tr.loc.off{display:none}
+#glance-body>tr.loc.open>td{background:#ffffff08}
+#glance-body>tr.loc.open>td.st{background:var(--card2);box-shadow:inset 3px 0 0 var(--ice),4px 0 8px -4px #0008}
+#glance-body>tr.det>td{padding:2px 8px 12px;border-top:0;text-align:left;white-space:normal;font-weight:400;font-size:15px}
+#glance-body>tr.det .card{width:calc(var(--gw,360px) - 16px);position:sticky;left:8px;overflow-wrap:anywhere;background:var(--bg);text-align:left}
+.cols>.col{min-width:0}
+.cols>.col+.col>.panel:first-child{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+@media(min-width:760px){.cols{display:grid;grid-template-columns:1fr 1fr;gap:22px}.cols>.col+.col>.panel:first-child{margin-top:0;padding-top:0;border-top:0}}
+.dwin .wins{margin-bottom:8px}
+.tline{font-size:13.5px;color:var(--muted);margin:0 2px 8px;font-variant-numeric:tabular-nums}
+.tline b{font-weight:750}
+.hchart svg{display:block;width:100%;height:auto}
+.hchart text{font-size:10px;fill:var(--dim)}
+@media(min-width:760px){.hchart text{font-size:11px}}
+.tline .tl1{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tline .tl1 .lbl{font-size:11.5px;font-weight:650;text-transform:uppercase;letter-spacing:.06em}
+.tline .big{font-size:30px;font-weight:750;letter-spacing:-.02em;line-height:1.1;color:var(--text)}
+.tline .tl2{font-size:12.5px;margin-top:2px}
+.conf{font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.06em;border-radius:999px;padding:3px 9px;border:1px solid currentColor;cursor:help}
+.conf.high{color:var(--good)}.conf.medium{color:var(--warn)}.conf.low{color:var(--bad)}
+.dwin .agree{margin:10px 0 0}
+.mrange{color:var(--muted);margin:6px 0 2px}
+.snow1{background:#0b1330;border-radius:12px;padding:10px 11px}
+.snow1 .swe{font-size:12.5px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+.snow1 .swe b{font-weight:650}
+.wind details.x{background:#ffffff08;margin-top:6px}
+.wind details.x summary{padding:7px 9px;font-size:12px}
+.wind details.x .xb{padding:0 9px 9px;font-size:12.5px}
+.hnote{font-size:12.5px;color:var(--muted);background:#0b1330;border-radius:12px;padding:12px}
+@media(min-width:760px){#glance-body>tr>td{font-size:14.5px}#glance-body>tr>td.dc i{min-width:34px;font-size:13px;padding:5px 4px}.gside{display:none}}
+.day .wh{position:absolute;left:50%;width:2px;margin-left:-1px;background:#ffffff22;border-radius:1px}
+.day.thin .bar{opacity:.6}
+.rng{font-size:12px;color:var(--muted);margin-top:1px;font-variant-numeric:tabular-nums}
+.agree{font-size:13px;line-height:1.4;background:#0b1330;border-radius:12px;padding:9px 11px;margin-bottom:10px}
+.agree b{color:var(--text)}
+.agree .hi{color:#f0abfc}.agree .lo{color:#93c5fd}
+.agree .sr{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+details.models{margin-top:10px;font-size:12.5px}
+details.models summary{cursor:pointer;color:var(--ice);font-weight:600;list-style:none}
+details.models summary::-webkit-details-marker{display:none}
+details.models summary:before{content:"▸ "}
+details.models[open] summary:before{content:"▾ "}
+details.models table{width:100%;border-collapse:collapse;margin-top:6px;font-variant-numeric:tabular-nums}
+details.models th{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;text-align:right;padding:4px 6px;font-weight:650}
+details.models td{text-align:right;padding:5px 6px;border-top:1px solid #ffffff0a;font-weight:600}
+details.models th:first-child,details.models td:first-child{text-align:left}
+details.models th:not(:first-child),details.models td:not(:first-child){white-space:nowrap;padding-left:4px;padding-right:4px}
+details.models td.na{color:var(--dim);font-weight:400}
+.wind{display:flex;gap:10px;align-items:flex-start;background:#0b1330;border-radius:12px;padding:9px 11px;font-size:13px;line-height:1.4}
+.wind svg{flex:none;width:52px;height:52px}
+.wind .l{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;font-weight:650;margin-bottom:2px}
+.wind .l b{color:var(--warn);font-weight:650}
+.wind b{color:var(--text);font-weight:650}
+.wind .lee{color:var(--ice)}
+.wind .xc{display:block;margin-top:4px;font-size:12px;color:var(--muted)}
+.wind .err{color:var(--muted)}
+details.x{margin-top:8px;background:#0b1330;border-radius:12px;font-size:13px}
+details.x summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:10px 11px;font-weight:650}
+details.x summary::-webkit-details-marker{display:none}
+details.x summary .t{flex:none}
+details.x summary .s{flex:1;min-width:0;font-weight:400;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+details.x summary:after{content:"▾";color:var(--dim);flex:none;transition:transform .2s}
+details.x[open] summary:after{transform:rotate(180deg)}
+details.x .xb{padding:0 11px 11px;line-height:1.45;color:var(--text)}
+details.x .xb h5{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ice);margin:12px 0 4px;font-weight:650}
+details.x .xb h5:first-child{margin-top:0}
+details.x .xb p{margin:0 0 8px;font-size:13px}
+details.x .xb .meta{font-size:11.5px;color:var(--dim);margin-bottom:8px}
+details.x .xb .meta a,details.x .xb .src a{color:var(--ice);text-decoration:none;font-weight:600}
+details.x .xb .src{font-size:12px;margin-top:6px}
+details.x .xb .none{background:#1c2a4a;border-radius:10px;padding:9px 11px;font-size:13px;margin-bottom:8px}
+details.x .xb .none b{display:block;color:var(--warn)}
+.dbadge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:750;color:#000;background:#9ca3af;vertical-align:1px}
+.dbadge.d1{background:#4ade80}.dbadge.d2{background:#fde047}.dbadge.d3{background:#fb923c}.dbadge.d4{background:#ef4444;color:#fff}.dbadge.d5{background:#111;color:#fff;outline:1px solid #ef4444}.dbadge.d0{background:#3a4778;color:#cbd5e1}
+.dgrid{display:grid;grid-template-columns:auto 1fr 1fr;gap:4px 8px;align-items:center;font-size:12.5px;margin-bottom:10px}
+.dgrid .h{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;font-weight:650;text-align:center}
+.dgrid .b{font-size:11.5px;color:var(--muted)}
+.dgrid .dbadge{display:block;text-align:center;padding:5px 6px}
+.prob{background:#15203f;border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.prob .n{font-weight:700}
+.prob .d{font-size:12px;color:var(--muted);margin-top:2px}
+.prob .d b{color:var(--text);font-weight:600}
+.prob p{font-size:12.5px;margin:6px 0 0;color:var(--text)}
+.ext{display:inline-block;margin-top:10px;font-size:12.5px;color:var(--ice);text-decoration:none;font-weight:600}
+.tomer{margin-bottom:6px}
+.tomer .vid{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.tomer .vid img{width:112px;aspect-ratio:16/9;object-fit:cover;border-radius:10px;flex:none;background:#0b1330}
+.tomer .vid .t{font-weight:700;font-size:15px;line-height:1.25}
+.tomer .vid .d{font-size:12px;color:var(--muted);margin-top:3px}
+.tomer .vid a{color:inherit;text-decoration:none}
+.tomer .head{font-size:16px;font-weight:650;line-height:1.35;margin:2px 0 10px}
+.tomer ul{list-style:none;margin:0 0 10px;padding:0}
+.tomer li{background:#0b1330;border-radius:12px;padding:9px 11px;margin-bottom:6px;font-size:13.5px;line-height:1.4}
+.tomer li .w{display:inline-block;min-width:74px;font-weight:750;color:var(--ice)}
+.tomer .st{font-size:11.5px;color:var(--dim);display:block;margin-top:2px}
+.tomer .q{display:block;font-size:12px;color:var(--muted);font-style:italic;margin-top:4px}
+.tomer .amts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tomer .amt{background:#0b1330;border:1px solid var(--line);border-radius:10px;padding:6px 9px;font-size:12.5px}
+.tomer .amt b{font-size:15px;margin-left:4px}
+.tomer .conf{font-size:13px;color:var(--muted);margin-bottom:8px}
+.tomer .conf b{color:var(--text)}
+.cams{padding:12px}
+.cams .resorts{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px}
+.cams .resorts::-webkit-scrollbar{display:none}
+.cams .resorts button,.cams .acts button,.cams .acts a{flex:none;font:inherit;font-size:13px;font-weight:650;color:var(--text);background:#0b1330;border:1px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer;text-decoration:none}
+.cams .resorts button[aria-pressed="true"]{background:linear-gradient(135deg,#4f46e5,#9333ea);border-color:transparent}
+.cams .view{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#0b1330}
+.cams .view img,.cams .view iframe{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover;background:#0b1330}
+.cams .view .off{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:13.5px;padding:16px}
+.cams .cap{display:flex;align-items:flex-start;gap:10px;margin-top:9px}
+.cams .cap .n{font-weight:700;font-size:15px}
+.cams .cap .s{font-size:12px;color:var(--muted);margin-top:1px}
+.cams .acts{margin-left:auto;display:flex;gap:6px;flex:none}
+.cams .acts button.on{background:#dc2626;border-color:transparent}
+.cams .thumbs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-top:10px;padding-bottom:2px}
+.cams .thumbs::-webkit-scrollbar{display:none}
+.cams .thumb{flex:none;width:118px;background:none;border:0;padding:0;color:var(--text);cursor:pointer;text-align:left;font:inherit}
+.cams .thumb .im{position:relative;aspect-ratio:16/9;border-radius:9px;overflow:hidden;background:#0b1330;border:2px solid transparent}
+.cams .thumb[aria-current="true"] .im{border-color:var(--ice)}
+.cams .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.cams .thumb .im.bad:after{content:"offline";position:absolute;inset:0;display:grid;place-items:center;font-size:11px;color:var(--dim)}
+.cams .thumb span{display:block;font-size:12px;font-weight:600;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cams .note{font-size:11.5px;color:var(--dim);margin-top:8px}
+
+.smap{padding:12px}
+.smap .tabs,.wins{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:#0b1330;border:1px solid var(--line);border-radius:12px;padding:3px;margin-bottom:10px}
+.smap .tabs button,.wins button{font:inherit;font-size:14px;font-weight:750;color:var(--muted);background:none;border:0;border-radius:9px;padding:8px 0;cursor:pointer}
+.smap .tabs button[aria-pressed="true"],.wins button[aria-pressed="true"]{color:#fff;background:linear-gradient(135deg,#2563eb,#9333ea)}
+.smap .views{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-top:10px}
+.smap .views::-webkit-scrollbar{display:none}
+.smap .views button{flex:none;font:inherit;font-size:13px;font-weight:650;color:var(--text);background:#0b1330;border:1px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.smap .views button[aria-pressed="true"]{background:var(--card2);border-color:var(--ice)}
+.smap .box{position:relative;border-radius:14px;overflow:hidden;background:#1d2a1f;min-height:200px;touch-action:manipulation}
+.smap .tiles img{position:absolute;display:block;filter:brightness(.62) saturate(.75)}
+.smap canvas{position:absolute;inset:0;width:100%;height:100%}
+.smap .labels{position:absolute;inset:0;pointer-events:none}
+.smap .mk{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;background:none;border:0;padding:0;font:inherit;cursor:pointer}
+.smap .mk b{display:block;min-width:22px;padding:1px 5px;border-radius:7px;background:#facc15;color:#1a1300;font-size:13px;font-weight:800;line-height:17px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.6)}
+.smap .mk.zero b{background:#e5e7eb;color:#374151}
+.smap .lbl{position:absolute;white-space:nowrap;font-size:11px;font-weight:700;color:#fff;text-shadow:0 0 3px #000,0 0 6px #000;line-height:14px}
+.smap .lbl.city{font-weight:500;color:#d6deef;font-size:10.5px}
+.smap .dot{position:absolute;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:#d6deef;box-shadow:0 0 2px #000}
+.smap .read{position:absolute;transform:translate(-50%,calc(-100% - 8px));background:rgba(10,16,36,.92);border:1px solid var(--line);border-radius:8px;padding:3px 8px;font-size:12px;white-space:nowrap;pointer-events:none}
+.smap .attr{position:absolute;right:4px;bottom:2px;font-size:9px;color:rgba(255,255,255,.55);pointer-events:none}
+.smap .mlegend{display:flex;margin-top:10px}
+.smap .mlegend div{flex:1;text-align:left;font-size:10.5px;color:var(--muted)}
+.smap .mlegend i{display:block;height:9px;margin-bottom:3px}
+.smap .mlegend div:first-child i{border-radius:5px 0 0 5px}
+.smap .mlegend div:last-child i{border-radius:0 5px 5px 0}
+.smap .note{font-size:11.5px;color:var(--dim);margin-top:8px}
+.smap .note.warn{color:var(--warn)}
+@media(min-width:760px){.cams .thumb{width:150px}}
+footer{color:var(--dim);font-size:12.5px;text-align:center;margin:26px 8px 6px;line-height:1.55}
+footer a{color:var(--muted)}
+footer .ask{color:var(--muted);margin-top:4px}
+.dash-credit{display:flex;align-items:center;gap:8px;margin:0 2px 10px;padding:6px 8px;border:1px solid var(--line);border-radius:12px;background:var(--card);max-width:100%;min-width:0}
+.dash-credit img{height:26px;width:auto;flex:none;border-radius:4px}
+.dash-credit p{margin:0;font-size:12px;line-height:1.35;color:var(--muted);min-width:0}
+.dash-credit a{color:var(--text);font-weight:650;text-decoration:none}
+.dash-credit a:hover{color:var(--ice)}
+.dash-credit .by{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--dim);font-weight:650}
+footer .dash-foot{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 10px;flex-wrap:wrap}
+footer .dash-foot img{height:22px;width:auto;border-radius:4px}
+@media(max-width:420px){
+  .dash-credit{padding:5px 7px;margin:0 2px 8px}
+  .dash-credit img{height:20px}
+  .dash-credit p{font-size:11px}
+  footer .dash-foot{font-size:11.5px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img class="logo" src="../icon.svg" alt="">
+    <div>
+      <h1>Durango Snow</h1>
+      <div class="stamp" id="stamp">Loading live data…</div>
+    </div>
+    <button class="refresh" id="refresh" aria-label="Refresh data" title="Refresh">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+    </button>
+  </header>
+  <div class="dash-credit">
+    <img src="durango-dash-logo.png" alt="Durango Dash">
+    <p><span class="by">Presented by Durango Dash</span><br>
+      Locally owned dumpster rentals in Durango ·
+      <a href="https://durangodash.com/?utm_source=snow&amp;utm_medium=referral&amp;utm_campaign=snow_page" rel="noopener">durangodash.com</a></p>
+  </div>
+
+  <section class="card tomer" id="tomer">
+    <div class="ptitle">Chris Tomer's daily forecast <span>auto · daily</span></div>
+    <div class="body"><div class="skel" style="height:140px"></div></div>
+  </section>
+
+  <nav class="jump" id="jump" aria-label="Jump to section"><a href="#glance">Overview</a><a href="#tomer">Tomer</a><a href="#cams">Webcams</a></nav>
+
+  <h2 class="sec" id="glance">Snow forecast <small>past from SNOTEL · next from NWS forecast</small></h2>
+  <div class="gside" id="glance-side" role="group" aria-label="Show past or next"><button type="button" data-side="past" aria-pressed="false">Past</button><button type="button" data-side="next" aria-pressed="true">Next</button></div>
+  <div class="glance" id="glance-wrap"><table><thead id="glance-head">
+    <tr class="grp"><th class="st"></th><th class="g">Now</th><th class="g pa" colspan="4" title="Net change in SNOTEL snow depth over the trailing window">Past · depth change</th><th class="g nx" colspan="4" title="Official NWS gridpoint snowfall forecast">Next · NWS forecast</th></tr>
+    <tr><th data-k="loc" class="st">Location</th><th data-k="depth" title="Current SNOTEL snow depth">Depth</th><th data-k="p24" class="pa sep">24h</th><th data-k="p48" class="pa">48h</th><th data-k="p72" class="pa">72h</th><th data-k="p7" class="pa">7d</th><th data-k="n24" class="nx sep" title="Next 24 hours from now">24h</th><th data-k="n48" class="nx" title="Next 48 hours from now">48h</th><th data-k="n72" class="nx" title="Next 72 hours from now">72h</th><th data-k="n7" class="nx" title="Next 7 days · NWS coverage">7d</th></tr>
+  </thead><tbody id="glance-body"></tbody></table></div>
+  <div class="legend glance-leg">Snow: <i style="background:var(--s1)"></i>&lt;1" <i style="background:var(--s2)"></i>1–3 <i style="background:var(--s3)"></i>3–6 <i style="background:var(--s4)"></i>6–12 <i style="background:var(--s5)"></i>12–18 <i style="background:var(--s6)"></i>18+ <span>NWS official gridpoint · zeros blank</span><span style="margin-left:auto">Tap a header to sort · tap a row to expand</span></div>
+
+  <h2 class="sec" id="cams">Webcams <small>tap a camera · stills refresh every 5 min</small></h2>
+  <section class="card cams" id="cams-card">
+    <div class="resorts" id="cam-resorts" role="group" aria-label="Resort"></div>
+    <div class="view" id="cam-view"></div>
+    <div class="cap" id="cam-cap"></div>
+    <div class="thumbs" id="cam-thumbs"></div>
+    <div class="note" id="cam-note"></div>
+  </section>
+
+  <footer>
+    <div class="dash-foot">
+      <img src="durango-dash-logo.png" alt="">
+      <span>Presented by <a href="https://durangodash.com/?utm_source=snow&amp;utm_medium=referral&amp;utm_campaign=snow_page" rel="noopener">Durango Dash</a> · locally owned dumpster rentals in Durango</span>
+    </div>
+    Preview page · NWS-only data.
+    Snow forecasts from the <a href="https://www.weather.gov/" rel="noopener">National Weather Service</a> / <a href="https://www.weather.gov/documentation/services-web-api" rel="noopener">NOAA api.weather.gov</a> gridpoint (<code>snowfallAmount</code>).
+    Snowpack from <a href="https://www.nrcs.usda.gov/wps/portal/wcc/home/" rel="noopener">NRCS SNOTEL</a>.
+    The public NWS API covers about seven days, so there is no 14-day column (NOAA NBM GRIB on NOMADS is not usable from a browser).
+    Zeros are blank. Daily video summary from <a href="https://www.youtube.com/@TheChristomer" rel="noopener">Chris Tomer</a>.
+    Snow and rain in inches, temperatures in °F.
+  </footer>
+</div>
+
+<script>
+"use strict";
+const REGIONS = [
+  {id:"sanjuans", name:"San Juans", sub:"Durango area"},
+  {id:"nco", name:"Northern Colorado", sub:"Park Range"},
+  {id:"wy", name:"Wyoming", sub:"Snowy Range · Sierra Madre"},
+  {id:"ut", name:"Utah", sub:"Bear River Range"},
+  {id:"id", name:"Idaho", sub:"West Central Mtns · McCall"},
+];
+// lat/lon is the station (or peak). fcLat/fcLon, when set, is the NWS grid lookup so the
+// cell matches loc.ft. tag (e.g. "treeline") is appended to the name.
+const LOCATIONS = [
+  {id:"sharkstooth", region:"sanjuans", name:"Sharkstooth", note:"La Plata Mtns", ft:10730, m:3271, lat:37.50356, lon:-108.11405, triplet:"1060:CO:SNTL"},
+  {id:"sharkpeak", region:"sanjuans", name:"Sharkstooth Peak", tag:"treeline", note:"La Plata Mtns", ft:11630, m:3545, lat:37.4599, lon:-108.0732},
+  {id:"columbus", region:"sanjuans", name:"Columbus Basin", note:"La Plata Mtns", ft:10780, lat:37.44146, lon:-108.02468, triplet:"904:CO:SNTL", fcLat:37.4415, fcLon:-108.0520},
+  {id:"spud", region:"sanjuans", name:"Spud Mountain", note:"Coal Bank Pass", ft:10660, lat:37.69883, lon:-107.77841, triplet:"780:CO:SNTL", fcLat:37.7108, fcLon:-107.8104},
+  {id:"molas", region:"sanjuans", name:"Molas Pass", note:"SNOTEL: Molas Lake", ft:10610, m:3236, lat:37.74929, lon:-107.68933, triplet:"632:CO:SNTL"},
+  {id:"stump", region:"sanjuans", name:"Stump Lakes", note:"Weminuche", ft:11230, lat:37.47647, lon:-107.63348, triplet:"797:CO:SNTL"},
+  {id:"purg", region:"sanjuans", name:"Purgatory", note:"Ski area · top of Lift 8 · forecast only", ft:10800, m:3292, lat:37.6150, lon:-107.8540},
+  {id:"wolf", region:"sanjuans", name:"Wolf Creek", note:"Ski area · forecast only", ft:11001, m:3353, lat:37.4747, lon:-106.7932},
+  {id:"rabbit", region:"nco", name:"Rabbit Ears", note:"Rabbit Ears Pass · Steamboat", ft:9390, lat:40.36735, lon:-106.74118, triplet:"709:CO:SNTL"},
+  {id:"nfrench", region:"wy", name:"North French Creek", note:"Snowy Range", ft:10150, lat:41.33087, lon:-106.37558, triplet:"668:WY:SNTL"},
+  {id:"battle", region:"wy", name:"Battle Mountain", note:"Sierra Madre", ft:7460, lat:41.05402, lon:-107.26674, triplet:"317:WY:SNTL"},
+  {id:"tonygrove", region:"ut", name:"Tony Grove Lake", note:"Logan Canyon", ft:8450, lat:41.89833, lon:-111.62957, triplet:"823:UT:SNTL"},
+  {id:"deadwood", region:"id", name:"Deadwood Summit", note:"Boise National Forest", ft:6990, lat:44.54492, lon:-115.56386, triplet:"439:ID:SNTL"},
+  {id:"brundage", region:"id", name:"Brundage Mountain", note:"McCall · summit forecast", ft:7640, lat:45.0050, lon:-116.1540,
+   triplet:"370:ID:SNTL", snotelName:"Brundage Reservoir", snotelFt:6280, report:"https://brundage.com/snow-report/"},
+].map(l => ({...l, m: l.m || Math.round(l.ft * 0.3048)}));
+const fcLat = loc => loc.fcLat != null ? loc.fcLat : loc.lat;
+const fcLon = loc => loc.fcLon != null ? loc.fcLon : loc.lon;
+const locTitle = loc => loc.tag ? `${loc.name} (${loc.tag})` : loc.name;
+const locRowNote = loc => loc.tag ? `${loc.ft.toLocaleString()} ft · ${loc.note}` : loc.note;
+const TZ = "America/Denver";
+const HOUR = 36e5;
+const SNOW_SCALE = [[0.05,"--s0"],[1,"--s1"],[3,"--s2"],[6,"--s3"],[12,"--s4"],[18,"--s5"],[Infinity,"--s6"]];
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DOW = ["S","M","T","W","T","F","S"];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad = n => String(n).padStart(2, "0");
+const snowColor = v => `var(${(SNOW_SCALE.find(([max]) => v < max) || SNOW_SCALE[6])[1]})`;
+// Snow amounts are whole inches everywhere; a trace under 1" reads "<1" to match the legend's <1" band.
+// Returns plain text, so esc() it before putting it in HTML.
+const fmtIn = v => v == null || !isFinite(v) ? "—" : v < 0.05 ? "0" : v < 1 ? "<1" : String(Math.round(v));
+const fmtDelta = v => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "±") + Math.abs(+v.toFixed(1)) + '"';
+const deltaCls = v => v == null || Math.abs(v) < 0.05 ? "flat" : v > 0 ? "up" : "down";
+const mtTime = ms => new Date(ms).toLocaleString("en-US", {timeZone:TZ, weekday:"short", hour:"numeric", minute:"2-digit"});
+
+// Calendar dates ("2026-10-21") are handled as UTC midnight so the browser's own zone never shifts them.
+const ymd = s => { const [y, m, d] = s.split("-").map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+const shortDate = s => { const d = ymd(s); return `${MON[d.getUTCMonth()]} ${d.getUTCDate()}`; };
+const dayLabel = s => s === todayMT() ? "today" : shortDate(s);
+const todayMT = () => new Intl.DateTimeFormat("en-CA", {timeZone:TZ, year:"numeric", month:"2-digit", day:"2-digit"}).format(new Date());
+
+// Third-party calls get 8 s so a slow API can't hold the page; our own JSON files (same origin,
+// gzipped by GitHub Pages) get longer because they are the fallback for everything else.
+const LOCAL_TIMEOUT = 15000;
+async function getJSON(url, timeoutMs = 8000, headers) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), timeoutMs);
+  try {
+    const r = await fetch(url, {signal:ctl.signal, cache:"no-store", headers:headers || undefined});
+    if (!r.ok) throw new Error(`HTTP ${r.status} from ${new URL(url, location.href).host}`);
+    return await r.json();
+  } catch (e) {
+    if (e.name === "AbortError") throw new Error(`Timed out (${timeoutMs / 1000}s) reaching ${new URL(url, location.href).host}`);
+    if (e instanceof TypeError) throw new Error(`Network error reaching ${new URL(url, location.href).host}`);
+    throw e;
+  } finally { clearTimeout(t); }
+}
+
+/* Live fetch with one quick retry. If it fails, fall back to the newer of: the last good response
+   saved on this device, or the server-built snapshot (live.json). This preview uses NWS and NRCS
+   only; the snapshot's nws + snotel sections keep the page usable when a live call fails. */
+const CACHE_PREFIX = "snowDashCache:";
+let snapshot = null;   // contents of live.json
+let snapshotReady = Promise.resolve();   // settles once live.json has loaded or failed
+const liveArrived = new Set();   // sections already rendered from a live response
+const snapAge = () => snapshot ? Date.now() - Date.parse(snapshot.generated_at) : Infinity;
+const snapTime = () => snapshot ? Date.parse(snapshot.generated_at) : 0;
+async function fetchCached(key, url, check = () => {}, snapFn = null) {
+  let err;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (attempt) await new Promise(r => setTimeout(r, 1500));
+    try {
+      const data = await getJSON(url);
+      check(data);
+      try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({t:Date.now(), data})); } catch (_) {}
+      liveArrived.add(key);
+      return {data, source:"live"};
+    } catch (e) { err = e; }
+  }
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(CACHE_PREFIX + key)); } catch (_) {}
+  await snapshotReady;   // a slow live.json shouldn't cost us the fallback
+  const snapData = snapFn ? snapFn() : null;
+  const snapT = snapData ? snapTime() : 0;
+  if (saved && saved.data && saved.t >= snapT) return {data:saved.data, savedAt:saved.t, err, source:"cache"};
+  if (snapData) return {data:snapData, savedAt:snapT, err, source:"snapshot"};
+  throw err;
+}
+
+// api.weather.gov wants a User-Agent; browsers send their own (the header is forbidden to set).
+// CORS is open. 5xx and 429 get exponential backoff; 4xx fails immediately. Grid JSON is ~300 KB,
+// so we slim to snowfallAmount before writing localStorage (quota is a few MB).
+async function fetchNwsCached(key, url, check, snapFn, slim) {
+  let err;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (attempt) await new Promise(r => setTimeout(r, 1000 * (1 << (attempt - 1))));
+    try {
+      const raw = await getJSON(url, 15000, {Accept:"application/geo+json"});
+      const data = slim ? slim(raw) : raw;
+      check(data);
+      try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({t:Date.now(), data})); } catch (_) {}
+      liveArrived.add(key);
+      return {data, source:"live"};
+    } catch (e) {
+      err = e;
+      const m = /HTTP (\d+)/.exec(e.message);
+      if (m && +m[1] < 500 && +m[1] !== 429) break;
+    }
+  }
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(CACHE_PREFIX + key)); } catch (_) {}
+  await snapshotReady;
+  const snapData = snapFn ? snapFn() : null;
+  const snapT = snapData ? snapTime() : 0;
+  if (saved && saved.data && saved.t >= snapT) { try { check(saved.data); } catch (_) { saved = null; } }
+  if (saved && saved.data && saved.t >= snapT) return {data:saved.data, savedAt:saved.t, err, source:"cache"};
+  if (snapData) { check(snapData); return {data:snapData, savedAt:snapT, err, source:"snapshot"}; }
+  throw err;
+}
+
+function savedNote(res, retryFn) {
+  const div = document.createElement("div");
+  div.className = "saved";
+  div.innerHTML = `⚠ Live data unavailable · showing ${res.source === "snapshot" ? "the server snapshot" : "data saved on this device"} from ${esc(mtTime(res.savedAt))} MT · ${esc(res.err && res.err.message || res.err)}<button type="button">Retry</button>`;
+  div.querySelector("button").onclick = retryFn;
+  return div;
+}
+
+function errorBox(title, err, retryFn) {
+  const box = document.createElement("div");
+  box.className = "error";
+  box.innerHTML = `<b>${esc(title)}</b>${esc(err && err.message || err)}<br><button type="button">Try again</button>`;
+  box.querySelector("button").onclick = retryFn;
+  return box;
+}
+
+const ftLabel = loc => `${loc.ft.toLocaleString()} ft`;
+
+const cardHTML = loc => `<section class="card" id="loc-${loc.id}">
+  <div class="top"><div><h3>${esc(locTitle(loc))}</h3><div class="sub">${ftLabel(loc)} · ${esc(loc.note)}</div></div><span class="badge">${loc.triplet ? "SNOTEL " + esc(loc.triplet.split(":")[0]) : "Forecast only"}</span></div>
+  <div class="cols"><div class="col">
+    <div class="panel dwin" id="fc-${loc.id}"><div class="ptitle">Forecast <span>NWS official</span></div><div class="wins" role="group" aria-label="Window"></div><div class="tline"></div><div class="hchart"></div><div class="agree"></div><div class="body"></div></div>
+  </div><div class="col">
+    ${loc.triplet ? `<div class="panel" id="sn-${loc.id}"><div class="ptitle">Snowpack <span>${loc.snotelName ? `${esc(loc.snotelName)} SNOTEL · ${loc.snotelFt.toLocaleString()} ft` : "NRCS SNOTEL · hourly"}</span></div><div class="body"></div></div>` : ""}
+    <div class="panel" id="more-${loc.id}">
+      <details class="x" id="nws-${loc.id}"><summary><span class="t">NWS forecast discussion</span><span class="s">loading…</span></summary><div class="xb"></div></details>
+      <details class="x" id="avy-${loc.id}"><summary><span class="t">Avalanche forecast</span><span class="s">loading…</span></summary><div class="xb"></div></details>
+    </div>
+  </div></div>
+  ${loc.report ? `<a class="ext" href="${loc.report}" target="_blank" rel="noopener">Official ${esc(loc.name.split(" ")[0])} snow report ↗</a>` : ""}
+</section>`;
+
+// Each spot is one table row; its card lives in a hidden detail row right beneath it.
+function buildPage() {
+  const glance = $("glance-body");
+  for (const r of REGIONS) {
+    const locs = LOCATIONS.filter(l => l.region === r.id);
+    if (!locs.length) continue;
+    const open = !!regionOpen[r.id];
+    glance.insertAdjacentHTML("beforeend", `<tr class="rg${open ? "" : " shut"}" id="r-${r.id}" data-r="${r.id}" aria-expanded="${open}"><td class="st"><span class="chev">▾</span>${esc(r.name)}<span class="cnt">${locs.length}</span></td><td colspan="9"></td></tr>`);
+    for (const loc of locs) {
+      const na = loc.triplet ? "…" : "—";
+      glance.insertAdjacentHTML("beforeend", `<tr class="loc${open ? "" : " off"}" data-id="${loc.id}" data-r="${r.id}"><td class="st">${esc(locTitle(loc))}<small>${esc(locRowNote(loc))}</small></td>`
+        + `<td data-c="depth" class="${loc.triplet ? "" : "na"}">${na}</td>`
+        + PAST_COLS.map((c, i) => `<td data-c="${c}" class="pa${i === 0 ? " sep" : ""}${loc.triplet ? "" : " na"}">${na}</td>`).join("")
+        + NEXT_COLS.map((c, i) => `<td data-c="${c}" class="dc nx${i === 0 ? " sep" : ""}"><i class="x">…</i></td>`).join("") + `</tr>`
+        + `<tr class="det" data-id="${loc.id}" hidden><td colspan="10">${cardHTML(loc)}</td></tr>`);
+    }
+  }
+  glance.addEventListener("click", e => {
+    const wb = e.target.closest(".wins button[data-w]");
+    if (wb) { detWin = wb.dataset.w; refreshDetail(openId); return; }
+    if (e.target.closest("tr.det")) return;
+    const rg = e.target.closest("tr.rg");
+    if (rg) { setRegion(rg.dataset.r, !regionOpen[rg.dataset.r]); return; }
+    const tr = e.target.closest("tr.loc");
+    if (!tr) return;
+    // Keep the tapped row where it is on screen even when a card above it closes.
+    const y0 = tr.getBoundingClientRect().top;
+    expandRow(tr.dataset.id, {toggle:true});
+    window.scrollBy(0, tr.getBoundingClientRect().top - y0);
+  });
+  const gw = () => $("glance-wrap").style.setProperty("--gw", $("glance-wrap").clientWidth + "px");
+  gw();
+  if (window.ResizeObserver) new ResizeObserver(gw).observe($("glance-wrap"));
+  glanceOrig = [...glance.children];
+  try { wireGlanceSort(); } catch (e) { console.error("glance sort disabled:", e); }
+  try { wireGlanceSide(); } catch (e) { console.error("past/next toggle disabled:", e); }
+}
+
+const regionOpen = (() => { try { return {sanjuans:true, ...JSON.parse(localStorage.getItem("snowRegions") || "{}")}; } catch (_) { return {sanjuans:true}; } })();
+function setRegion(id, open) {
+  regionOpen[id] = open;
+  try { localStorage.setItem("snowRegions", JSON.stringify(regionOpen)); } catch (_) {}
+  const rg = $("r-" + id);
+  if (rg) { rg.classList.toggle("shut", !open); rg.setAttribute("aria-expanded", open); }
+  for (const tr of document.querySelectorAll(`#glance-body tr.loc[data-r="${id}"]`)) tr.classList.toggle("off", !open);
+  if (!open && openId && LOCATIONS.find(l => l.id === openId).region === id) collapseRow();
+}
+
+let openId = null, detWin = "d3";
+const SORT_WIN = {p24:"h24", n24:"h24", p48:"h48", n48:"h48", p72:"d3", n72:"d3", p7:"d7", n7:"d7"};
+function expandRow(id, {scroll = false, toggle = false} = {}) {
+  const loc = LOCATIONS.find(l => l.id === id);
+  const tr = document.querySelector(`#glance-body tr.loc[data-id="${id}"]`), det = document.querySelector(`#glance-body tr.det[data-id="${id}"]`);
+  if (!loc || !tr || !det) return;
+  if (toggle && openId === id) { collapseRow(); return; }
+  if (openId && openId !== id) collapseRow(false);
+  if (!regionOpen[loc.region]) setRegion(loc.region, true);
+  det.hidden = false; tr.classList.add("open");
+  openId = id; detWin = SORT_WIN[glanceSort.col] || "d3";
+  refreshDetail(id);
+  try { history.replaceState(null, "", "#loc-" + id); } catch (_) {}
+  if (scroll) window.scrollTo({top:tr.getBoundingClientRect().top + window.pageYOffset - 60, behavior:"smooth"});
+}
+function collapseRow(clearHash = true) {
+  if (!openId) return;
+  const tr = document.querySelector(`#glance-body tr.loc[data-id="${openId}"]`), det = document.querySelector(`#glance-body tr.det[data-id="${openId}"]`);
+  if (tr) tr.classList.remove("open");
+  if (det) det.hidden = true;
+  openId = null;
+  if (clearHash) { try { history.replaceState(null, "", location.pathname + location.search); } catch (_) {} }
+}
+
+// Table columns: trailing SNOTEL depth change and forecast windows ahead, matching the map's windows.
+const PAST_COLS = ["p24", "p48", "p72", "p7"], PAST_HOURS = [24, 48, 72, 168];
+const NEXT_COLS = ["n24", "n48", "n72", "n7"];
+
+// Below 760px only one group fits beside the sticky location column; the control picks which.
+function wireGlanceSide() {
+  let side = "next";
+  try { if (localStorage.getItem("snowGlanceSide") === "past") side = "past"; } catch (_) {}
+  const apply = () => {
+    $("glance-wrap").classList.toggle("side-past", side === "past");
+    $("glance-wrap").classList.toggle("side-next", side === "next");
+    for (const b of document.querySelectorAll("#glance-side button")) b.setAttribute("aria-pressed", b.dataset.side === side ? "true" : "false");
+  };
+  $("glance-side").addEventListener("click", e => {
+    const b = e.target.closest("button[data-side]");
+    if (!b || b.dataset.side === side) return;
+    side = b.dataset.side;
+    try { localStorage.setItem("snowGlanceSide", side); } catch (_) {}
+    apply();
+  });
+  apply();
+}
+
+function wireGlanceSort() {
+  $("glance-head").addEventListener("click", e => {
+    const th = e.target.closest("th[data-k]");
+    if (!th) return;
+    const k = th.dataset.k;
+    if (k === glanceSort.col && k !== "loc") glanceSort.desc = !glanceSort.desc;
+    else { glanceSort.col = k; glanceSort.desc = true; }
+    try { localStorage.setItem("snowSort", JSON.stringify(glanceSort)); } catch (_) {}
+    applyGlanceSort();
+  });
+  applyGlanceSort();
+}
+
+function setCell(id, col, html, cls = "", style = "", v = null) {
+  const td = document.querySelector(`#glance-body tr[data-id="${id}"] td[data-c="${col}"]`);
+  if (!td) return;
+  const keep = [...td.classList].filter(c => ["st", "dc", "tot", "sep", "pa", "nx"].includes(c)).join(" ");
+  td.innerHTML = html; td.className = (keep + " " + cls).trim(); td.style.cssText = style;
+  td.dataset.v = v == null || !isFinite(v) ? "" : v;
+  if (glanceSort.col !== "loc") { try { applyGlanceSort(); } catch (e) { console.error(e); } }
+}
+
+// Sorting by a number column flattens the region groups; "Location" restores them.
+const glanceSort = (() => { try { return {col:"loc", desc:true, ...JSON.parse(localStorage.getItem("snowSort") || "{}")}; } catch (_) { return {col:"loc", desc:true}; } })();
+let glanceOrig = [];
+const setChildren = (el, nodes) => { el.innerHTML = ""; for (const n of nodes) el.appendChild(n); };
+function applyGlanceSort() {
+  const tb = $("glance-body");
+  if (!tb) return;
+  const heads = [...document.querySelectorAll("#glance-head th[data-k]")];
+  // A saved preference may name a column this table no longer has (the old "24h" column did this).
+  if (!heads.some(th => th.dataset.k === glanceSort.col)) { glanceSort.col = "loc"; try { localStorage.removeItem("snowSort"); } catch (_) {} }
+  for (const th of heads) { th.classList.toggle("on", th.dataset.k === glanceSort.col && glanceSort.col !== "loc"); th.classList.toggle("asc", th.classList.contains("on") && !glanceSort.desc); }
+  tb.classList.toggle("sorted", glanceSort.col !== "loc");
+  if (glanceSort.col === "loc") { setChildren(tb, glanceOrig); return; }
+  const val = tr => { const td = tr.querySelector(`td[data-c="${glanceSort.col}"]`), s = td && td.dataset.v; return s ? +s : null; };
+  const rows = glanceOrig.filter(tr => tr.classList.contains("loc")).map(tr => ({tr, v:val(tr)}))
+    .sort((a, b) => (a.v == null) - (b.v == null) || (a.v == null ? 0 : glanceSort.desc ? b.v - a.v : a.v - b.v));
+  const out = [];
+  for (const r of rows) out.push(r.tr, document.querySelector(`tr.det[data-id="${r.tr.dataset.id}"]`));
+  setChildren(tb, out.filter(Boolean));
+}
+const panelBody = (kind, loc) => document.querySelector(`#${kind}-${loc.id} .body`);
+
+/* ---------------- SNOTEL ---------------- */
+
+// AWDB timestamps are Pacific Standard Time year-round (UTC−8, no DST).
+const PST_OFFSET = -8 * HOUR;
+const awdbFmt = ms => { const d = new Date(ms + PST_OFFSET); return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:00`; };
+const awdbParse = s => { const [a, b = "00:00"] = s.split(" "); const [y, m, d] = a.split("-").map(Number); const [hh, mm] = b.split(":").map(Number); return Date.UTC(y, m - 1, d, hh, mm) - PST_OFFSET; };
+
+function series(values) {
+  return (values || []).filter(v => v && v.value != null && isFinite(v.value)).map(v => ({t:awdbParse(v.date), v:+v.value})).sort((a, b) => a.t - b.t);
+}
+function changeOver(s, hours) {
+  if (!s.length) return null;
+  const last = s[s.length - 1], cutoff = last.t - hours * HOUR;
+  let ref = null;
+  for (const p of s) { if (p.t <= cutoff) ref = p; else break; }
+  // Stations skip hours now and then; allow the reference reading to sit a little before the window.
+  if (!ref || last.t - ref.t > (hours + Math.max(3, hours * 0.15)) * HOUR) return null;
+  return last.v - ref.v;
+}
+
+function sparkline(s, now, gid, hours = 48) {
+  const W = 300, H = 46, start = now - hours * HOUR;
+  const pts = s.filter(p => p.t >= start);
+  if (pts.length < 2) return `<svg viewBox="0 0 ${W} ${H}"><text x="${W/2}" y="${H/2+4}" fill="#5d6b96" font-size="12" text-anchor="middle">Not enough hourly data</text></svg>`;
+  const lo = Math.min(...pts.map(p => p.v)), hi = Math.max(...pts.map(p => p.v));
+  const span = Math.max(hi - lo, 2);
+  const base = lo - (span - (hi - lo)) / 2;
+  const x = t => ((t - start) / (now - start)) * W;
+  const y = v => H - 4 - ((v - base) / span) * (H - 10);
+  const line = pts.map(p => `${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join(" ");
+  const last = pts[pts.length - 1];
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Snow depth, last ${hours} hours">
+    <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7dd3fc" stop-opacity=".45"/><stop offset="1" stop-color="#7dd3fc" stop-opacity="0"/></linearGradient></defs>
+    <polygon points="${x(pts[0].t).toFixed(1)},${H} ${line} ${x(last.t).toFixed(1)},${H}" fill="url(#${gid})"/>
+    <polyline points="${line}" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    <circle cx="${x(last.t).toFixed(1)}" cy="${y(last.v).toFixed(1)}" r="3.5" fill="#fff" vector-effect="non-scaling-stroke"/>
+  </svg>`;
+}
+
+const snotelState = {};
+
+// One request for every station: fewer hits on NRCS, which rate-limits/blocks by IP.
+async function loadSnotelAll() {
+  const stations = LOCATIONS.filter(l => l.triplet);
+  for (const st of stations) {
+    if (!snotelState[st.id]) { panelBody("sn", st).innerHTML = `<div class="skel" style="height:190px"></div>`; setCell(st.id, "depth", "…"); for (const c of PAST_COLS) setCell(st.id, c, "…"); }
+  }
+  const retry = () => loadSnotelAll();
+  let res;
+  try {
+    const now = Date.now();
+    const url = "https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data"
+      + `?stationTriplets=${stations.map(s => s.triplet).join(",")}&elements=SNWD,WTEQ&duration=HOURLY`
+      + `&beginDate=${encodeURIComponent(awdbFmt(now - 170 * HOUR))}&endDate=${encodeURIComponent(awdbFmt(now + HOUR))}`;
+    res = await fetchCached("snotel", url, d => { if (!Array.isArray(d) || !d.length) throw new Error("SNOTEL returned no stations."); }, () => snapshot && snapshot.snotel);
+  } catch (e) {
+    for (const st of stations) snotelFail(st, e, retry);
+    return stations.map(() => false);
+  }
+  return applySnotel(res, retry);
+}
+
+function applySnotel(res, retry) {
+  const stations = LOCATIONS.filter(l => l.triplet);
+  return stations.map(st => {
+    const rec = res.data.find(r => r.stationTriplet === st.triplet);
+    try {
+      renderSnotel(st, rec, res.savedAt ? res : null, retry);
+      return res.savedAt ? "saved" : true;
+    } catch (e) { snotelFail(st, e, retry); return false; }
+  });
+}
+
+function snotelFail(st, e, retry) {
+  delete snotelState[st.id];
+  setCell(st.id, "depth", "!", "bad");
+  for (const c of PAST_COLS) setCell(st.id, c, "!", "bad");
+  const body = panelBody("sn", st);
+  body.innerHTML = "";
+  body.appendChild(errorBox("Couldn't load SNOTEL data", e, retry));
+}
+
+function renderSnotel(st, rec, saved, retry) {
+  const body = panelBody("sn", st);
+  const now = Date.now();
+  if (!rec || !Array.isArray(rec.data)) throw new Error("SNOTEL returned no data for this station.");
+  const el = {};
+  rec.data.forEach(d => { el[d.stationElement.elementCode] = series(d.values); });
+  const depth = el.SNWD || [], swe = el.WTEQ || [];
+  if (!depth.length && !swe.length) throw new Error("No hourly readings in the last 7 days (station may be offline).");
+  const dl = depth[depth.length - 1], wl = swe[swe.length - 1];
+  const asOf = Math.max(dl ? dl.t : 0, wl ? wl.t : 0);
+  const stale = now - asOf > 6 * HOUR;
+  const d24 = changeOver(depth, 24), d48 = changeOver(depth, 48), d72 = changeOver(depth, 72), d168 = changeOver(depth, 168);
+  const w24 = changeOver(swe, 24), w168 = changeOver(swe, 168);
+  snotelState[st.id] = {name:st.name, depth:dl && dl.v, d24, d48, d72, d168, series:depth};
+  setCell(st.id, "depth", dl ? Math.round(dl.v) + '"' : "—", dl ? "" : "na", dl && dl.v >= 0.5 ? `color:${snowColor(dl.v)}` : "", dl ? dl.v : null);
+  [d24, d48, d72, d168].forEach((v, i) => {
+    if (v == null) { setCell(st.id, PAST_COLS[i], "—", "na"); return; }
+    setCell(st.id, PAST_COLS[i], `<span title="Net change in snow depth — the pack settles, so new snow is usually more than this">${fmtDelta(v)}</span>`, deltaCls(v), "", v);
+  });
+  const chg = (l, v) => `<span>${l} <b class="${deltaCls(v)}">${fmtDelta(v)}</b></span>`;
+  body.innerHTML = `
+    <div class="snow1"><div class="stat" style="padding:0;background:none"><div class="l">Snow depth</div><div class="v" style="color:${dl ? snowColor(dl.v) : "inherit"}">${dl ? Math.round(dl.v) : "—"}<small>"</small></div>
+      <div class="chg">${chg("24h", d24)}${chg("7d", d168)}</div></div>
+      <div class="swe">SWE <b>${wl ? wl.v.toFixed(1) + '"' : "—"}</b> · 24h <b class="${deltaCls(w24)}">${fmtDelta(w24)}</b> · 7d <b class="${deltaCls(w168)}">${fmtDelta(w168)}</b></div></div>
+    <div class="spark"><div class="row"><span>Depth · last 7 days</span><span>${dl ? Math.round(dl.v) + '" now' : ""}</span></div>${sparkline(depth, asOf || now, "sg-" + st.id, 168)}<div class="row"><span>7d ago</span><span>${esc(wdayFmt.format(new Date((asOf || now) - 84 * HOUR)))}</span><span>now</span></div></div>
+    <div class="asof">${stale ? "⚠ Stale · " : ""}Last reading ${mtTime(asOf)} MT</div>`;
+  if (saved) body.prepend(savedNote(saved, retry));
+  refreshDetail(st.id);
+}
+
+/* ---------------- Forecast ---------------- */
+
+const UNIT_TO_IN = {inch:1, in:1, cm:1/2.54, mm:1/25.4};
+const toInches = (arr, unit) => {
+  const k = UNIT_TO_IN[unit];
+  if (k == null) throw new Error(`Unexpected unit "${unit}" from Open-Meteo.`);
+  return arr.map(v => v == null ? null : v * k);
+};
+const sum = (a, i, j) => a.slice(i, j).reduce((s, v) => s + (v || 0), 0);
+const fcState = {};
+
+// Range / agreement only look at the models we keep. Headline totals are NWS (or NBM fallback),
+// so a single official source is enough — MIN_MODELS no longer gates the Next cells.
+const MIN_MODELS = 2;
+function rangeLabel(time, a, b) {
+  const s = dayLabel(time[a]), e = shortDate(time[b]);
+  if (a === b) return s;
+  if (s === "today") return `today–${e}`;
+  return s.slice(0, 3) === e.slice(0, 3) ? `${s}–${e.slice(4)}` : `${s}–${e}`;
+}
+
+const MODELS = [["ncep_nbm_conus","NBM"],["ecmwf_ifs025","ECMWF"],["gfs_seamless","GFS"]];
+const SHORT_MODELS = [["ncep_hrrr_conus","HRRR"]];
+const median = a => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+
+/* ---------------- NWS gridpoint snowfall (headline Next totals) ---------------- */
+
+const nwsState = {};
+const nwsDayFmt = new Intl.DateTimeFormat("en-CA", {timeZone:TZ, year:"numeric", month:"2-digit", day:"2-digit"});
+
+function parseIsoDuration(s) {
+  const m = /^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$/.exec(s);
+  if (!m) return NaN;
+  return ((+m[1] || 0) * 864e5) + ((+m[2] || 0) * HOUR) + ((+m[3] || 0) * 6e4) + ((+m[4] || 0) * 1e3);
+}
+function nwsToInches(v, uom) {
+  const u = String(uom || "").toLowerCase();
+  return (u.includes("inch") || u.endsWith(":in")) ? v : v / 25.4;
+}
+// Split each ISO8601 interval proportionally across hour boundaries; keys are UTC hour-start ms.
+function nwsHourlyInches(sa) {
+  const buckets = Object.create(null);
+  for (const row of sa.values || []) {
+    if (row.value == null || !isFinite(row.value)) continue;
+    const [startIso, dur] = String(row.validTime).split("/");
+    const start = Date.parse(startIso), ms = parseIsoDuration(dur);
+    if (!isFinite(start) || !isFinite(ms) || ms <= 0) continue;
+    const end = start + ms, total = Math.max(0, nwsToInches(row.value, sa.uom));
+    let t = start;
+    while (t < end - 1) {
+      const hourStart = Math.floor(t / HOUR) * HOUR, next = Math.min(hourStart + HOUR, end);
+      buckets[hourStart] = (buckets[hourStart] || 0) + total * (next - t) / ms;
+      t = next;
+    }
+  }
+  return buckets;
+}
+// Instantaneous NWS fields (temperature, wind) hold one value for the whole interval.
+function nwsHourlyHold(sa, convert) {
+  const buckets = Object.create(null);
+  for (const row of sa.values || []) {
+    if (row.value == null || !isFinite(row.value)) continue;
+    const [startIso, dur] = String(row.validTime).split("/");
+    const start = Date.parse(startIso), ms = parseIsoDuration(dur);
+    if (!isFinite(start) || !isFinite(ms) || ms <= 0) continue;
+    const end = start + ms, val = convert(row.value, sa.uom);
+    for (let t = Math.floor(start / HOUR) * HOUR; t < end - 1; t += HOUR) buckets[t] = val;
+  }
+  return buckets;
+}
+function nwsCtoF(v, uom) {
+  const u = String(uom || "").toLowerCase();
+  return (u.includes("degc") || u.endsWith(":c")) ? v * 9 / 5 + 32 : v;
+}
+function nwsSumRange(hours, from, to) {
+  if (!hours || to <= from) return null;
+  let s = 0, seen = false;
+  for (let t = Math.floor(from / HOUR) * HOUR; t < to; t += HOUR) {
+    const v = hours[t];
+    if (v == null) continue;
+    const a = Math.max(t, from), b = Math.min(t + HOUR, to);
+    if (b > a) { s += v * (b - a) / HOUR; seen = true; }
+  }
+  return seen ? s : null;
+}
+function slimNws(raw) {
+  const p = raw.properties || raw;
+  if (!p.snowfallAmount || !Array.isArray(p.snowfallAmount.values)) throw new Error("NWS gridpoint had no snowfallAmount.");
+  return {updateTime:p.updateTime, validTimes:p.validTimes, elevation:p.elevation,
+    gridId:p.gridId, gridX:p.gridX, gridY:p.gridY, snowfallAmount:p.snowfallAmount,
+    temperature:p.temperature, quantitativePrecipitation:p.quantitativePrecipitation};
+}
+const checkPoints = j => { if (!j.properties || !j.properties.forecastGridData) throw new Error("NWS /points had no forecastGridData."); };
+const checkNwsGrid = j => { if (!j.snowfallAmount || !Array.isArray(j.snowfallAmount.values)) throw new Error("NWS gridpoint had no snowfallAmount."); };
+
+function nwsDailyOn(nws, dates) {
+  if (!nws || !nws.hours) return dates.map(() => null);
+  const acc = Object.create(null);
+  for (const [ts, v] of Object.entries(nws.hours)) {
+    const day = nwsDayFmt.format(new Date(+ts));
+    acc[day] = (acc[day] || 0) + v;
+  }
+  return dates.map(d => acc[d] != null ? acc[d] : null);
+}
+
+async function loadNws(loc) {
+  try {
+    const snap = () => snapshot && snapshot.nws && snapshot.nws[loc.id];
+    const pt = await fetchNwsCached(
+      "nws-pt:" + loc.id,
+      `https://api.weather.gov/points/${fcLat(loc).toFixed(4)},${fcLon(loc).toFixed(4)}`,
+      checkPoints,
+      () => {
+        const s = snap();
+        return s && s.gridId != null ? {properties:{forecastGridData:`https://api.weather.gov/gridpoints/${s.gridId}/${s.gridX},${s.gridY}`, gridId:s.gridId, gridX:s.gridX, gridY:s.gridY}} : null;
+      });
+    const p = pt.data.properties;
+    const gid = `${p.gridId}/${p.gridX},${p.gridY}`;
+    const grid = await fetchNwsCached("nws:" + gid, p.forecastGridData, checkNwsGrid, snap, slimNws);
+    return applyNws(loc, grid, p);
+  } catch (e) {
+    nwsState[loc.id] = {failed:e};
+    console.warn("NWS forecast unavailable for", loc.id, e.message);
+    const fc = fcState[loc.id];
+    if (fc) renderForecast(panelBody("fc", loc), fc);
+    setNext(loc);
+    return false;
+  }
+}
+
+function applyNws(loc, res, meta) {
+  const data = res.data.snowfallAmount ? res.data : slimNws(res.data);
+  checkNwsGrid(data);
+  const hours = nwsHourlyInches(data.snowfallAmount);
+  const keys = Object.keys(hours).map(Number).sort((a, b) => a - b);
+  if (!keys.length) throw new Error("NWS snowfallAmount had no usable intervals.");
+  const office = (meta && meta.gridId) || data.gridId || "";
+  const gx = meta && meta.gridX != null ? meta.gridX : data.gridX;
+  const gy = meta && meta.gridY != null ? meta.gridY : data.gridY;
+  nwsState[loc.id] = {
+    hours,
+    temp: data.temperature ? nwsHourlyHold(data.temperature, nwsCtoF) : {},
+    qpf: data.quantitativePrecipitation ? nwsHourlyInches(data.quantitativePrecipitation) : {},
+    start:keys[0], end:keys[keys.length - 1] + HOUR,
+    updateTime:data.updateTime ? Date.parse(data.updateTime) : 0,
+    grid:office && gx != null ? `${office} ${gx},${gy}` : "",
+    savedAt:res.savedAt,
+  };
+  fcState[loc.id] = nwsBuildForecast(loc, nwsState[loc.id]);
+  renderForecast(panelBody("fc", loc), fcState[loc.id]);
+  setNext(loc);
+  return res.savedAt ? "saved" : true;
+}
+
+function nwsBuildForecast(loc, nws) {
+  const byDay = Object.create(null);
+  const add = (day) => (byDay[day] ||= {snow:0, rain:0, hi:null, lo:null});
+  for (const [ts, v] of Object.entries(nws.hours)) add(nwsDayFmt.format(new Date(+ts))).snow += v;
+  for (const [ts, v] of Object.entries(nws.qpf || {})) add(nwsDayFmt.format(new Date(+ts))).rain += v;
+  for (const [ts, v] of Object.entries(nws.temp || {})) {
+    const d = add(nwsDayFmt.format(new Date(+ts)));
+    d.hi = d.hi == null ? v : Math.max(d.hi, v);
+    d.lo = d.lo == null ? v : Math.min(d.lo, v);
+  }
+  const time = Object.keys(byDay).sort();
+  const snow = time.map(d => byDay[d].snow);
+  return {
+    name: locTitle(loc), time, models:[], short:[], loc,
+    snow, rain: time.map(d => byDay[d].rain),
+    hi: time.map(d => byDay[d].hi), lo: time.map(d => byDay[d].lo),
+    sMin: snow, sMax: snow, nAt: snow.map(() => 1),
+    srcAt: snow.map(() => "NWS"), nwsModel:{name:"NWS", snow}, rangeModels:[{name:"NWS", snow}],
+  };
+}
+
+function nwsOk(loc) {
+  const n = nwsState[loc.id];
+  return n && !n.failed && n.hours;
+}
+
+function modelSeries(d, u, key, name) {
+  const pick = v => {
+    const arr = d[`${v}_${key}`];
+    if (!Array.isArray(arr) || !arr.some(x => x != null)) return null;
+    return arr;
+  };
+  const snow = pick("snowfall_sum");
+  if (!snow) return null;
+  const rain = pick("rain_sum");
+  return {
+    key, name,
+    snow: toInches(snow, u[`snowfall_sum_${key}`]).map(v => v == null ? null : Math.max(0, v)),
+    rain: rain ? toInches(rain, u[`rain_sum_${key}`]).map(v => v == null ? null : Math.max(0, v)) : snow.map(() => null),
+    hi: pick("temperature_2m_max") || [], lo: pick("temperature_2m_min") || [],
+  };
+}
+
+// Window totals only count models that cover every day of the window.
+function windowStats(models, a, b) {
+  const list = [];
+  for (const m of models) {
+    const seg = m.snow.slice(a, b);
+    if (seg.length === b - a && seg.every(v => v != null)) list.push({name:m.name, total:seg.reduce((x, y) => x + y, 0)});
+  }
+  if (!list.length) return null;
+  const totals = list.map(x => x.total);
+  return {median:median(totals), lo:Math.min(...totals), hi:Math.max(...totals), list};
+}
+
+function agreement(st) {
+  if (!st) return "";
+  return `Official NWS gridpoint snowfallAmount · ${esc(fmtIn(st.median))}" over this window.`;
+}
+
+const forecastURL = loc => { throw new Error("Open-Meteo is not used on this preview page."); };
+const checkForecast = j => {
+  if (j.error) throw new Error(j.reason || "Open-Meteo returned an error.");
+  if (!j.daily || !Array.isArray(j.daily.time) || !j.daily.time.length) throw new Error("Open-Meteo response had no daily forecast.");
+};
+
+async function loadForecast(loc) {
+  return false;
+  const body = panelBody("fc", loc);
+  if (!fcState[loc.id]) {
+    body.innerHTML = `<div class="skel" style="height:24px"></div>`;
+    for (const c of NEXT_COLS) if (!nwsOk(loc) && !(hrState[loc.id] && HOURLY_COLS.includes(c))) setCell(loc.id, c, `<i class="x">…</i>`);
+  }
+  try {
+    const res = await fetchCached("fc:" + loc.id, forecastURL(loc), checkForecast, () => snapshot && snapshot.forecast && snapshot.forecast[loc.id]);
+    return applyForecast(loc, res);
+  } catch (e) {
+    forecastFail(loc, e);
+    return false;
+  }
+}
+
+function forecastFail(loc, e) {
+  delete fcState[loc.id];
+  for (const c of NEXT_COLS) {
+    if (nwsOk(loc) || (hrState[loc.id] && HOURLY_COLS.includes(c))) continue;
+    setCell(loc.id, c, `<i class="x">!</i>`);
+  }
+  const body = panelBody("fc", loc);
+  body.innerHTML = "";
+  body.appendChild(errorBox("Couldn't load the forecast", e, () => loadForecast(loc)));
+}
+
+// Official daily bars: NWS for days it covers, then NBM, then ECMWF. Range whiskers use the kept models.
+function stitchOfficial(fc, loc) {
+  const nws = nwsOk(loc) ? nwsState[loc.id] : null;
+  const nwsDays = nwsDailyOn(nws, fc.time);
+  const nbm = fc.models.find(m => m.name === "NBM");
+  const ecmwf = fc.models.find(m => m.name === "ECMWF");
+  fc.nwsDays = nwsDays;
+  fc.srcAt = fc.time.map((_, i) => {
+    if (nwsDays[i] != null) return "NWS";
+    if (nbm && nbm.snow[i] != null) return "NBM";
+    if (ecmwf && ecmwf.snow[i] != null) return "ECMWF";
+    return null;
+  });
+  fc.snow = fc.time.map((_, i) => {
+    if (nwsDays[i] != null) return nwsDays[i];
+    if (nbm && nbm.snow[i] != null) return nbm.snow[i];
+    if (ecmwf && ecmwf.snow[i] != null) return ecmwf.snow[i];
+    return null;
+  });
+  fc.nwsModel = nwsDays.some(v => v != null) ? {name:"NWS", snow:nwsDays} : null;
+  fc.rangeModels = [fc.nwsModel, ...fc.models, ...fc.short].filter(Boolean);
+  fc.sMin = fc.time.map((_, i) => { const v = fc.rangeModels.map(m => m.snow[i]).filter(x => x != null); return v.length ? Math.min(...v) : null; });
+  fc.sMax = fc.time.map((_, i) => { const v = fc.rangeModels.map(m => m.snow[i]).filter(x => x != null); return v.length ? Math.max(...v) : null; });
+  fc.nAt = fc.time.map((_, i) => fc.rangeModels.filter(m => m.snow[i] != null).length);
+}
+
+function applyForecast(loc, res) {
+  const body = panelBody("fc", loc);
+  try {
+    const json = res.data;
+    checkForecast(json);
+    const d = json.daily, u = json.daily_units || {};
+    // With precipitation_unit=inch Open-Meteo already returns snowfall in inches; trust daily_units, never assume.
+    const models = MODELS.map(([k, n]) => modelSeries(d, u, k, n)).filter(Boolean);
+    const short = SHORT_MODELS.map(([k, n]) => modelSeries(d, u, k, n)).filter(Boolean);
+    if (!models.length) throw new Error("None of the forecast models returned snowfall for this point.");
+    const daily = (field, i) => median(models.map(m => m[field][i]).filter(v => v != null));
+    const fc = {
+      name: loc.name, time: d.time, models, short,
+      snow: d.time.map((_, i) => daily("snow", i)),
+      rain: d.time.map((_, i) => daily("rain", i)),
+      hi: d.time.map((_, i) => daily("hi", i)), lo: d.time.map((_, i) => daily("lo", i)),
+      elevM: json.elevation, siteFt: loc.ft, loc,
+    };
+    stitchOfficial(fc, loc);
+    fcState[loc.id] = fc;
+    renderForecast(body, fc);
+    if (res.savedAt) body.prepend(savedNote(res, () => loadForecast(loc)));
+    refreshDetail(loc.id);
+    setNext(loc);
+    return res.savedAt ? "saved" : true;
+  } catch (e) {
+    forecastFail(loc, e);
+    return false;
+  }
+}
+
+// One NEXT cell: blank dot for zero, colored pill otherwise, small model range when it is wide.
+// fallback=true (NWS down, showing NBM) gets a yellow outline and a tooltip that says so.
+function setNextCell(id, col, w, title) {
+  if (!w) { setCell(id, col, `<i class="x" title="${esc(title || "No forecast for this window")}">–</i>`); return; }
+  const v = w.median, t = title ? ` title="${esc(title)}"` : "";
+  const rng = w.hi - w.lo >= 0.5 && fmtIn(w.lo) !== fmtIn(w.hi) ? `<small>${esc(`${fmtIn(w.lo)}–${fmtIn(w.hi)}`)}</small>` : "";
+  const cls = [v < 1 ? "s1" : "", w.fallback ? "fb" : ""].filter(Boolean).join(" ");
+  setCell(id, col, v < 0.05 ? `<i class="z${w.fallback ? " fb" : ""}"${t}>·</i>` : `<i class="${cls}" style="background:${snowColor(v)}"${t}>${esc(fmtIn(v))}"</i>${rng}`, "", "", v);
+}
+
+const NEXT_HOURS = {n24:24, n48:48, n72:72, n7:168};
+
+function packNext(value, range, source, title, extra = {}) {
+  if (value == null || !isFinite(value)) return null;
+  return {w:{median:value, lo:range ? range.lo : value, hi:range ? range.hi : value,
+    list:range && range.list.length ? range.list : [{name:source, total:value}], source, ...extra}, title};
+}
+
+function nextW(loc, col) {
+  const hours = NEXT_HOURS[col];
+  if (!hours) return null;
+  const now = Date.now(), end = now + hours * HOUR;
+  const nws = nwsOk(loc) ? nwsState[loc.id] : null;
+  if (!nws) return null;
+  const to = Math.min(end, nws.end);
+  const v = nwsSumRange(nws.hours, now, to);
+  if (v == null) return null;
+  const full = nws.end >= end - 120000;
+  const grid = nws.grid ? ` · ${nws.grid}` : "";
+  const title = full
+    ? `Next ${hours <= 72 ? hours + " hours" : "7 days"} from now · NWS forecast${grid}`
+    : `NWS forecast through ${mtTime(nws.end)} MT${grid} (public grid ends before this window)`;
+  return packNext(v, null, "nws", title);
+}
+function setNext(loc) {
+  for (const col of NEXT_COLS) {
+    const r = nextW(loc, col);
+    if (r) setNextCell(loc.id, col, r.w, r.title);
+    else if (nwsState[loc.id] && nwsState[loc.id].failed)
+      setNextCell(loc.id, col, null, nwsState[loc.id].failed.message);
+  }
+  refreshDetail(loc.id);
+}
+
+// Daily bars; the 10-day panel and the card's 7D / 14D view share it.
+function dailyStrip(fc, N, sepAt = 5) {
+  const today = todayMT();
+  const ok = i => fc.snow[i] != null;
+  const scaleMax = Math.max(6, ...fc.time.slice(0, N).map((_, i) => ok(i) ? Math.max(fc.snow[i], fc.sMax[i] || 0) : 0));
+  const hOf = v => v == null ? 0 : Math.sqrt(Math.min(v, scaleMax) / scaleMax) * 72;
+  const days = fc.time.slice(0, N).map((t, i) => {
+    const dt = ymd(t), dow = dt.getUTCDay(), s = ok(i) ? fc.snow[i] : null, r = ok(i) ? fc.rain[i] || 0 : 0;
+    const lo = hOf(fc.sMin[i]), hi = hOf(fc.sMax[i]);
+    const cls = ["day", i === sepAt ? "sep" : "", ok(i) ? "" : "nd", t === today ? "today" : ""].join(" ");
+    const src = fc.srcAt && fc.srcAt[i] ? fc.srcAt[i] + " " : "";
+    const per = (fc.rangeModels || fc.models).map(m => `${m.name} ${m.snow[i] == null ? "–" : fmtIn(m.snow[i]) + '"'}`).join(", ");
+    const th = fc.hi[i], tl = fc.lo[i];
+    return `<div class="${cls}" title="${esc(`${shortDate(t)} · ${src}${fc.nAt[i]} model${fc.nAt[i] === 1 ? "" : "s"}${ok(i) ? "" : " (not counted)"} · ${per}`)}">
+      <div class="amt ${s == null || s < 0.1 ? "z" : ""}" style="${s >= 0.1 ? `color:${snowColor(s)}` : ""}">${s == null ? "–" : s < 0.1 ? "" : esc(fmtIn(s))}</div>
+      <div class="barbox">${ok(i) && hi - lo >= 3 ? `<div class="wh" style="bottom:${lo.toFixed(1)}px;height:${(hi - lo).toFixed(1)}px"></div>` : ""}${ok(i) ? `<div class="bar" style="height:${Math.max(2, hOf(s)).toFixed(1)}px;background:${s >= 0.05 ? snowColor(s) : "var(--s0)"}"></div>` : ""}</div>
+      <div class="rain">${r >= 0.05 ? `<span class="drop"></span>${r.toFixed(1)}` : ""}</div>
+      <div class="dow ${dow === 0 || dow === 6 ? "we" : ""}">${t === today ? "Today" : DOW[dow]}</div>
+      <div class="dt">${dt.getUTCDate()}</div>
+      <div class="hi">${th == null ? "–" : Math.round(th) + "°"}</div>
+      <div class="lo">${tl == null ? "–" : Math.round(tl) + "°"}</div>
+    </div>`;
+  }).join("");
+  return `<div class="days" style="grid-template-columns:repeat(${N},1fr)">${days}</div>`;
+}
+
+// A rain total is worth showing only when it is real and not a rounding error next to the snow.
+const rainMatters = (r, snow) => r >= 0.1 && r > snow / 10;
+
+// The panel body holds only "Model by model"; the window control, total, chart and agreement line
+// above it are drawn by renderDetail() for whichever window is selected.
+function renderForecast(body, fc) {
+  const t = document.querySelector(`#fc-${fc.loc.id} .ptitle span`);
+  if (t) t.textContent = "NWS official";
+  const nws = nwsOk(fc.loc) ? nwsState[fc.loc.id] : null;
+  const thru = nws ? mtTime(nws.end) : "";
+  body.innerHTML = `<p class="hnote" style="margin-top:10px">NWS gridpoint snowfallAmount${nws && nws.grid ? ` · ${esc(nws.grid)}` : ""}${thru ? ` · through ${esc(thru)} MT` : ""}. The public api.weather.gov grid covers about seven days, so there is no 14-day total.</p>`;
+}
+
+/* ---------------- NWS discussions & avalanche (conditions.json) ---------------- */
+
+let cond = null;
+const DANGER = ["No rating", "Low", "Moderate", "Considerable", "High", "Extreme"];
+const ASPECT = {north:"N", northeast:"NE", east:"E", southeast:"SE", south:"S", southwest:"SW", west:"W", northwest:"NW"};
+const paras = (list, cls = "") => (list || []).map(p => `<p${cls ? ` class="${cls}"` : ""}>${esc(p)}</p>`).join("");
+const dateMT = iso => new Date(iso).toLocaleString("en-US", {timeZone:TZ, month:"short", day:"numeric", hour:"numeric", minute:"2-digit"});
+
+function setSummary(id, text, badge = "") {
+  const el = document.querySelector(`#${id} summary .s`);
+  if (el) el.innerHTML = badge + esc(text);
+}
+
+// Each spot resolves to one office, but the office text is stored once and rendered only when opened.
+function renderNws(loc) {
+  const d = $("nws-" + loc.id), body = d.querySelector(".xb");
+  const code = cond && cond.nws && cond.nws.spots[loc.id], o = code && cond.nws.offices[code];
+  if (!o) {
+    setSummary("nws-" + loc.id, code ? `NWS ${code} · text unavailable` : "unavailable");
+    body.innerHTML = `<p class="meta">The discussion text didn't come through on the last build.${code ? ` <a href="https://forecast.weather.gov/product.php?site=NWS&issuedby=${code}&product=AFD&format=txt" target="_blank" rel="noopener">Read it at weather.gov ↗</a>` : ""}</p>`;
+    return;
+  }
+  const age = (Date.now() - Date.parse(o.issued)) / HOUR;
+  setSummary("nws-" + loc.id, `${o.name} (${code}) · ${dateMT(o.issued)} MT${age > 18 ? " · old" : ""}`);
+  const others = LOCATIONS.filter(l => l.id !== loc.id && cond.nws.spots[l.id] === code).map(l => l.name);
+  d.ontoggle = () => {
+    if (!d.open || body.dataset.done === o.issued) return;
+    body.dataset.done = o.issued;
+    body.innerHTML = `<div class="meta">NWS ${esc(o.name)} Area Forecast Discussion, issued ${dateMT(o.issued)} MT${others.length ? ` · same office covers ${esc(others.join(", "))}` : ""}.</div>
+      ${o.sections.map(sec => `<h5>${esc(sec.name)}</h5>${paras(sec.paragraphs)}`).join("")}
+      <div class="src"><a href="${esc(o.url)}" target="_blank" rel="noopener">Source: forecast.weather.gov (${code} AFD) ↗</a></div>`;
+  };
+}
+
+function locationText(list) {
+  // ["north upper", "northeast upper", ...] -> "Upper: N, NE, E · Middle: N"
+  const bands = {upper:[], middle:[], lower:[]};
+  for (const l of list || []) {
+    const [a, b] = l.split(" ");
+    if (bands[b]) bands[b].push(ASPECT[a] || a);
+  }
+  return Object.entries(bands).filter(([, v]) => v.length).map(([k, v]) => `${k[0].toUpperCase() + k.slice(1)}: ${v.join(", ")}`).join(" · ");
+}
+
+function renderAvy(loc) {
+  const d = $("avy-" + loc.id), body = d.querySelector(".xb"), id = "avy-" + loc.id;
+  const a = cond && cond.avalanche, zid = a && a.spots[loc.id], z = zid && a.zones[zid];
+  if (!a) { setSummary(id, "unavailable"); body.innerHTML = `<p class="meta">Avalanche data didn't load.</p>`; return; }
+  if (!z) {
+    setSummary(id, "no center covers this spot");
+    body.innerHTML = `<div class="none"><b>No avalanche center publishes forecasts here.</b>Check the <a href="https://avalanche.org/" target="_blank" rel="noopener" style="color:var(--ice)">avalanche.org map ↗</a> for the nearest zone.</div>`;
+    return;
+  }
+  const p = z.product, center = z.center_id, link = (p && p.url) || z.zone_url || z.center_url;
+  z.zone_name = z.zone_name === "CAIC zone" ? "Colorado statewide" : z.zone_name;
+  const badge = lvl => `<span class="dbadge d${Math.max(0, lvl || 0)}">${DANGER[Math.max(0, lvl || 0)]}</span> `;
+  if (!p || !p.has_rating) {
+    setSummary(id, `${center} ${z.zone_name} · no forecast yet`, badge(0));
+    const when = p ? `Latest ${esc(p.type)} from ${esc(center)} was ${dateMT(p.published)} MT${p.expired ? " and has expired" : ""}.` : `${esc(center)} hasn't published anything for this zone yet.`;
+    body.innerHTML = `<div class="none"><b>No avalanche forecast issued yet for this winter.</b>${when} Early-season avalanches still happen on any steep slope that holds snow.</div>
+      ${p ? paras(p.bottom_line) + paras(p.hazard_discussion) + paras(p.announcement) : ""}
+      ${z.travel_advice ? `<p class="meta">${esc(z.travel_advice)}</p>` : ""}
+      <div class="src"><a href="${esc(link)}" target="_blank" rel="noopener">${esc(z.center_name || center)}: ${esc(z.zone_name)} ↗</a></div>`;
+    return;
+  }
+  const cur = p.danger.find(x => x.valid_day === "current") || p.danger[0], tom = p.danger.find(x => x.valid_day === "tomorrow");
+  const top = Math.max(cur.upper || 0, cur.middle || 0, cur.lower || 0);
+  setSummary(id, `${center} ${z.zone_name} · ${dateMT(p.published)} MT`, badge(top));
+  const cell = v => `<span class="dbadge d${Math.max(0, v || 0)}">${DANGER[Math.max(0, v || 0)]}</span>`;
+  const grid = `<div class="dgrid"><span></span><span class="h">Today</span><span class="h">${tom ? "Tomorrow" : ""}</span>
+    ${["upper", "middle", "lower"].map(b => `<span class="b">${b[0].toUpperCase() + b.slice(1)}</span>${cell(cur[b])}${tom ? cell(tom[b]) : "<span></span>"}`).join("")}</div>`;
+  const probs = p.problems.length ? p.problems.map(pr => `<div class="prob"><div class="n">${esc(pr.name)}</div>
+      <div class="d">${pr.likelihood ? `Likelihood <b>${esc(pr.likelihood)}</b>` : ""}${pr.size && pr.size.length ? ` · Size <b>D${pr.size.join("–D")}</b>` : ""}${pr.aspects_elevations && pr.aspects_elevations.length ? `<br>${esc(locationText(pr.aspects_elevations))}` : ""}</div>
+      ${paras(pr.discussion)}</div>`).join("") : `<p class="meta">No avalanche problems listed.</p>`;
+  body.innerHTML = `<div class="meta">${esc(z.center_name || center)} · ${esc(z.zone_name)} · published ${dateMT(p.published)} MT${p.expires ? `, expires ${dateMT(p.expires)} MT` : ""}${p.author ? ` · ${esc(p.author)}` : ""}</div>
+    <h5>Danger by elevation</h5>${grid}
+    <h5>Avalanche problems</h5>${probs}
+    ${p.bottom_line.length ? `<h5>Bottom line</h5>${paras(p.bottom_line)}` : ""}
+    ${p.hazard_discussion.length ? `<h5>Discussion</h5>${paras(p.hazard_discussion)}` : ""}
+    <div class="src"><a href="${esc(link)}" target="_blank" rel="noopener">Full forecast at ${esc(z.center_name || center)} ↗</a></div>`;
+}
+
+async function loadConditions() {
+  try {
+    cond = await getJSON(`../conditions.json?t=${Date.now()}`, LOCAL_TIMEOUT);
+  } catch (e) {
+    cond = cond || null;
+  }
+  for (const loc of LOCATIONS) { renderNws(loc); renderAvy(loc); }
+  return !!cond;
+}
+
+/* ---------------- Wind loading estimate ---------------- */
+
+const windState = {};
+const DIR16 = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+const DIR8 = ["N","NE","E","SE","S","SW","W","NW"];
+const dir16 = d => DIR16[Math.round(((d % 360) + 360) % 360 / 22.5) % 16];
+function leeText(d) {
+  const lee = (d + 180) % 360, i = Math.round(lee / 45), off = lee - i * 45;
+  const a = DIR8[i % 8], b = DIR8[(i + (off > 0 ? 1 : 7)) % 8];
+  return Math.abs(off) > 12 ? `${a}/${b}` : a;
+}
+const rnd5 = v => Math.max(5, Math.round(v / 5) * 5);
+
+// Snowfall-weighted mean wind over a set of hours: direction, how steady it was, and a typical speed range.
+function windStats(h, idx) {
+  let sx = 0, sy = 0, w = 0, snow = 0;
+  const sp = [];
+  for (const i of idx) {
+    const wt = h.snow[i] || 0, d = h.dir[i] * Math.PI / 180;
+    sx += Math.sin(d) * wt; sy += Math.cos(d) * wt; w += wt; snow += wt;
+    sp.push([h.spd[i], wt]);
+  }
+  if (!w) return null;
+  const dir = (Math.atan2(sx, sy) * 180 / Math.PI + 360) % 360, steady = Math.hypot(sx, sy) / w;
+  sp.sort((a, b) => a[0] - b[0]);
+  let acc = 0, lo = sp[0][0], hi = sp[sp.length - 1][0];
+  for (const [v, wt] of sp) { if (acc <= w * .25) lo = v; if (acc <= w * .75) hi = v; acc += wt; }
+  return {dir, steady, lo:rnd5(lo), hi:rnd5(hi), snow, hours:idx.length};
+}
+
+function compass(dir, steady) {
+  if (dir == null) return `<svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="#15203f" stroke="#3a4778"/><text x="26" y="30" fill="#5d6b96" font-size="11" text-anchor="middle">calm</text></svg>`;
+  const lee = dir + 180, r = 22, cx = 26, cy = 26, toXY = (a, rr) => [cx + rr * Math.sin(a * Math.PI / 180), cy - rr * Math.cos(a * Math.PI / 180)];
+  const [x1, y1] = toXY(lee - 45, r), [x2, y2] = toXY(lee + 45, r), [tx, ty] = toXY(dir, r - 6), [hx, hy] = toXY(lee, r - 6);
+  return `<svg viewBox="0 0 52 52" aria-label="Wind from ${dir16(dir)}, lee slopes face ${leeText(dir)}">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#15203f" stroke="#3a4778"/>
+    <path d="M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 0 1 ${x2.toFixed(1)},${y2.toFixed(1)} Z" fill="#7dd3fc" opacity="${(0.18 + 0.3 * steady).toFixed(2)}"/>
+    <text x="26" y="9" fill="#8d9cc7" font-size="7" text-anchor="middle" font-weight="700">N</text>
+    <line x1="${tx.toFixed(1)}" y1="${ty.toFixed(1)}" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" r="3" fill="#fff"/>
+  </svg>`;
+}
+
+function windSlabCheck(loc) {
+  const a = cond && cond.avalanche, z = a && a.spots[loc.id] && a.zones[a.spots[loc.id]], p = z && z.product;
+  if (!p || !p.has_rating) return "";
+  const ws = p.problems.filter(pr => /wind/i.test(pr.name || ""));
+  if (!ws.length) return `<span class="xc">${esc(z.center_id)} lists no wind-slab problem right now.</span>`;
+  return `<span class="xc">Cross-check: ${esc(z.center_id)} lists <b>${esc(ws[0].name)}</b> on ${esc(locationText(ws[0].aspects_elevations) || "unspecified aspects")}.</span>`;
+}
+
+function renderWind(loc) {
+  const el = $("wind-" + loc.id), h = windState[loc.id];
+  if (!h) return;
+  const now = Date.now();
+  const snowy = i => (h.snow[i] || 0) >= 0.05;
+  const past = h.t.map((t, i) => i).filter(i => h.t[i] <= now && h.t[i] > now - 72 * HOUR && snowy(i));
+  const future = h.t.map((t, i) => i).filter(i => h.t[i] > now && snowy(i));
+  let storm = [];
+  if (future.length) { storm = [future[0]]; for (const i of future.slice(1)) { if (h.t[i] - h.t[storm[storm.length - 1]] <= 12 * HOUR) storm.push(i); else break; } }
+  const ps = windStats(h, past), fs = windStats(h, storm);
+  const line = (s, lead) => {
+    const spd = `<b>${dir16(s.dir)} winds ${s.lo === s.hi ? s.lo : `${s.lo}–${s.hi}`} mph</b>${s.steady < 0.5 ? " (shifting around)" : ""} during ~${s.hours}h of snowfall`;
+    if (s.hi < 15) return `${lead} ${spd}: too light to drift much, so snow should land fairly evenly.`;
+    return `${lead} ${spd}, so <b class="lee">${leeText(s.dir)}-facing slopes</b> and the gullies and bowls below them ${s.steady < 0.5 ? "may" : "likely"} hold deeper, wind-drifted snow.`;
+  };
+  const main = fs || ps;
+  const when = fs ? `the ${rangeLabel(h.days, h.dayOf(h.t[storm[0]]), h.dayOf(h.t[storm[storm.length - 1]]))} storm` : "the last 72h of snow";
+  const spdTxt = s => `${dir16(s.dir)} ${s.lo === s.hi ? s.lo : `${s.lo}–${s.hi}`} mph`;
+  const one = !main ? `<b>No new loading</b> · no snowfall in the last 72h or the next 10 days`
+    : main.hi < 15 ? `<b>Too light to drift</b> · ${spdTxt(main)} during ${when}`
+    : `<b class="lee">${leeText(main.dir)}-facing slopes loaded</b> · ${spdTxt(main)} during ${when}${main.steady < 0.5 ? " (shifting)" : ""}`;
+  let txt = "";
+  if (ps) txt += line(ps, "Last 72h:");
+  else {
+    const recent = h.t.map((t, i) => i).filter(i => h.t[i] <= now && h.t[i] > now - 24 * HOUR);
+    const avg = recent.length ? recent.reduce((a, i) => a + h.spd[i], 0) / recent.length : 0;
+    txt += `Last 72h: little or no snowfall here, so no new wind loading${avg >= 20 ? ` (ridge winds have averaged ${Math.round(avg)} mph, so any loose surface snow could still be drifting)` : ""}.`;
+  }
+  if (fs) txt += ` <br>${line(fs, `Next storm (${rangeLabel(h.days, h.dayOf(h.t[storm[0]]), h.dayOf(h.t[storm[storm.length - 1]]))}):`)}`;
+  else txt += " No snowfall in the next 10 days, so nothing new to load.";
+  el.innerHTML = `${compass(main ? main.dir : null, main ? main.steady : 0)}<div style="flex:1;min-width:0"><div class="l">Wind loading · <b>estimate</b></div>${one}`
+    + `<details class="x"><summary><span class="t">Details</span><span class="s">ridge-level (700 mb) winds · storm timing from GFS</span></summary><div class="xb">${txt}${windSlabCheck(loc)}</div></details></div>`;
+}
+
+const WIND_URL = ""; // Open-Meteo is not used on this preview page.
+const checkWind = d => { if (!Array.isArray(d) || d.length !== LOCATIONS.length) throw new Error("Open-Meteo wind response was incomplete."); };
+
+async function loadWind() {
+  return false;
+  try {
+    const res = await fetchCached("wind", WIND_URL, checkWind, () => snapshot && snapshot.wind);
+    return applyWind(res);
+  } catch (e) {
+    for (const loc of LOCATIONS) if (!windState[loc.id]) $("wind-" + loc.id).innerHTML = `${compass(null, 0)}<div><div class="l">Wind loading</div><span class="err">Couldn't load ridge winds: ${esc(e.message)}</span></div>`;
+    return false;
+  }
+}
+
+function applyWind(res) {
+  checkWind(res.data);
+  res.data.forEach((rec, k) => {
+    const loc = LOCATIONS[k], hh = rec.hourly, off = (rec.utc_offset_seconds || 0) * 1000;
+    const t = hh.time.map(x => Date.parse(x + ":00Z") - off);
+    const days = [...new Set(hh.time.map(x => x.slice(0, 10)))];
+    windState[loc.id] = {t, snow:hh.snowfall, spd:hh.wind_speed_700hPa, dir:hh.wind_direction_700hPa, days, savedAt:res.savedAt,
+      dayOf:ms => days.indexOf(new Intl.DateTimeFormat("en-CA", {timeZone:TZ, year:"numeric", month:"2-digit", day:"2-digit"}).format(new Date(ms)))};
+    renderWind(loc);
+  });
+  refreshDetail(openId);
+  return res.savedAt ? "saved" : true;
+}
+
+/* ---------------- Hourly forecast (table 24/48/72h from now) ---------------- */
+
+// One request for every location: NBM, ECMWF, GFS, HRRR. Headline 24/48/72h come from NWS;
+// this feed is the model range, the HRRR line, temperatures, and the NBM fallback.
+const HOURLY_COLS = ["n24", "n48", "n72"], HOURLY_HOURS = [24, 48, 72];
+const HOURLY_URL = ""; // Open-Meteo is not used on this preview page.
+const checkHourly = d => {
+  if (d && d.error) throw new Error(d.reason || "Open-Meteo returned an error.");
+  if (!Array.isArray(d) || d.length !== LOCATIONS.length || !d.every(r => r.hourly && Array.isArray(r.hourly.time))) throw new Error("Open-Meteo hourly response was incomplete.");
+};
+const hrState = {};
+let hourlyErr = null;
+
+async function loadHourly() {
+  return false;
+  try {
+    const res = await fetchCached("hourly", HOURLY_URL, checkHourly, () => snapshot && snapshot.hourly);
+    hourlyErr = null;
+    return applyHourly(res);
+  } catch (e) {
+    hourlyErr = e;
+    console.warn("hourly forecast unavailable:", e.message);
+    for (const loc of LOCATIONS) if (!hrState[loc.id]) setNext(loc);
+    return false;
+  }
+}
+
+function applyHourly(res) {
+  checkHourly(res.data);
+  res.data.forEach((rec, k) => {
+    const loc = LOCATIONS[k], hh = rec.hourly, u = rec.hourly_units || {}, off = (rec.utc_offset_seconds || 0) * 1000;
+    const t = hh.time.map(x => Date.parse(x + ":00Z") - off);
+    const snow = {}, temp = {};
+    for (const [key, name] of [...MODELS, ...SHORT_MODELS]) {
+      const arr = hh[`snowfall_${key}`];
+      if (!Array.isArray(arr) || !arr.some(v => v != null)) continue;
+      snow[name] = toInches(arr, u[`snowfall_${key}`]).map(v => v == null ? null : Math.max(0, v));
+      temp[name] = hh[`temperature_2m_${key}`] || [];
+    }
+    const globals = ["NBM", "ECMWF", "GFS"].filter(n => snow[n]);
+    const med = t.map((_, i) => { const v = globals.map(n => snow[n][i]).filter(x => x != null); return v.length ? median(v) : null; });
+    hrState[loc.id] = {t, snow, temp, globals, med, savedAt:res.savedAt};
+    setNext(loc);
+  });
+  return res.savedAt ? "saved" : true;
+}
+
+// Spread of each kept model's own total over (now, now + hours]. Used for the range under the NWS headline.
+function hourlyWindow(h, hours) {
+  const now = Date.now(), end = now + hours * HOUR;
+  const idx = [];
+  h.t.forEach((t, i) => { if (t > now && t <= end) idx.push(i); });
+  if (!idx.length || h.t[idx[idx.length - 1]] + HOUR < end) return null;
+  const names = ["NBM", "ECMWF", "GFS", "HRRR"].filter(n => h.snow[n]);
+  const totals = [];
+  for (const n of names) { const seg = idx.map(i => h.snow[n][i]); if (seg.every(v => v != null)) totals.push({name:n, total:seg.reduce((a, b) => a + b, 0)}); }
+  if (!totals.length) return null;
+  const tt = totals.map(x => x.total);
+  const med = totals.find(x => x.name === "NBM") || totals.find(x => x.name === "ECMWF") || totals[0];
+  return {median:med.total, lo:Math.min(...tt), hi:Math.max(...tt), list:totals};
+}
+
+function nbmHourlySum(loc, from, to) {
+  const h = hrState[loc.id];
+  if (!h) return null;
+  for (const n of ["NBM", "ECMWF"]) {
+    const arr = h.snow[n];
+    if (!arr) continue;
+    let s = 0, ok = true, seen = false;
+    for (let i = 0; i < h.t.length; i++) {
+      const t = h.t[i];
+      if (t + HOUR <= from || t >= to) continue;
+      if (arr[i] == null) { ok = false; break; }
+      const a = Math.max(t, from), b = Math.min(t + HOUR, to);
+      if (b > a) { s += arr[i] * (b - a) / HOUR; seen = true; }
+    }
+    if (ok && seen) return s;
+  }
+  return null;
+}
+
+function modelRangeFor(loc, col) {
+  const hours = NEXT_HOURS[col], h = hrState[loc.id], fc = fcState[loc.id];
+  let w = null;
+  if (hours <= 72 && h) w = hourlyWindow(h, hours);
+  else if (fc) w = windowStats(fc.rangeModels || fc.models, 0, hours / 24);
+  if (w && nwsOk(loc) && hours <= 72) {
+    const v = nwsSumRange(nwsState[loc.id].hours, Date.now(), Date.now() + hours * HOUR);
+    if (v != null && !w.list.some(x => x.name === "NWS")) {
+      const list = [{name:"NWS", total:v}, ...w.list];
+      const tt = list.map(x => x.total);
+      w = {median:v, lo:Math.min(...tt), hi:Math.max(...tt), list};
+    }
+  }
+  return w;
+}
+
+/* ---------------- Expanded card: window control, totals line, chart ---------------- */
+
+const DET_WINS = [
+  {id:"h24", label:"24H", long:"Next 24 hours", hours:24, col:"n24", past:"d24", pastLabel:"24h", nextLabel:"24h"},
+  {id:"h48", label:"48H", long:"Next 48 hours", hours:48, col:"n48", past:"d48", pastLabel:"48h", nextLabel:"48h"},
+  {id:"d3", label:"72H", long:"Next 72 hours", hours:72, col:"n72", past:"d72", pastLabel:"72h", nextLabel:"72h"},
+  {id:"d7", label:"7D", long:"Next 7 days", hours:168, col:"n7", past:"d168", pastLabel:"7d", nextLabel:"7d"},
+];
+const detWins = () => DET_WINS;
+
+function confidence() { return ""; }
+
+function detTotals(loc, w, nw) {
+  const fc = fcState[loc.id], v = nw ? nw.median : null;
+  const one = `<div class="tl1"><span class="lbl">Next ${w.nextLabel}</span><b class="big" style="${v >= 0.05 ? `color:${snowColor(v)}` : ""}">${esc(fmtIn(v))}${v == null ? "" : '"'}</b>${confidence(nw)}</div>`;
+  const more = [];
+  if (loc.triplet) { const sn = snotelState[loc.id], d = sn ? sn[w.past] : null; more.push(`Past ${w.pastLabel}: <b class="${deltaCls(d)}">${fmtDelta(d)}</b> depth`); }
+  // Rain comes from the daily forecast, so the 24–72h windows count whole calendar days.
+  const days = Math.ceil(w.hours / 24), rain = fc ? sum(fc.rain, 0, days) : 0;
+  if (fc && rainMatters(rain, v || 0)) more.push(`<span style="color:var(--rain)"><span class="drop"></span>${rain.toFixed(1)}" rain</span>`);
+  if (nw) more.unshift("NWS forecast");
+  return one + (more.length ? `<div class="tl2">${more.join(" · ")}</div>` : "");
+}
+
+function renderDetail(loc) {
+  const box = $("fc-" + loc.id);
+  if (!box) return;
+  const wins = detWins(), w = wins.find(x => x.id === detWin) || wins[2], fc = fcState[loc.id];
+  box.querySelector(".wins").innerHTML = wins.map(x => `<button type="button" data-w="${x.id}" aria-pressed="${x.id === w.id}" title="${esc(x.long)}">${x.label}</button>`).join("");
+  const r = nextW(loc, w.col), nw = r && r.w;
+  box.querySelector(".tline").innerHTML = detTotals(loc, w, nw);
+  box.querySelector(".agree").innerHTML = nw ? agreement(nw) : r ? r.title : "Loading…";
+  const mr = box.querySelector(".mrange");
+  if (mr) mr.textContent = nw ? `Next ${w.nextLabel}: NWS forecast · ${fmtIn(nw.median)}"` : "";
+  box.querySelector(".hchart").innerHTML = w.hours <= 72 ? hourlyChart(loc, w.hours, box.clientWidth)
+    : fc ? `<div class="chart">${dailyStrip(fc, Math.min(7, fc.time.length), -1)}</div>`
+    : `<div class="hnote">Loading the NWS forecast…</div>`;
+}
+function refreshDetail(id) {
+  if (!id || id !== openId) return;
+  try { renderDetail(LOCATIONS.find(l => l.id === id)); } catch (e) { console.error("card chart failed:", e); }
+}
+
+const hourFmt = new Intl.DateTimeFormat("en-US", {timeZone:TZ, hour:"numeric", hour12:false});
+const wdayFmt = new Intl.DateTimeFormat("en-US", {timeZone:TZ, weekday:"short"});
+const mtHour = ms => +hourFmt.format(new Date(ms)) % 24;
+const hourLbl = hr => hr === 12 ? "12p" : hr < 12 ? hr + "a" : (hr - 12) + "p";
+
+// Hourly chart: observed SNOTEL depth left of "now", NWS snowfallAmount (and temperature) to the right.
+function hourlyChart(loc, hours, width = 320) {
+  const nws = nwsOk(loc) ? nwsState[loc.id] : null;
+  if (!nws) {
+    const fail = nwsState[loc.id] && nwsState[loc.id].failed;
+    return `<div class="hnote">${fail ? "NWS forecast unavailable · " + esc(fail.message) : "Loading the NWS forecast…"}</div>`;
+  }
+  const now = Date.now(), sn = snotelState[loc.id];
+  const obs = loc.triplet && sn && sn.series ? sn.series.filter(p => p.t >= now - hours * HOUR - HOUR) : [];
+  const hasPast = obs.length > 1, a = hasPast ? now - hours * HOUR : now, b = now + hours * HOUR;
+  const W = Math.max(280, Math.round(width)), X0 = 4, X1 = W - 4, Y0 = 22, Y1 = 112, Hh = 140, pph = (X1 - X0) / ((b - a) / HOUR);
+  const x = t => X0 + (t - a) / (b - a) * (X1 - X0), f = v => v.toFixed(1);
+  const times = Object.keys(nws.hours).map(Number).sort((p, q) => p - q);
+  const idx = times.filter(t => t > now && t <= b);
+  const official = t => nws.hours[t];
+  const scale = Math.max(0.1, ...idx.map(t => (official(t) || 0) * 1.5));
+  const yS = v => Y1 - Math.min(v, scale) / scale * (Y1 - Y0);
+  const out = [];
+  const lblStep = [6, 12, 24].find(n => n * pph >= 34) || 24;
+  for (let t = Math.ceil(a / HOUR) * HOUR; t <= b; t += HOUR) {
+    const hr = mtHour(t);
+    if (hr === 0) out.push(`<line x1="${f(x(t))}" x2="${f(x(t))}" y1="${Y0 - 4}" y2="${Y1}" stroke="#3a4778" stroke-dasharray="3 3"/>`);
+    if (hr % lblStep === 0) out.push(`<text x="${f(x(t))}" y="${Y1 + 12}" text-anchor="middle"${hr === 0 ? ' style="fill:var(--muted);font-weight:700"' : ""}>${hr === 0 ? wdayFmt.format(new Date(t)) : hourLbl(hr)}</text>`);
+  }
+  if (hasPast) {
+    const lo = Math.min(...obs.map(p => p.v)), hi = Math.max(...obs.map(p => p.v)), span = Math.max(hi - lo, 4), base = lo - (span - (hi - lo)) / 2;
+    const yD = v => Y1 - 6 - (v - base) / span * (Y1 - Y0 - 14);
+    const pts = obs.map(p => `${f(x(Math.max(p.t, a)))},${f(yD(p.v))}`).join(" ");
+    out.push(`<polygon points="${f(x(Math.max(obs[0].t, a)))},${Y1} ${pts} ${f(x(obs[obs.length - 1].t))},${Y1}" fill="#7dd3fc" opacity=".12"/><polyline points="${pts}" fill="none" stroke="#7dd3fc" stroke-width="1.6"/>`);
+    out.push(`<text x="${X0 + 2}" y="${Y0 + 9}" style="fill:#7dd3fc">depth ${Math.round(obs[0].v)}" → ${Math.round(obs[obs.length - 1].v)}"</text>`);
+  }
+  const bw = Math.max(1, pph - (pph > 4 ? 1 : 0.3));
+  for (const t of idx) {
+    const x1 = x(t - HOUR), m = official(t);
+    if (m != null && m >= 0.005) out.push(`<rect x="${f(x1)}" width="${f(bw)}" y="${f(yS(m))}" height="${f(Y1 - yS(m))}" rx="1" fill="var(--s2)"/>`);
+  }
+  const tmp = idx.map(t => ({t, v:nws.temp && nws.temp[t]})).filter(p => p.v != null);
+  if (tmp.length > 1) {
+    const tl = Math.min(...tmp.map(p => p.v)), th = Math.max(...tmp.map(p => p.v)), ts = Math.max(th - tl, 12), tb = tl - (ts - (th - tl)) / 2;
+    const yT = v => Y1 - 10 - (v - tb) / ts * (Y1 - Y0 - 24);
+    out.push(`<polyline points="${tmp.map(p => `${f(x(p.t - HOUR / 2))},${f(yT(p.v))}`).join(" ")}" fill="none" stroke="#fca5a5" stroke-width="1.2" stroke-dasharray="1 2" opacity=".9"/>`);
+    for (const p of tmp) if (mtHour(p.t) % lblStep === 0 && x(p.t) < X1 - 8) out.push(`<text x="${f(x(p.t))}" y="${f(yT(p.v) - 4)}" text-anchor="middle" style="fill:#fca5a5">${Math.round(p.v)}°</text>`);
+  }
+  out.push(`<line x1="${f(x(now))}" x2="${f(x(now))}" y1="${Y0 - 6}" y2="${Y1}" stroke="#e2e8f0" opacity=".55"/>`);
+  out.push(`<text x="${f(x(now) + 3)}" y="${Y1 - 4}" style="fill:var(--muted)">now</text>`);
+  out.push(`<text x="${X1}" y="${Y0 + 9}" text-anchor="end">top ${scale < 1 ? scale.toFixed(2) : scale.toFixed(1)}"/hr</text>`);
+  return `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="${esc(loc.name)}: ${hasPast ? `observed depth last ${hours}h and ` : ""}hourly NWS snowfall next ${hours}h">`
+    + `<line x1="${X0}" x2="${X1}" y1="${Y1}" y2="${Y1}" stroke="var(--line)"/>${out.join("")}</svg>`;
+}
+
+/* ---------------- Chris Tomer ---------------- */
+
+const REGION_ORDER = ["San Juans", "Northern Colorado", "Central Colorado", "Wyoming", "Utah", "Idaho", "Arizona / New Mexico"];
+const clip = (t, n = 180) => !t ? "" : t.length > n ? t.slice(0, n).replace(/\s+\S*$/, "") + "…" : t;
+
+async function loadTomer() {
+  const body = document.querySelector("#tomer .body");
+  try {
+    const j = await getJSON(`../tomer.json?t=${Date.now()}`, LOCAL_TIMEOUT);
+    if (!j || !j.video || !j.summary) throw new Error("tomer.json is missing the video or summary.");
+    const v = j.video, s = j.summary;
+    const pub = new Date(v.published);
+    const ageH = (Date.now() - pub) / HOUR;
+    const pubTxt = pub.toLocaleString("en-US", {timeZone:TZ, weekday:"short", month:"short", day:"numeric", hour:"numeric", minute:"2-digit"});
+    const storms = (s.storms || []).map(st => `<li><span class="w">${esc(st.when || "")}</span>${esc(st.text || "")}
+        ${st.states && st.states.length ? `<span class="st">${esc(st.states.join(" · "))}</span>` : ""}
+        ${st.detail ? `<span class="q">“${esc(clip(st.detail))}”</span>` : ""}</li>`).join("");
+    const amts = [...(s.amounts || [])].sort((a, b) => REGION_ORDER.indexOf(a.region) - REGION_ORDER.indexOf(b.region))
+      .map(a => `<span class="amt" title="${esc(a.quote || "")}">${esc(a.region)}<b>${esc(a.amount)}</b></span>`).join("");
+    const levels = (s.snow_levels || []).map(esc).join(" · ");
+    body.innerHTML = `
+      <div class="vid"><a href="${esc(v.url)}" target="_blank" rel="noopener"><img src="${esc(v.thumbnail)}" alt="" loading="lazy"></a>
+        <div><a href="${esc(v.url)}" target="_blank" rel="noopener"><div class="t">${esc(v.title)}</div></a>
+          <div class="d">${pubTxt} MT${ageH > 36 ? ` · <span style="color:var(--warn)">${Math.round(ageH / 24)} days old</span>` : ""} · <a href="${esc(v.url)}" target="_blank" rel="noopener" style="color:var(--ice)">Watch ↗</a></div></div></div>
+      ${s.headline && !(s.storms || []).some(st => st.text === s.headline) ? `<div class="head">${esc(s.headline)}</div>` : ""}
+      ${storms ? `<ul>${storms}</ul>` : ""}
+      ${amts ? `<div class="amts">${amts}</div>` : ""}
+      ${levels ? `<div class="conf"><b>Snow levels:</b> ${levels}</div>` : ""}`;
+    return true;
+  } catch (e) {
+    body.innerHTML = "";
+    body.appendChild(errorBox("Couldn't load the Chris Tomer summary", e, loadTomer));
+    return false;
+  }
+}
+
+/* ---------------- Webcams ---------------- */
+
+const BROWNRICE = (sn, host = "player.brownrice.com", live = sn) => ({img:`https://player.brownrice.com/snapshot/${sn}`, live:`https://${host}/embed/${live}`, tap:true});
+const IPCAM = alias => ({img:`https://g1.ipcamlive.com/player/snapshot.php?alias=${alias}`, live:`https://g1.ipcamlive.com/player/player.php?alias=${alias}&autoplay=1`});
+const SEEJH = id => ({img:`https://copyrighted.seejh.com/${id}/${id}.jpg`});
+const WEBCAMS = [
+  {id:"purg", name:"Purgatory", page:"https://www.purgatory.ski/mountain/weather-conditions-webcams/webcams/",
+   note:"The base-area live stream only plays on purgatory.ski; open the resort page for it.",
+   cams:[
+    {name:"Snow stake", sub:"'Unofficial' stake · not the official total", ...BROWNRICE("purgatorysnowstake1", "player.brownrice.com", "purgatorysnowstake1/live")},
+    {name:"Summit", sub:"10,485 ft · top of Lift 1 looking north", ...BROWNRICE("purgatoryparadise")},
+    {name:"Legends", sub:"10,800 ft · top of Lift 8 looking down Rays Ridge", ...BROWNRICE("purgatoryraysridge")},
+    {name:"Village Plaza", sub:"8,793 ft", ...BROWNRICE("purgatoryplaza")},
+   ]},
+  {id:"wolf", name:"Wolf Creek", page:"https://wolfcreekski.com/wcs-snow-report/",
+   cams:[
+    {name:"Base area", sub:"Treasure", ...BROWNRICE("wolfcreektreasure", "live2.brownrice.com")},
+    {name:"Summit", sub:"Summit building", ...BROWNRICE("wolfcreeksummit", "live2.brownrice.com")},
+    {name:"Treasure lift", sub:"", ...BROWNRICE("wolfcreektresurlift", "live2.brownrice.com")},
+   ]},
+  {id:"telluride", name:"Telluride", page:"https://tellurideskiresort.com/webcams/",
+   cams:[
+    {name:"See Forever", sub:"Upper mountain", ...IPCAM("jointpoint")},
+    {name:"Village", sub:"Mountain Village plaza", ...IPCAM("plazacam")},
+    {name:"Bon Vivant", sub:"On-mountain restaurant", ...IPCAM("bonvivant")},
+    {name:"Hoot Brown park", sub:"Terrain park", ...IPCAM("hootbrown")},
+   ]},
+  {id:"targhee", name:"Grand Targhee", page:"https://www.grandtarghee.com/the-mountain/cams-conditions/webcams",
+   note:"Targhee's live streams only play on their own site; stills shown here.",
+   cams:[
+    {name:"Stick of Truth", sub:"Snow stick · for fun, not official", ...SEEJH("gtrsnowstick")},
+    {name:"Summit", sub:"", ...SEEJH("gtrsummit")},
+    {name:"Dreamcatcher", sub:"", ...SEEJH("gtrdream")},
+    {name:"Colter", sub:"Habitat / Colter", ...SEEJH("gtrcolter")},
+    {name:"Teton Valley", sub:"Valley view", ...SEEJH("tetonvalley")},
+    {name:"Plaza", sub:"Base plaza", ...SEEJH("gtrplaza")},
+   ]},
+  {id:"brundage", name:"Brundage", page:"https://brundage.com/snow-report/",
+   cams:[
+    {name:"Top Bird", sub:"Summit", img:"https://brundage.com/webcam/bmrsummit.jpg"},
+    {name:"Bear", sub:"", img:"https://brundage.com/webcam/bmrbear.jpg"},
+   ]},
+];
+const camState = {resort:"purg", cam:0, live:false};
+try { Object.assign(camState, JSON.parse(localStorage.getItem("snowCam") || "{}"), {live:false}); } catch (e) { /* ignore bad saved state */ }
+const camSrc = c => `${c.img}${c.img.includes("?") ? "&" : "?"}t=${Math.floor(Date.now() / 300000)}`;
+
+function renderCams() {
+  let r = WEBCAMS.find(x => x.id === camState.resort) || WEBCAMS[0];
+  camState.resort = r.id;
+  if (!r.cams[camState.cam]) camState.cam = 0;
+  const c = r.cams[camState.cam];
+  localStorage.setItem("snowCam", JSON.stringify({resort:camState.resort, cam:camState.cam}));
+  $("cam-resorts").innerHTML = WEBCAMS.map(x => `<button type="button" data-r="${x.id}" aria-pressed="${x.id === r.id}">${esc(x.name)}</button>`).join("");
+  const view = $("cam-view");
+  if (camState.live && c.live) {
+    view.innerHTML = `<iframe src="${esc(c.live)}" allow="autoplay; fullscreen" allowfullscreen title="${esc(r.name + " " + c.name)} live"></iframe>`;
+  } else {
+    view.innerHTML = `<img alt="${esc(r.name + " " + c.name)} webcam" src="${esc(camSrc(c))}">`;
+    view.querySelector("img").onerror = () => {
+      view.innerHTML = `<div class="off">This camera isn't sending an image right now.<br>It may be offline, snowed over, or out for the season.</div>`;
+    };
+  }
+  $("cam-cap").innerHTML = `<div><div class="n">${esc(r.name)} · ${esc(c.name)}</div><div class="s">${esc(c.sub || "")}${c.sub ? " · " : ""}${camState.live && c.live ? `live video${c.tap ? " · tap the video to play" : ""}` : "still image"}</div></div>
+    <div class="acts">${c.live ? `<button type="button" id="cam-live" class="${camState.live ? "on" : ""}">${camState.live ? "■ Still" : "▶ Live"}</button>` : ""}<a href="${esc(r.page)}" target="_blank" rel="noopener">Open ↗</a></div>`;
+  $("cam-thumbs").innerHTML = r.cams.map((x, i) => `<button type="button" class="thumb" data-i="${i}" aria-current="${i === camState.cam}">
+    <div class="im"><img loading="lazy" alt="" src="${esc(camSrc(x))}" onerror="this.parentNode.classList.add('bad');this.remove()"></div><span>${esc(x.name)}</span></button>`).join("");
+  $("cam-note").textContent = r.note || "";
+  const lb = $("cam-live");
+  if (lb) lb.onclick = () => { camState.live = !camState.live; renderCams(); };
+}
+
+$("cam-resorts").addEventListener("click", e => {
+  const b = e.target.closest("button[data-r]");
+  if (b) { camState.resort = b.dataset.r; camState.cam = 0; camState.live = false; renderCams(); }
+});
+$("cam-thumbs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-i]");
+  if (b) { camState.cam = +b.dataset.i; camState.live = false; renderCams(); }
+});
+setInterval(() => { if (document.visibilityState === "visible" && !camState.live) renderCams(); }, 300000);
+
+/* ---------------- Snowfall map ---------------- */
+
+const MAP_WINDOWS = [["h24","24H","Next 24 hours"],["h48","48H","Next 48 hours"],["d3","3D","Next 3 days"],["d7","7D","Next 7 days"],["d14","14D","Next 14 days"]];
+// [lower bound in inches, color, opacity]; each band runs up to the next band's bound.
+const MAP_BANDS = [[0.1,"#dbeafe",.3],[1,"#7cb8ff",.5],[3,"#3b82f6",.66],[6,"#6d4af2",.74],[12,"#a855f7",.8],[18,"#e040fb",.84],[24,"#f472b6",.87],[36,"#ffe1ef",.9]];
+const MAP_CITIES = [["Durango",37.275,-107.88],["Silverton",37.812,-107.664],["Telluride",37.938,-107.812],["Pagosa Springs",37.269,-107.01],["Cortez",37.349,-108.586],
+  ["Denver",39.739,-104.99],["Steamboat",40.485,-106.832],["Laramie",41.311,-105.591],["Grand Junction",39.064,-108.551],["Salt Lake City",40.761,-111.891],
+  ["Logan",41.737,-111.834],["Jackson",43.48,-110.762],["Boise",43.615,-116.202],["McCall",44.911,-116.099],["Reno",39.53,-119.814],["Missoula",46.872,-113.994],
+  ["Bozeman",45.677,-111.043],["Albuquerque",35.084,-106.65],["Phoenix",33.448,-112.074],["Cheyenne",41.14,-104.82]];
+let mapData = null, mapBorders = null, mapRead = null;
+const mapState = (() => { try { return {view:"sanjuans", win:"d7", ...JSON.parse(localStorage.getItem("snowMap") || "{}")}; } catch (_) { return {view:"sanjuans", win:"d7"}; } })();
+const saveMapState = () => { try { localStorage.setItem("snowMap", JSON.stringify({view:mapState.view, win:mapState.win})); } catch (_) {} };
+
+const mercY = lat => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
+function mapProj(v, W) {
+  const top = mercY(v.lat1), span = top - mercY(v.lat0);
+  const H = W * span / ((v.lon1 - v.lon0) * Math.PI / 180);
+  return {W, H,
+    x: lon => (lon - v.lon0) / (v.lon1 - v.lon0) * W,
+    y: lat => (top - mercY(lat)) / span * H,
+    lon: x => v.lon0 + x / W * (v.lon1 - v.lon0),
+    lat: y => (2 * Math.atan(Math.exp(top - y / H * span)) - Math.PI / 2) * 180 / Math.PI};
+}
+
+function mapTiles(v) {
+  const px = (lon, z) => (lon + 180) / 360 * 256 * 2 ** z;
+  const py = (lat, z) => (1 - mercY(lat) / Math.PI) / 2 * 256 * 2 ** z;
+  let z = 3;
+  while (z < 10 && px(v.lon1, z) - px(v.lon0, z) < 640) z++;
+  const x0 = px(v.lon0, z), x1 = px(v.lon1, z), y0 = py(v.lat1, z), y1 = py(v.lat0, z);
+  const tw = 25600 / (x1 - x0), th = 25600 / (y1 - y0);
+  let html = "";
+  for (let ty = Math.floor(y0 / 256); ty * 256 < y1; ty++)
+    for (let tx = Math.floor(x0 / 256); tx * 256 < x1; tx++)
+      html += `<img alt="" loading="lazy" src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}"`
+        + ` style="left:${((tx * 256 - x0) / (x1 - x0) * 100).toFixed(3)}%;top:${((ty * 256 - y0) / (y1 - y0) * 100).toFixed(3)}%;width:${(tw + .15).toFixed(3)}%;height:${(th + .15).toFixed(3)}%">`;
+  return html;
+}
+
+function mapSample(v, g, lat, lon) {
+  const fx = Math.min(Math.max((lon - v.lon0) / v.step, 0), v.nx - 1), fy = Math.min(Math.max((lat - v.lat0) / v.step, 0), v.ny - 1);
+  const i = Math.min(Math.floor(fx), v.nx - 2), j = Math.min(Math.floor(fy), v.ny - 2), a = fx - i, b = fy - j;
+  const at = (ii, jj) => g[jj * v.nx + ii] || 0;
+  return (at(i, j) * (1 - a) + at(i + 1, j) * a) * (1 - b) + (at(i, j + 1) * (1 - a) + at(i + 1, j + 1) * a) * b;
+}
+// Regional grids sample finer than the models' ~0.25° cells, which shows up as blocks; blur them away.
+function mapGrid(v, win) {
+  v.smooth = v.smooth || {};
+  if (v.smooth[win]) return v.smooth[win];
+  let a = v.grids[win].map(x => x || 0);
+  const at = (arr, i, j) => arr[Math.min(Math.max(j, 0), v.ny - 1) * v.nx + Math.min(Math.max(i, 0), v.nx - 1)];
+  for (let p = Math.floor(0.3 / v.step); p > 0; p--) {
+    const h = a.map((_, k) => { const i = k % v.nx, j = (k / v.nx) | 0; return (at(a, i - 1, j) + 2 * a[k] + at(a, i + 1, j)) / 4; });
+    a = h.map((_, k) => { const i = k % v.nx, j = (k / v.nx) | 0; return (at(h, i, j - 1) + 2 * h[k] + at(h, i, j + 1)) / 4; });
+  }
+  return v.smooth[win] = a;
+}
+const mapBand = val => { let k = -1; for (let i = 0; i < MAP_BANDS.length && val >= MAP_BANDS[i][0]; i++) k = i; return k; };
+const hexRGB = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+
+function renderMapControls() {
+  $("map-wins").innerHTML = MAP_WINDOWS.map(([id, short, long]) => `<button type="button" data-w="${id}" aria-pressed="${id === mapState.win}" title="${long}">${short}</button>`).join("");
+  $("map-views").innerHTML = mapData ? mapData.views.map(v => `<button type="button" data-v="${v.id}" aria-pressed="${v.id === mapState.view}">${esc(v.name)}</button>`).join("") : "";
+  $("map-legend").innerHTML = MAP_BANDS.map(([lo, c], i) => `<div><i style="background:${c}"></i>${i === MAP_BANDS.length - 1 ? lo + "+" : lo}</div>`).join("");
+}
+
+let mapTileView = null;
+function renderMap() {
+  renderMapControls();
+  if (!mapData) return;
+  const v = mapData.views.find(x => x.id === mapState.view) || mapData.views[0];
+  if (!v.grids[mapState.win]) return;
+  const g = mapGrid(v, mapState.win);
+  const box = $("map-box"), W = box.clientWidth;
+  if (!W) return;
+  const P = mapProj(v, W);
+  box.style.height = P.H.toFixed(1) + "px";
+  if (mapTileView !== v.id) { box.querySelector(".tiles").innerHTML = mapTiles(v); mapTileView = v.id; }
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const cv = box.querySelector("canvas"), ctx = cv.getContext("2d");
+  cv.width = Math.round(W * dpr); cv.height = Math.round(P.H * dpr);
+  // Paint the field at reduced resolution, then let the upscale soften the band edges.
+  const fw = Math.round(W * .7), fh = Math.round(P.H * .7);
+  const off = document.createElement("canvas"); off.width = fw; off.height = fh;
+  const octx = off.getContext("2d"), img = octx.createImageData(fw, fh);
+  const rgb = MAP_BANDS.map(b => hexRGB(b[1]));
+  for (let y = 0; y < fh; y++) {
+    const lat = P.lat((y + .5) / fh * P.H);
+    for (let x = 0; x < fw; x++) {
+      const k = mapBand(mapSample(v, g, lat, P.lon((x + .5) / fw * W)));
+      if (k < 0) continue;
+      const o = (y * fw + x) * 4, c = rgb[k];
+      img.data[o] = c[0]; img.data[o + 1] = c[1]; img.data[o + 2] = c[2]; img.data[o + 3] = MAP_BANDS[k][2] * 255;
+    }
+  }
+  octx.putImageData(img, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(off, 0, 0, cv.width, cv.height);
+  if (mapBorders) {
+    ctx.strokeStyle = "rgba(255,255,255,.55)"; ctx.lineWidth = dpr; ctx.lineJoin = "round";
+    ctx.beginPath();
+    for (const ring of mapBorders) ring.forEach(([lon, lat], i) => ctx[i ? "lineTo" : "moveTo"](P.x(lon) * dpr, P.y(lat) * dpr));
+    ctx.stroke();
+  }
+
+  // Our spots first (numbers always shown), then names and cities wherever they fit.
+  const placed = [], html = [];
+  const fits = r => r.x0 >= 0 && r.x1 <= W && r.y0 >= 0 && r.y1 <= P.H && !placed.some(q => r.x0 < q.x1 && r.x1 > q.x0 && r.y0 < q.y1 && r.y1 > q.y0);
+  const textW = (s, px) => s.length * px * .56 + 2;
+  const inView = (lat, lon) => lat >= v.lat0 && lat <= v.lat1 && lon >= v.lon0 && lon <= v.lon1;
+  let spots = LOCATIONS.filter(l => inView(l.lat, l.lon) && mapData.points[l.id]).map(l => {
+    const val = mapData.points[l.id][mapState.win], txt = fmtIn(val), x = P.x(l.lon), y = P.y(l.lat);
+    return {l, x, y, bx:x, by:y, val, txt, w:Math.max(22, txt.length * 8 + 10)};
+  });
+  const hit = (a, b) => Math.abs(a.bx - b.bx) < (a.w + b.w) / 2 + 2 && Math.abs(a.by - b.by) < 20;
+  if (v.id === "west") {
+    // Too zoomed out to fit every spot: keep the biggest total in each cluster.
+    const keep = [];
+    for (const s of [...spots].sort((a, b) => (b.val || 0) - (a.val || 0))) if (!keep.some(k => hit(k, s))) keep.push(s);
+    spots = spots.filter(s => keep.includes(s));
+  } else {
+    for (let it = 0; it < 80; it++) {
+      let moved = false;
+      spots.forEach((a, i) => spots.slice(i + 1).forEach(b => {
+        if (!hit(a, b)) return;
+        moved = true;
+        const dy = b.by - a.by || (b.y >= a.y ? 1 : -1), push = (20 - Math.abs(dy)) / 2 + .5;
+        a.by -= Math.sign(dy) * push; b.by += Math.sign(dy) * push;
+      }));
+      if (!moved) break;
+    }
+  }
+  ctx.strokeStyle = "rgba(255,255,255,.8)"; ctx.fillStyle = "#fff"; ctx.lineWidth = dpr;
+  for (const s of spots) {
+    s.bx = Math.min(Math.max(s.bx, s.w / 2 + 2), W - s.w / 2 - 2); s.by = Math.min(Math.max(s.by, 11), P.H - 11);
+    placed.push({x0:s.bx - s.w / 2, x1:s.bx + s.w / 2, y0:s.by - 9, y1:s.by + 9});
+    if (Math.hypot(s.bx - s.x, s.by - s.y) > 4) {
+      ctx.beginPath(); ctx.moveTo(s.x * dpr, s.y * dpr); ctx.lineTo(s.bx * dpr, s.by * dpr); ctx.stroke();
+      ctx.beginPath(); ctx.arc(s.x * dpr, s.y * dpr, 2.5 * dpr, 0, 7); ctx.fill();
+    }
+  }
+  for (const s of spots) {
+    const {bx:x, by:y} = s;
+    html.push(`<button type="button" class="mk${!s.val ? " zero" : ""}" data-id="${s.l.id}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px" aria-label="${esc(s.l.name)}: ${esc(s.txt)} inches"><b>${esc(s.txt)}</b></button>`);
+    const tw = textW(s.l.name, 11);
+    for (const r of [{x0:x + s.w / 2 + 3, y0:y - 7}, {x0:x - s.w / 2 - 3 - tw, y0:y - 7}, {x0:x - tw / 2, y0:y + 10}, {x0:x - tw / 2, y0:y - 24}]) {
+      r.x1 = r.x0 + tw; r.y1 = r.y0 + 14;
+      if (fits(r)) { placed.push(r); html.push(`<span class="lbl" style="left:${r.x0.toFixed(1)}px;top:${r.y0.toFixed(1)}px">${esc(s.l.name)}</span>`); break; }
+    }
+  }
+  for (const [name, lat, lon] of MAP_CITIES) {
+    if (!inView(lat, lon)) continue;
+    const x = P.x(lon), y = P.y(lat), tw = textW(name, 10.5);
+    const r = [{x0:x - 3, x1:x + 5 + tw, y0:y - 7, y1:y + 7, lx:x + 5}, {x0:x - 5 - tw, x1:x + 3, y0:y - 7, y1:y + 7, lx:x - 5 - tw}].find(fits);
+    if (!r) continue;
+    placed.push(r);
+    html.push(`<i class="dot" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px"></i><span class="lbl city" style="left:${r.lx.toFixed(1)}px;top:${(y - 7).toFixed(1)}px">${esc(name)}</span>`);
+  }
+  if (mapRead && mapRead.view === v.id) {
+    const val = mapSample(v, g, mapRead.lat, mapRead.lon);
+    html.push(`<div class="read" style="left:${P.x(mapRead.lon).toFixed(1)}px;top:${P.y(mapRead.lat).toFixed(1)}px">≈ ${esc(fmtIn(val))}" here</div>`);
+  }
+  box.querySelector(".labels").innerHTML = html.join("");
+
+  const [, , long] = MAP_WINDOWS.find(w => w[0] === mapState.win);
+  const models = (mapData.models[mapState.win] || []).join(", ");
+  const age = Date.now() - Date.parse(mapData.generated_at);
+  const note = $("map-note");
+  note.className = "note" + (age > 30 * HOUR ? " warn" : "");
+  note.innerHTML = `<b>${long}</b> from ${mtTime(Date.parse(mapData.start))} MT · median of ${esc(models)}`
+    + (mapState.win === "d14" ? " (the only models that reach 14 days)" : "")
+    + `. Yellow numbers are at each spot's elevation; tap one to jump to it. Colors use model terrain, so peaks can read lower than their number.`
+    + ` Map ${age > 30 * HOUR ? "is stale — last built" : "rebuilt twice daily · last"} ${mtTime(Date.parse(mapData.generated_at))} MT.`;
+}
+
+async function loadSnowMap() {
+  return false;
+  try {
+    const [data, borders] = await Promise.all([
+      getJSON("snowmap.json?t=" + Date.now(), LOCAL_TIMEOUT),
+      mapBorders ? mapBorders : getJSON("borders.json", LOCAL_TIMEOUT).catch(() => null),
+    ]);
+    if (!data || !Array.isArray(data.views) || !data.views.length) throw new Error("snowmap.json has no map data yet.");
+    mapData = data; mapBorders = borders;
+    renderMap();
+    return true;
+  } catch (e) {
+    if (mapData) { renderMap(); return false; }
+    const note = $("map-note");
+    note.className = "note";
+    note.innerHTML = "";
+    note.appendChild(errorBox("Couldn't load the snowfall map", e, loadSnowMap));
+    return false;
+  }
+}
+
+/* ---------------- Boot ---------------- */
+
+let loading = false, lastLoad = 0, firstLoad = true;
+const fmtClock = ms => new Date(ms).toLocaleTimeString("en-US", {timeZone:TZ, hour:"numeric", minute:"2-digit"});
+
+// Snapshot is same-origin and only used for NWS + SNOTEL. Open-Meteo sections in live.json are ignored.
+async function loadSnapshot() {
+  try {
+    snapshot = await getJSON(`../live.json?t=${Date.now()}`, LOCAL_TIMEOUT);
+  } catch (e) { console.warn("live.json unavailable:", e.message); snapshot = null; return false; }
+  const note = {savedAt:0};
+  if (snapshot.snotel && !liveArrived.has("snotel")) {
+    try { applySnotel({data:snapshot.snotel, ...note}, () => loadSnotelAll()); } catch (e) { console.error(e); }
+  }
+  for (const loc of LOCATIONS) {
+    const n = snapshot.nws && snapshot.nws[loc.id];
+    if (n && !nwsState[loc.id]) { try { applyNws(loc, {data:n, ...note}, n); } catch (e) { console.error(e); } }
+  }
+  return true;
+}
+
+async function loadAll() {
+  if (loading) return;
+  loading = true;
+  const btn = $("refresh"), stamp = $("stamp");
+  btn.classList.add("spin");
+  stamp.classList.remove("err");
+  stamp.textContent = "Loading…";
+
+  const jobs = [loadSnotelAll()];
+  if (firstLoad) { firstLoad = false; snapshotReady = loadSnapshot(); await snapshotReady; }
+  jobs.push(loadTomer(), loadConditions());
+  jobs.push(...LOCATIONS.map(loc => loadNws(loc)));
+  let done = 0;
+  const label = "Updating NWS and SNOTEL…";
+  stamp.textContent = label;
+  const tick = r => { done++; stamp.textContent = `${label} ${done}/${jobs.length}`; return r; };
+  const results = await Promise.all(jobs.map(j => j.then(tick, e => (console.error(e), false)).then(r => [].concat(r))));
+  const failed = results.filter(r => r.every(ok => !ok)).length;
+  const saved = results.filter(r => r.some(ok => ok === "saved")).length;
+  lastLoad = Date.now();
+  const sections = [];
+  if (failed) sections.push(`${failed} of ${results.length} sources failed`);
+  if (saved) sections.push(`${saved} using saved data`);
+  stamp.textContent = `Updated ${fmtClock(lastLoad)} MT` + (sections.length ? " · " + sections.join(" · ") : "");
+  if (failed || saved) stamp.classList.add("err");
+  btn.classList.remove("spin");
+  loading = false;
+}
+
+try { buildPage(); } catch (e) {
+  console.error(e);
+  $("glance-wrap").after(errorBox("The page failed to build", e, () => location.reload()));
+}
+try { renderCams(); } catch (e) { console.error("webcams failed:", e); }
+const hashLoc = () => { const m = /^#loc-([\w-]+)$/.exec(location.hash); return m && LOCATIONS.some(l => l.id === m[1]) ? m[1] : null; };
+// Content above the table (Tomer card, images) settles after the first load, so re-aim a deep link
+// once then, unless the reader has already started scrolling.
+let deepLink = hashLoc(), touched = false;
+for (const ev of ["touchstart", "wheel", "keydown"]) window.addEventListener(ev, () => { touched = true; }, {once:true, passive:true});
+if (deepLink) { try { expandRow(deepLink, {scroll:true}); } catch (e) { console.error(e); } }
+window.addEventListener("hashchange", () => { const id = hashLoc(); if (id && id !== openId) expandRow(id, {scroll:true}); });
+$("refresh").addEventListener("click", () => { loadAll(true); if (!camState.live) renderCams(); });
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && Date.now() - lastLoad > 15 * 60 * 1000) loadAll();
+});
+loadAll().then(() => { if (deepLink && openId === deepLink && !touched) expandRow(deepLink, {scroll:true}); deepLink = null; });
+</script>
+</body>
+</html>
