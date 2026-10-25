@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Durango Snow · preview</title>
-<meta name="description" content="NWS and SNOTEL snow forecast preview for the San Juans and nearby ranges. Presented by Durango Dash.">
+<meta name="description" content="NWS and SNOTEL snow forecast preview for the San Juans, Summit County and Vail, and nearby ranges. Presented by Durango Dash.">
 <meta name="theme-color" content="#0a1024">
 <meta name="color-scheme" content="dark">
 <meta name="mobile-web-app-capable" content="yes">
@@ -148,6 +148,7 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 #glance-body>tr.rg .chev{display:inline-block;width:12px;color:var(--dim);transition:transform .15s}
 #glance-body>tr.rg.shut .chev{transform:rotate(-90deg)}
 #glance-body>tr.rg .cnt{margin-left:6px;color:var(--dim);font-weight:600;letter-spacing:0}
+#glance-body>tr.rg[data-r="summit"]>td{padding-top:18px;border-top:2px solid #4a5a8a}
 #glance-body:not(.sorted)>tr.loc.off{display:none}
 #glance-body>tr.loc.open>td{background:#ffffff08}
 #glance-body>tr.loc.open>td.st{background:var(--card2);box-shadow:inset 3px 0 0 var(--ice),4px 0 8px -4px #0008}
@@ -257,6 +258,7 @@ details.x .xb .none b{display:block;color:var(--warn)}
 .cams .view{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#0b1330}
 .cams .view img,.cams .view iframe{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover;background:#0b1330}
 .cams .view .off{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:13.5px;padding:16px}
+.cams .view .off a{color:var(--ice);font-weight:700}
 .cams .cap{display:flex;align-items:flex-start;gap:10px;margin-top:9px}
 .cams .cap .n{font-weight:700;font-size:15px}
 .cams .cap .s{font-size:12px;color:var(--muted);margin-top:1px}
@@ -381,6 +383,7 @@ footer .dash-foot img{height:22px;width:auto;border-radius:4px}
 "use strict";
 const REGIONS = [
   {id:"sanjuans", name:"San Juans", sub:"Durango area"},
+  {id:"summit", name:"Summit County & Vail", sub:"I-70 · Tenmile · Gore"},
   {id:"nco", name:"Northern Colorado", sub:"Park Range"},
   {id:"wy", name:"Wyoming", sub:"Snowy Range · Sierra Madre"},
   {id:"ut", name:"Utah", sub:"Bear River Range"},
@@ -404,7 +407,25 @@ const LOCATIONS = [
   {id:"deadwood", region:"id", name:"Deadwood Summit", note:"Boise National Forest", ft:6990, lat:44.54492, lon:-115.56386, triplet:"439:ID:SNTL"},
   {id:"brundage", region:"id", name:"Brundage Mountain", note:"McCall · summit forecast", ft:7640, lat:45.0050, lon:-116.1540,
    triplet:"370:ID:SNTL", snotelName:"Brundage Reservoir", snotelFt:6280, report:"https://brundage.com/snow-report/"},
+  {id:"vailmtn", region:"summit", name:"Vail Mountain", note:"Vail ski area", ft:10290, lat:39.61765, lon:-106.38019, triplet:"842:CO:SNTL"},
+  {id:"coppermtn", region:"summit", name:"Copper Mountain", note:"Tenmile Range", ft:10500, lat:39.48917, lon:-106.17154, triplet:"415:CO:SNTL", fcLat:39.4892, fcLon:-106.2026},
+  {id:"fremont", region:"summit", name:"Fremont Pass", note:"Climax / Copper", ft:11310, lat:39.38014, lon:-106.19784, triplet:"485:CO:SNTL"},
+  {id:"hoosier", region:"summit", name:"Hoosier Pass", note:"Breckenridge / Alma", ft:11600, lat:39.36092, lon:-106.05999, triplet:"531:CO:SNTL", fcLat:39.3609, fcLon:-106.0289},
+  {id:"grizzly", region:"summit", name:"Grizzly Peak", note:"Loveland / A-Basin", ft:11110, lat:39.64646, lon:-105.86940, triplet:"505:CO:SNTL"},
+  {id:"loveland", region:"summit", name:"Loveland Basin", note:"Loveland ski area", ft:11410, lat:39.67428, lon:-105.90264, triplet:"602:CO:SNTL"},
+  {id:"jackwhacker", region:"summit", name:"Jackwhacker Gulch", note:"Montezuma / Keystone", ft:11030, lat:39.57096, lon:-105.80355, triplet:"935:CO:SNTL"},
+  {id:"elliot", region:"summit", name:"Elliot Ridge", note:"Gore Range · Piney", ft:10550, lat:39.86380, lon:-106.42473, triplet:"1120:CO:SNTL"},
+  {id:"redsand", region:"summit", name:"Red Sandstone Rd", note:"Piney / Lost Lake sled area · forecast only", ft:10000, lat:39.7350, lon:-106.3920},
+  {id:"vailpass", region:"summit", name:"Vail Pass", note:"Shrine Pass rec area · forecast only", ft:10600, lat:39.5303, lon:-106.2107},
+  {id:"vail", region:"summit", name:"Vail", note:"Ski area · High Noon Express · forecast only", ft:11250, lat:39.6055, lon:-106.3680},
+  {id:"copper", region:"summit", name:"Copper", note:"Ski area · Super Bee · forecast only", ft:11660, lat:39.4890, lon:-106.1550},
+  {id:"breck", region:"summit", name:"Breckenridge", note:"Ski area · Imperial Express · forecast only", ft:12840, lat:39.4765, lon:-106.0730, fcLat:39.4482, fcLon:-106.1096},
+  {id:"keystone", region:"summit", name:"Keystone", note:"Ski area · Outback / Bergman · forecast only", ft:12400, lat:39.5580, lon:-105.9180, fcLat:39.5297, fcLon:-105.8813},
+  {id:"abasin", region:"summit", name:"Arapahoe Basin", note:"Ski area · Zuma / East Wall · forecast only", ft:12450, lat:39.6360, lon:-105.8720, fcLat:39.6360, fcLon:-105.8512},
 ].map(l => ({...l, m: l.m || Math.round(l.ft * 0.3048)}));
+const isSummit = loc => loc.region === "summit";
+const coreLocs = () => LOCATIONS.filter(l => !isSummit(l));
+const summitLocs = () => LOCATIONS.filter(isSummit);
 const fcLat = loc => loc.fcLat != null ? loc.fcLat : loc.lat;
 const fcLon = loc => loc.fcLon != null ? loc.fcLon : loc.lon;
 const locTitle = loc => loc.tag ? `${loc.name} (${loc.tag})` : loc.name;
@@ -589,6 +610,7 @@ function setRegion(id, open) {
   if (rg) { rg.classList.toggle("shut", !open); rg.setAttribute("aria-expanded", open); }
   for (const tr of document.querySelectorAll(`#glance-body tr.loc[data-r="${id}"]`)) tr.classList.toggle("off", !open);
   if (!open && openId && LOCATIONS.find(l => l.id === openId).region === id) collapseRow();
+  if (open && id === "summit") ensureSummitData();
 }
 
 let openId = null, detWin = "d3";
@@ -600,6 +622,7 @@ function expandRow(id, {scroll = false, toggle = false} = {}) {
   if (toggle && openId === id) { collapseRow(); return; }
   if (openId && openId !== id) collapseRow(false);
   if (!regionOpen[loc.region]) setRegion(loc.region, true);
+  if (isSummit(loc)) ensureSummitData();
   det.hidden = false; tr.classList.add("open");
   openId = id; detWin = SORT_WIN[glanceSort.col] || "d3";
   refreshDetail(id);
@@ -647,6 +670,7 @@ function wireGlanceSort() {
     else { glanceSort.col = k; glanceSort.desc = true; }
     try { localStorage.setItem("snowSort", JSON.stringify(glanceSort)); } catch (_) {}
     applyGlanceSort();
+    if (glanceSort.col !== "loc") ensureSummitData();
   });
   applyGlanceSort();
 }
@@ -1583,7 +1607,7 @@ function hourlyChart(loc, hours, width = 320) {
 
 /* ---------------- Chris Tomer ---------------- */
 
-const REGION_ORDER = ["San Juans", "Northern Colorado", "Central Colorado", "Wyoming", "Utah", "Idaho", "Arizona / New Mexico"];
+const REGION_ORDER = ["San Juans", "Summit County", "Northern Colorado", "Central Colorado", "Wyoming", "Utah", "Idaho", "Arizona / New Mexico"];
 const clip = (t, n = 180) => !t ? "" : t.length > n ? t.slice(0, n).replace(/\s+\S*$/, "") + "…" : t;
 
 async function loadTomer() {
@@ -1659,6 +1683,26 @@ const WEBCAMS = [
     {name:"Top Bird", sub:"Summit", img:"https://brundage.com/webcam/bmrsummit.jpg"},
     {name:"Bear", sub:"", img:"https://brundage.com/webcam/bmrbear.jpg"},
    ]},
+  {id:"cdot", name:"I-70 Vail Pass", page:"https://www.cotrip.org/",
+   note:"Public CDOT stills. Images refresh about every 5 minutes. Resort cams are linked separately — those sites do not allow embedding.",
+   cams:[
+    {name:"Vail Pass EB", sub:"I-70 MP 191.8 · east of summit looking east", img:"https://cocam.carsprogram.org/Live_View/I70191East8.jpg"},
+    {name:"Vail Pass WB", sub:"I-70 MP 191.8 · looking west", img:"https://cocam.carsprogram.org/Live_View/I70191West8.jpg"},
+    {name:"East of pass", sub:"I-70 MP 193 · toward Copper", img:"https://cocam.carsprogram.org/Live_View/I70193East.jpg"},
+    {name:"Mid-pass", sub:"I-70 MP 185", img:"https://cocam.carsprogram.org/Live_View/I70185East.jpg"},
+    {name:"East Vail", sub:"I-70 MP 180 · start of the climb", img:"https://cocam.carsprogram.org/Live_View/I70180East.jpg"},
+    {name:"Frisco", sub:"I-70 MP 203 · nearby", img:"https://cocam.carsprogram.org/Live_View/I70203East.jpg"},
+   ]},
+  {id:"vailcams", name:"Vail", page:"https://www.vail.com/the-mountain/mountain-conditions/mountain-cams.aspx",
+   note:"Vail's cameras stay on vail.com and are not embeddable here.", cams:[]},
+  {id:"coppercams", name:"Copper", page:"https://www.coppercolorado.com/the-mountain/webcams/",
+   note:"Copper's cameras stay on coppercolorado.com and are not embeddable here.", cams:[]},
+  {id:"breckcams", name:"Breckenridge", page:"https://www.breckenridge.com/the-mountain/mountain-conditions/mountain-cams.aspx",
+   note:"Breckenridge's cameras stay on breckenridge.com and are not embeddable here.", cams:[]},
+  {id:"keystonecams", name:"Keystone", page:"https://www.keystoneresort.com/the-mountain/mountain-conditions/mountain-cams.aspx",
+   note:"Keystone's cameras stay on keystoneresort.com and are not embeddable here.", cams:[]},
+  {id:"abasincams", name:"A-Basin", page:"https://www.arapahoebasin.com/mountain-cams/",
+   note:"A-Basin's cameras stay on arapahoebasin.com and are not embeddable here.", cams:[]},
 ];
 const camState = {resort:"purg", cam:0, live:false};
 try { Object.assign(camState, JSON.parse(localStorage.getItem("snowCam") || "{}"), {live:false}); } catch (e) { /* ignore bad saved state */ }
@@ -1672,6 +1716,14 @@ function renderCams() {
   localStorage.setItem("snowCam", JSON.stringify({resort:camState.resort, cam:camState.cam}));
   $("cam-resorts").innerHTML = WEBCAMS.map(x => `<button type="button" data-r="${x.id}" aria-pressed="${x.id === r.id}">${esc(x.name)}</button>`).join("");
   const view = $("cam-view");
+  if (!c) {
+    view.innerHTML = `<div class="off">${esc(r.name)} keeps its cameras on its own site and does not allow embedding.<br><a href="${esc(r.page)}" target="_blank" rel="noopener">Open official ${esc(r.name)} webcams ↗</a></div>`;
+    $("cam-cap").innerHTML = `<div><div class="n">${esc(r.name)}</div><div class="s">official webcam page · opens in a new tab</div></div>
+      <div class="acts"><a href="${esc(r.page)}" target="_blank" rel="noopener">Open ↗</a></div>`;
+    $("cam-thumbs").innerHTML = "";
+    $("cam-note").textContent = r.note || "";
+    return;
+  }
   if (camState.live && c.live) {
     view.innerHTML = `<iframe src="${esc(c.live)}" allow="autoplay; fullscreen" allowfullscreen title="${esc(r.name + " " + c.name)} live"></iframe>`;
   } else {
@@ -1705,6 +1757,7 @@ const MAP_WINDOWS = [["h24","24H","Next 24 hours"],["h48","48H","Next 48 hours"]
 // [lower bound in inches, color, opacity]; each band runs up to the next band's bound.
 const MAP_BANDS = [[0.1,"#dbeafe",.3],[1,"#7cb8ff",.5],[3,"#3b82f6",.66],[6,"#6d4af2",.74],[12,"#a855f7",.8],[18,"#e040fb",.84],[24,"#f472b6",.87],[36,"#ffe1ef",.9]];
 const MAP_CITIES = [["Durango",37.275,-107.88],["Silverton",37.812,-107.664],["Telluride",37.938,-107.812],["Pagosa Springs",37.269,-107.01],["Cortez",37.349,-108.586],
+  ["Vail",39.643,-106.378],["Frisco",39.575,-106.097],["Breckenridge",39.482,-106.046],
   ["Denver",39.739,-104.99],["Steamboat",40.485,-106.832],["Laramie",41.311,-105.591],["Grand Junction",39.064,-108.551],["Salt Lake City",40.761,-111.891],
   ["Logan",41.737,-111.834],["Jackson",43.48,-110.762],["Boise",43.615,-116.202],["McCall",44.911,-116.099],["Reno",39.53,-119.814],["Missoula",46.872,-113.994],
   ["Bozeman",45.677,-111.043],["Albuquerque",35.084,-106.65],["Phoenix",33.448,-112.074],["Cheyenne",41.14,-104.82]];
@@ -1917,6 +1970,17 @@ async function loadSnapshot() {
   return true;
 }
 
+let summitWanted = false, summitLoading = null;
+function ensureSummitData() {
+  summitWanted = true;
+  if (summitLoading) return summitLoading;
+  const jobs = summitLocs().filter(l => !nwsState[l.id]).map(loc => loadNws(loc));
+  if (!jobs.length) return Promise.resolve(true);
+  summitLoading = Promise.all(jobs.map(j => j.catch(e => (console.error(e), false))))
+    .finally(() => { summitLoading = null; });
+  return summitLoading;
+}
+
 async function loadAll() {
   if (loading) return;
   loading = true;
@@ -1928,7 +1992,8 @@ async function loadAll() {
   const jobs = [loadSnotelAll()];
   if (firstLoad) { firstLoad = false; snapshotReady = loadSnapshot(); await snapshotReady; }
   jobs.push(loadTomer(), loadConditions());
-  jobs.push(...LOCATIONS.map(loc => loadNws(loc)));
+  jobs.push(...coreLocs().map(loc => loadNws(loc)));
+  if (regionOpen.summit || summitWanted) jobs.push(ensureSummitData());
   let done = 0;
   const label = "Updating NWS and SNOTEL…";
   stamp.textContent = label;

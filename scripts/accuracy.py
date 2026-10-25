@@ -38,6 +38,14 @@ STATIONS = [
     {"id": "deadwood", "name": "Deadwood Summit", "triplet": "439:ID:SNTL", "lat": 44.54492, "lon": -115.56386},
     {"id": "brundage", "name": "Brundage Mountain", "triplet": "370:ID:SNTL", "lat": 45.0050, "lon": -116.1540,
      "note": "Forecast at the summit; SNOTEL is Brundage Reservoir (6,280 ft)."},
+    {"id": "vailmtn", "name": "Vail Mountain", "triplet": "842:CO:SNTL", "lat": 39.61765, "lon": -106.38019},
+    {"id": "coppermtn", "name": "Copper Mountain", "triplet": "415:CO:SNTL", "lat": 39.4892, "lon": -106.2026},
+    {"id": "fremont", "name": "Fremont Pass", "triplet": "485:CO:SNTL", "lat": 39.38014, "lon": -106.19784},
+    {"id": "hoosier", "name": "Hoosier Pass", "triplet": "531:CO:SNTL", "lat": 39.3609, "lon": -106.0289},
+    {"id": "grizzly", "name": "Grizzly Peak", "triplet": "505:CO:SNTL", "lat": 39.64646, "lon": -105.86940},
+    {"id": "loveland", "name": "Loveland Basin", "triplet": "602:CO:SNTL", "lat": 39.67428, "lon": -105.90264},
+    {"id": "jackwhacker", "name": "Jackwhacker Gulch", "triplet": "935:CO:SNTL", "lat": 39.57096, "lon": -105.80355},
+    {"id": "elliot", "name": "Elliot Ridge", "triplet": "1120:CO:SNTL", "lat": 39.86380, "lon": -106.42473},
 ]
 WINDOWS = (("n24", "qpf24", 24), ("n72", "qpf72", 72), ("n7", "qpf7", 168))
 

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Durango Snow</title>
-<meta name="description" content="Live SNOTEL snowpack and elevation-adjusted snow forecasts for the San Juans, northern Colorado, Wyoming, Utah and Idaho.">
+<meta name="description" content="Live SNOTEL snowpack and elevation-adjusted snow forecasts for the San Juans, Summit County and Vail, northern Colorado, Wyoming, Utah and Idaho.">
 <meta name="theme-color" content="#0a1024">
 <meta name="color-scheme" content="dark">
 <meta name="mobile-web-app-capable" content="yes">
@@ -150,6 +150,7 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 #glance-body>tr.rg .chev{display:inline-block;width:12px;color:var(--dim);transition:transform .15s}
 #glance-body>tr.rg.shut .chev{transform:rotate(-90deg)}
 #glance-body>tr.rg .cnt{margin-left:6px;color:var(--dim);font-weight:600;letter-spacing:0}
+#glance-body>tr.rg[data-r="summit"]>td{padding-top:18px;border-top:2px solid #4a5a8a}
 #glance-body:not(.sorted)>tr.loc.off{display:none}
 #glance-body>tr.loc.open>td{background:#ffffff08}
 #glance-body>tr.loc.open>td.st{background:var(--card2);box-shadow:inset 3px 0 0 var(--ice),4px 0 8px -4px #0008}
@@ -259,6 +260,7 @@ details.x .xb .none b{display:block;color:var(--warn)}
 .cams .view{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#0b1330}
 .cams .view img,.cams .view iframe{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover;background:#0b1330}
 .cams .view .off{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:13.5px;padding:16px}
+.cams .view .off a{color:var(--ice);font-weight:700}
 .cams .cap{display:flex;align-items:flex-start;gap:10px;margin-top:9px}
 .cams .cap .n{font-weight:700;font-size:15px}
 .cams .cap .s{font-size:12px;color:var(--muted);margin-top:1px}
@@ -371,6 +373,7 @@ footer .ask{color:var(--muted);margin-top:4px}
 "use strict";
 const REGIONS = [
   {id:"sanjuans", name:"San Juans", sub:"Durango area"},
+  {id:"summit", name:"Summit County & Vail", sub:"I-70 · Tenmile · Gore"},
   {id:"nco", name:"Northern Colorado", sub:"Park Range"},
   {id:"wy", name:"Wyoming", sub:"Snowy Range · Sierra Madre"},
   {id:"ut", name:"Utah", sub:"Bear River Range"},
@@ -396,7 +399,27 @@ const LOCATIONS = [
   {id:"deadwood", region:"id", name:"Deadwood Summit", note:"Boise National Forest", ft:6990, lat:44.54492, lon:-115.56386, triplet:"439:ID:SNTL"},
   {id:"brundage", region:"id", name:"Brundage Mountain", note:"McCall · summit forecast", ft:7640, lat:45.0050, lon:-116.1540,
    triplet:"370:ID:SNTL", snotelName:"Brundage Reservoir", snotelFt:6280, report:"https://brundage.com/snow-report/"},
+  // Summit County & Vail — after the original 14 so older live.json hourly/wind arrays still line up.
+  // Collapsed by default; Open-Meteo for this region loads only when the section is opened.
+  {id:"vailmtn", region:"summit", name:"Vail Mountain", note:"Vail ski area", ft:10290, lat:39.61765, lon:-106.38019, triplet:"842:CO:SNTL"},
+  {id:"coppermtn", region:"summit", name:"Copper Mountain", note:"Tenmile Range", ft:10500, lat:39.48917, lon:-106.17154, triplet:"415:CO:SNTL", fcLat:39.4892, fcLon:-106.2026},
+  {id:"fremont", region:"summit", name:"Fremont Pass", note:"Climax / Copper", ft:11310, lat:39.38014, lon:-106.19784, triplet:"485:CO:SNTL"},
+  {id:"hoosier", region:"summit", name:"Hoosier Pass", note:"Breckenridge / Alma", ft:11600, lat:39.36092, lon:-106.05999, triplet:"531:CO:SNTL", fcLat:39.3609, fcLon:-106.0289},
+  {id:"grizzly", region:"summit", name:"Grizzly Peak", note:"Loveland / A-Basin", ft:11110, lat:39.64646, lon:-105.86940, triplet:"505:CO:SNTL"},
+  {id:"loveland", region:"summit", name:"Loveland Basin", note:"Loveland ski area", ft:11410, lat:39.67428, lon:-105.90264, triplet:"602:CO:SNTL"},
+  {id:"jackwhacker", region:"summit", name:"Jackwhacker Gulch", note:"Montezuma / Keystone", ft:11030, lat:39.57096, lon:-105.80355, triplet:"935:CO:SNTL"},
+  {id:"elliot", region:"summit", name:"Elliot Ridge", note:"Gore Range · Piney", ft:10550, lat:39.86380, lon:-106.42473, triplet:"1120:CO:SNTL"},
+  {id:"redsand", region:"summit", name:"Red Sandstone Rd", note:"Piney / Lost Lake sled area · forecast only", ft:10000, lat:39.7350, lon:-106.3920},
+  {id:"vailpass", region:"summit", name:"Vail Pass", note:"Shrine Pass rec area · forecast only", ft:10600, lat:39.5303, lon:-106.2107},
+  {id:"vail", region:"summit", name:"Vail", note:"Ski area · High Noon Express · forecast only", ft:11250, lat:39.6055, lon:-106.3680},
+  {id:"copper", region:"summit", name:"Copper", note:"Ski area · Super Bee · forecast only", ft:11660, lat:39.4890, lon:-106.1550},
+  {id:"breck", region:"summit", name:"Breckenridge", note:"Ski area · Imperial Express · forecast only", ft:12840, lat:39.4765, lon:-106.0730, fcLat:39.4482, fcLon:-106.1096},
+  {id:"keystone", region:"summit", name:"Keystone", note:"Ski area · Outback / Bergman · forecast only", ft:12400, lat:39.5580, lon:-105.9180, fcLat:39.5297, fcLon:-105.8813},
+  {id:"abasin", region:"summit", name:"Arapahoe Basin", note:"Ski area · Zuma / East Wall · forecast only", ft:12450, lat:39.6360, lon:-105.8720, fcLat:39.6360, fcLon:-105.8512},
 ].map(l => ({...l, m: l.m || Math.round(l.ft * 0.3048)}));
+const isSummit = loc => loc.region === "summit";
+const coreLocs = () => LOCATIONS.filter(l => !isSummit(l));
+const summitLocs = () => LOCATIONS.filter(isSummit);
 const fcLat = loc => loc.fcLat != null ? loc.fcLat : loc.lat;
 const fcLon = loc => loc.fcLon != null ? loc.fcLon : loc.lon;
 const locTitle = loc => loc.tag ? `${loc.name} (${loc.tag})` : loc.name;
@@ -583,6 +606,7 @@ function setRegion(id, open) {
   if (rg) { rg.classList.toggle("shut", !open); rg.setAttribute("aria-expanded", open); }
   for (const tr of document.querySelectorAll(`#glance-body tr.loc[data-r="${id}"]`)) tr.classList.toggle("off", !open);
   if (!open && openId && LOCATIONS.find(l => l.id === openId).region === id) collapseRow();
+  if (open && id === "summit") ensureSummitData();
 }
 
 let openId = null, detWin = "d3";
@@ -594,6 +618,7 @@ function expandRow(id, {scroll = false, toggle = false} = {}) {
   if (toggle && openId === id) { collapseRow(); return; }
   if (openId && openId !== id) collapseRow(false);
   if (!regionOpen[loc.region]) setRegion(loc.region, true);
+  if (isSummit(loc)) ensureSummitData();
   det.hidden = false; tr.classList.add("open");
   openId = id; detWin = SORT_WIN[glanceSort.col] || "d3";
   refreshDetail(id);
@@ -641,6 +666,7 @@ function wireGlanceSort() {
     else { glanceSort.col = k; glanceSort.desc = true; }
     try { localStorage.setItem("snowSort", JSON.stringify(glanceSort)); } catch (_) {}
     applyGlanceSort();
+    if (glanceSort.col !== "loc") ensureSummitData();
   });
   applyGlanceSort();
 }
@@ -1366,31 +1392,42 @@ function renderWind(loc) {
     + `<details class="x"><summary><span class="t">Details</span><span class="s">ridge-level (700 mb) winds · storm timing from GFS</span></summary><div class="xb">${txt}${windSlabCheck(loc)}</div></details></div>`;
 }
 
-const WIND_URL = "https://api.open-meteo.com/v1/forecast"
-  + `?latitude=${LOCATIONS.map(fcLat).join(",")}&longitude=${LOCATIONS.map(fcLon).join(",")}&elevation=${LOCATIONS.map(l => l.m).join(",")}`
+const windUrl = locs => "https://api.open-meteo.com/v1/forecast"
+  + `?latitude=${locs.map(fcLat).join(",")}&longitude=${locs.map(fcLon).join(",")}&elevation=${locs.map(l => l.m).join(",")}`
   + "&hourly=snowfall,wind_speed_700hPa,wind_direction_700hPa&past_days=3&forecast_days=10&timezone=America%2FDenver&wind_speed_unit=mph&precipitation_unit=inch";
-const checkWind = d => { if (!Array.isArray(d) || d.length !== LOCATIONS.length) throw new Error("Open-Meteo wind response was incomplete."); };
+function snapshotSlice(kind, locs) {
+  const arr = snapshot && snapshot[kind];
+  if (!Array.isArray(arr) || !arr.length) return null;
+  if (arr.length === LOCATIONS.length) return locs.map(l => arr[LOCATIONS.indexOf(l)]);
+  const out = locs.map(l => { const i = LOCATIONS.indexOf(l); return i >= 0 && i < arr.length ? arr[i] : null; });
+  return out.every(Boolean) ? out : null;
+}
 
-async function loadWind() {
+async function loadWind(locs = coreLocs()) {
   try {
-    const res = await fetchCached("wind", WIND_URL, checkWind, () => snapshot && snapshot.wind);
-    return applyWind(res);
+    const key = locs.length === LOCATIONS.length ? "wind" : "wind:" + locs.map(l => l.id).join(",");
+    const res = await fetchCached(key, windUrl(locs), d => {
+      if (!Array.isArray(d) || d.length !== locs.length) throw new Error("Open-Meteo wind response was incomplete.");
+    }, () => snapshotSlice("wind", locs));
+    return applyWind(res, locs);
   } catch (e) {
-    for (const loc of LOCATIONS) if (!windState[loc.id]) $("wind-" + loc.id).innerHTML = `${compass(null, 0)}<div><div class="l">Wind loading</div><span class="err">Couldn't load ridge winds: ${esc(e.message)}</span></div>`;
+    for (const loc of locs) if (!windState[loc.id]) $("wind-" + loc.id).innerHTML = `${compass(null, 0)}<div><div class="l">Wind loading</div><span class="err">Couldn't load ridge winds: ${esc(e.message)}</span></div>`;
     return false;
   }
 }
 
-function applyWind(res) {
-  checkWind(res.data);
-  res.data.forEach((rec, k) => {
-    const loc = LOCATIONS[k], hh = rec.hourly, off = (rec.utc_offset_seconds || 0) * 1000;
+function applyWind(res, locs = LOCATIONS) {
+  const data = res.data;
+  if (!Array.isArray(data) || !data.length) throw new Error("Open-Meteo wind response was incomplete.");
+  const n = Math.min(data.length, locs.length);
+  for (let k = 0; k < n; k++) {
+    const rec = data[k], loc = locs[k], hh = rec.hourly, off = (rec.utc_offset_seconds || 0) * 1000;
     const t = hh.time.map(x => Date.parse(x + ":00Z") - off);
     const days = [...new Set(hh.time.map(x => x.slice(0, 10)))];
     windState[loc.id] = {t, snow:hh.snowfall, spd:hh.wind_speed_700hPa, dir:hh.wind_direction_700hPa, days, savedAt:res.savedAt,
       dayOf:ms => days.indexOf(new Intl.DateTimeFormat("en-CA", {timeZone:TZ, year:"numeric", month:"2-digit", day:"2-digit"}).format(new Date(ms)))};
     renderWind(loc);
-  });
+  }
   refreshDetail(openId);
   return res.savedAt ? "saved" : true;
 }
@@ -1400,34 +1437,37 @@ function applyWind(res) {
 // One request for every location: NBM, ECMWF, GFS, HRRR. Headline 24/48/72h come from NWS;
 // this feed is the model range, the HRRR line, temperatures, and the NBM fallback.
 const HOURLY_COLS = ["n24", "n48", "n72"], HOURLY_HOURS = [24, 48, 72];
-const HOURLY_URL = "https://api.open-meteo.com/v1/forecast"
-  + `?latitude=${LOCATIONS.map(fcLat).join(",")}&longitude=${LOCATIONS.map(fcLon).join(",")}&elevation=${LOCATIONS.map(l => l.m).join(",")}`
+const hourlyUrl = locs => "https://api.open-meteo.com/v1/forecast"
+  + `?latitude=${locs.map(fcLat).join(",")}&longitude=${locs.map(fcLon).join(",")}&elevation=${locs.map(l => l.m).join(",")}`
   + `&hourly=snowfall,temperature_2m&models=${[...MODELS, ...SHORT_MODELS].map(m => m[0]).join(",")}`
   + "&past_days=1&forecast_days=4&timezone=America%2FDenver&precipitation_unit=inch&temperature_unit=fahrenheit";
-const checkHourly = d => {
-  if (d && d.error) throw new Error(d.reason || "Open-Meteo returned an error.");
-  if (!Array.isArray(d) || d.length !== LOCATIONS.length || !d.every(r => r.hourly && Array.isArray(r.hourly.time))) throw new Error("Open-Meteo hourly response was incomplete.");
-};
 const hrState = {};
 let hourlyErr = null;
 
-async function loadHourly() {
+async function loadHourly(locs = coreLocs()) {
   try {
-    const res = await fetchCached("hourly", HOURLY_URL, checkHourly, () => snapshot && snapshot.hourly);
+    const key = locs.length === LOCATIONS.length ? "hourly" : "hourly:" + locs.map(l => l.id).join(",");
+    const res = await fetchCached(key, hourlyUrl(locs), d => {
+      if (d && d.error) throw new Error(d.reason || "Open-Meteo returned an error.");
+      if (!Array.isArray(d) || d.length !== locs.length || !d.every(r => r.hourly && Array.isArray(r.hourly.time))) throw new Error("Open-Meteo hourly response was incomplete.");
+    }, () => snapshotSlice("hourly", locs));
     hourlyErr = null;
-    return applyHourly(res);
+    return applyHourly(res, locs);
   } catch (e) {
     hourlyErr = e;
     console.warn("hourly forecast unavailable:", e.message);
-    for (const loc of LOCATIONS) if (!hrState[loc.id]) setNext(loc);
+    for (const loc of locs) if (!hrState[loc.id]) setNext(loc);
     return false;
   }
 }
 
-function applyHourly(res) {
-  checkHourly(res.data);
-  res.data.forEach((rec, k) => {
-    const loc = LOCATIONS[k], hh = rec.hourly, u = rec.hourly_units || {}, off = (rec.utc_offset_seconds || 0) * 1000;
+function applyHourly(res, locs = LOCATIONS) {
+  const data = res.data;
+  if (data && data.error) throw new Error(data.reason || "Open-Meteo returned an error.");
+  if (!Array.isArray(data) || !data.length) throw new Error("Open-Meteo hourly response was incomplete.");
+  const n = Math.min(data.length, locs.length);
+  for (let k = 0; k < n; k++) {
+    const rec = data[k], loc = locs[k], hh = rec.hourly, u = rec.hourly_units || {}, off = (rec.utc_offset_seconds || 0) * 1000;
     const t = hh.time.map(x => Date.parse(x + ":00Z") - off);
     const snow = {}, temp = {};
     for (const [key, name] of [...MODELS, ...SHORT_MODELS]) {
@@ -1440,7 +1480,7 @@ function applyHourly(res) {
     const med = t.map((_, i) => { const v = globals.map(n => snow[n][i]).filter(x => x != null); return v.length ? median(v) : null; });
     hrState[loc.id] = {t, snow, temp, globals, med, savedAt:res.savedAt};
     setNext(loc);
-  });
+  }
   return res.savedAt ? "saved" : true;
 }
 
@@ -1625,7 +1665,7 @@ function hourlyChart(loc, hours, width = 320) {
 
 /* ---------------- Chris Tomer ---------------- */
 
-const REGION_ORDER = ["San Juans", "Northern Colorado", "Central Colorado", "Wyoming", "Utah", "Idaho", "Arizona / New Mexico"];
+const REGION_ORDER = ["San Juans", "Summit County", "Northern Colorado", "Central Colorado", "Wyoming", "Utah", "Idaho", "Arizona / New Mexico"];
 const clip = (t, n = 180) => !t ? "" : t.length > n ? t.slice(0, n).replace(/\s+\S*$/, "") + "…" : t;
 
 async function loadTomer() {
@@ -1701,6 +1741,26 @@ const WEBCAMS = [
     {name:"Top Bird", sub:"Summit", img:"https://brundage.com/webcam/bmrsummit.jpg"},
     {name:"Bear", sub:"", img:"https://brundage.com/webcam/bmrbear.jpg"},
    ]},
+  {id:"cdot", name:"I-70 Vail Pass", page:"https://www.cotrip.org/",
+   note:"Public CDOT stills. Images refresh about every 5 minutes. Resort cams are linked separately — those sites do not allow embedding.",
+   cams:[
+    {name:"Vail Pass EB", sub:"I-70 MP 191.8 · east of summit looking east", img:"https://cocam.carsprogram.org/Live_View/I70191East8.jpg"},
+    {name:"Vail Pass WB", sub:"I-70 MP 191.8 · looking west", img:"https://cocam.carsprogram.org/Live_View/I70191West8.jpg"},
+    {name:"East of pass", sub:"I-70 MP 193 · toward Copper", img:"https://cocam.carsprogram.org/Live_View/I70193East.jpg"},
+    {name:"Mid-pass", sub:"I-70 MP 185", img:"https://cocam.carsprogram.org/Live_View/I70185East.jpg"},
+    {name:"East Vail", sub:"I-70 MP 180 · start of the climb", img:"https://cocam.carsprogram.org/Live_View/I70180East.jpg"},
+    {name:"Frisco", sub:"I-70 MP 203 · nearby", img:"https://cocam.carsprogram.org/Live_View/I70203East.jpg"},
+   ]},
+  {id:"vailcams", name:"Vail", page:"https://www.vail.com/the-mountain/mountain-conditions/mountain-cams.aspx",
+   note:"Vail's cameras stay on vail.com and are not embeddable here.", cams:[]},
+  {id:"coppercams", name:"Copper", page:"https://www.coppercolorado.com/the-mountain/webcams/",
+   note:"Copper's cameras stay on coppercolorado.com and are not embeddable here.", cams:[]},
+  {id:"breckcams", name:"Breckenridge", page:"https://www.breckenridge.com/the-mountain/mountain-conditions/mountain-cams.aspx",
+   note:"Breckenridge's cameras stay on breckenridge.com and are not embeddable here.", cams:[]},
+  {id:"keystonecams", name:"Keystone", page:"https://www.keystoneresort.com/the-mountain/mountain-conditions/mountain-cams.aspx",
+   note:"Keystone's cameras stay on keystoneresort.com and are not embeddable here.", cams:[]},
+  {id:"abasincams", name:"A-Basin", page:"https://www.arapahoebasin.com/mountain-cams/",
+   note:"A-Basin's cameras stay on arapahoebasin.com and are not embeddable here.", cams:[]},
 ];
 const camState = {resort:"purg", cam:0, live:false};
 try { Object.assign(camState, JSON.parse(localStorage.getItem("snowCam") || "{}"), {live:false}); } catch (e) { /* ignore bad saved state */ }
@@ -1714,6 +1774,14 @@ function renderCams() {
   localStorage.setItem("snowCam", JSON.stringify({resort:camState.resort, cam:camState.cam}));
   $("cam-resorts").innerHTML = WEBCAMS.map(x => `<button type="button" data-r="${x.id}" aria-pressed="${x.id === r.id}">${esc(x.name)}</button>`).join("");
   const view = $("cam-view");
+  if (!c) {
+    view.innerHTML = `<div class="off">${esc(r.name)} keeps its cameras on its own site and does not allow embedding.<br><a href="${esc(r.page)}" target="_blank" rel="noopener">Open official ${esc(r.name)} webcams ↗</a></div>`;
+    $("cam-cap").innerHTML = `<div><div class="n">${esc(r.name)}</div><div class="s">official webcam page · opens in a new tab</div></div>
+      <div class="acts"><a href="${esc(r.page)}" target="_blank" rel="noopener">Open ↗</a></div>`;
+    $("cam-thumbs").innerHTML = "";
+    $("cam-note").textContent = r.note || "";
+    return;
+  }
   if (camState.live && c.live) {
     view.innerHTML = `<iframe src="${esc(c.live)}" allow="autoplay; fullscreen" allowfullscreen title="${esc(r.name + " " + c.name)} live"></iframe>`;
   } else {
@@ -1747,6 +1815,7 @@ const MAP_WINDOWS = [["h24","24H","Next 24 hours"],["h48","48H","Next 48 hours"]
 // [lower bound in inches, color, opacity]; each band runs up to the next band's bound.
 const MAP_BANDS = [[0.1,"#dbeafe",.3],[1,"#7cb8ff",.5],[3,"#3b82f6",.66],[6,"#6d4af2",.74],[12,"#a855f7",.8],[18,"#e040fb",.84],[24,"#f472b6",.87],[36,"#ffe1ef",.9]];
 const MAP_CITIES = [["Durango",37.275,-107.88],["Silverton",37.812,-107.664],["Telluride",37.938,-107.812],["Pagosa Springs",37.269,-107.01],["Cortez",37.349,-108.586],
+  ["Vail",39.643,-106.378],["Frisco",39.575,-106.097],["Breckenridge",39.482,-106.046],
   ["Denver",39.739,-104.99],["Steamboat",40.485,-106.832],["Laramie",41.311,-105.591],["Grand Junction",39.064,-108.551],["Salt Lake City",40.761,-111.891],
   ["Logan",41.737,-111.834],["Jackson",43.48,-110.762],["Boise",43.615,-116.202],["McCall",44.911,-116.099],["Reno",39.53,-119.814],["Missoula",46.872,-113.994],
   ["Bozeman",45.677,-111.043],["Albuquerque",35.084,-106.65],["Phoenix",33.448,-112.074],["Cheyenne",41.14,-104.82]];
@@ -1984,6 +2053,25 @@ async function loadSnapshot() {
   return true;
 }
 
+let summitWanted = false, summitLoading = null;
+function ensureSummitData(force = false) {
+  summitWanted = true;
+  if (summitLoading && !force) return summitLoading;
+  const locs = summitLocs();
+  const fresh = !force && snapAge() < SNAP_FRESH;
+  const jobs = [];
+  for (const loc of locs) {
+    if (force || !nwsState[loc.id]) jobs.push(loadNws(loc));
+    if (!fresh && (force || !fcState[loc.id])) jobs.push(loadForecast(loc));
+  }
+  if (force || locs.some(l => !windState[l.id])) jobs.push(loadWind(locs));
+  if (force || locs.some(l => !hrState[l.id])) jobs.push(loadHourly(locs));
+  if (!jobs.length) return Promise.resolve(true);
+  summitLoading = Promise.all(jobs.map(j => j.catch(e => (console.error(e), false))))
+    .finally(() => { summitLoading = null; });
+  return summitLoading;
+}
+
 async function loadAll(force = false) {
   if (loading) return;
   loading = true;
@@ -1998,11 +2086,14 @@ async function loadAll(force = false) {
   // On a slow link the snapshot gets the bandwidth first; on a normal one this wait is ~200 ms.
   if (firstLoad) { firstLoad = false; snapshotReady = loadSnapshot(); await snapshotReady; }
   const fresh = !force && snapAge() < SNAP_FRESH;
+  const core = coreLocs();
   jobs.push(loadTomer(), loadSnowMap(), loadConditions());
-  jobs.push(...LOCATIONS.map(loc => loadNws(loc)));
+  // Summit Open-Meteo stays off until that section is opened — friends refresh a lot.
+  jobs.push(...core.map(loc => loadNws(loc)));
   // A snapshot without the hourly section (older live.json) still needs the live hourly call.
-  if (!fresh) jobs.push(...LOCATIONS.map(loc => loadForecast(loc)), loadWind());
-  if (!fresh || !(snapshot && snapshot.hourly)) jobs.push(loadHourly());
+  if (!fresh) jobs.push(...core.map(loc => loadForecast(loc)), loadWind(core));
+  if (!fresh || !(snapshot && snapshot.hourly)) jobs.push(loadHourly(core));
+  if (regionOpen.summit || summitWanted) jobs.push(ensureSummitData(force));
   let done = 0;
   const label = fresh ? `Forecast from ${fmtClock(snapTime())} MT build · checking SNOTEL…` : "Updating live data…";
   stamp.textContent = label;
