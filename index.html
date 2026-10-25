@@ -2062,7 +2062,8 @@ function ensureSummitData(force = false) {
   const jobs = [];
   for (const loc of locs) {
     if (force || !nwsState[loc.id]) jobs.push(loadNws(loc));
-    if (!fresh && (force || !fcState[loc.id])) jobs.push(loadForecast(loc));
+    // Snapshot can be "fresh" for the original spots while still missing Summit.
+    if (force || !fcState[loc.id]) jobs.push(loadForecast(loc));
   }
   if (force || locs.some(l => !windState[l.id])) jobs.push(loadWind(locs));
   if (force || locs.some(l => !hrState[l.id])) jobs.push(loadHourly(locs));
