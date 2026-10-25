@@ -13,6 +13,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -32,9 +33,20 @@ ADMIN = re.compile(r"\b(warnings?|advisor(y|ies)|headlines?|no changes|on track|
 
 
 def get(url, headers=None):
-    req = urllib.request.Request(url, headers=headers or {"User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=40) as r:
-        return json.load(r)
+    err = None
+    for attempt in range(4):
+        if attempt:
+            time.sleep(1.2 * (2 ** (attempt - 1)))
+        try:
+            req = urllib.request.Request(url, headers=headers or {"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=40) as r:
+                return json.load(r)
+        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as e:
+            err = e
+            code = getattr(e, "code", None)
+            if code and code < 500 and code != 429:
+                break
+    raise err
 
 
 # ---------------- NWS ----------------

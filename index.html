@@ -938,12 +938,14 @@ function applyNws(loc, res, meta) {
   nwsState[loc.id] = {
     hours, start:keys[0], end:keys[keys.length - 1] + HOUR,
     updateTime:data.updateTime ? Date.parse(data.updateTime) : 0,
+    office,
     grid:office && gx != null ? `${office} ${gx},${gy}` : "",
     savedAt:res.savedAt,
   };
   const fc = fcState[loc.id];
   if (fc) { stitchOfficial(fc, loc); renderForecast(panelBody("fc", loc), fc); }
   setNext(loc);
+  ensureAfd(office);
   return res.savedAt ? "saved" : true;
 }
 
@@ -1222,28 +1224,138 @@ const DANGER = ["No rating", "Low", "Moderate", "Considerable", "High", "Extreme
 const ASPECT = {north:"N", northeast:"NE", east:"E", southeast:"SE", south:"S", southwest:"SW", west:"W", northwest:"NW"};
 const paras = (list, cls = "") => (list || []).map(p => `<p${cls ? ` class="${cls}"` : ""}>${esc(p)}</p>`).join("");
 const dateMT = iso => new Date(iso).toLocaleString("en-US", {timeZone:TZ, month:"short", day:"numeric", hour:"numeric", minute:"2-digit"});
+const OFFICE_NAMES = {GJT:"Grand Junction", BOU:"Boulder / Denver", PUB:"Pueblo", CYS:"Cheyenne",
+  RIW:"Riverton", SLC:"Salt Lake City", BOI:"Boise", PIH:"Pocatello", MSO:"Missoula"};
+const AFD_DROP = /^(AVIATION|FIRE WEATHER|MARINE|HYDROLOGY|CLIMATE|EQUIPMENT|PRELIMINARY POINT)/;
+const afdByOffice = {};
+const afdLoading = {};
+let conditionsReady;
+const conditionsGate = new Promise(r => { conditionsReady = r; });
 
 function setSummary(id, text, badge = "") {
   const el = document.querySelector(`#${id} summary .s`);
   if (el) el.innerHTML = badge + esc(text);
 }
 
-// Each spot resolves to one office, but the office text is stored once and rendered only when opened.
+function locOffice(loc) {
+  const n = nwsState[loc.id];
+  if (n && n.office) return n.office;
+  if (n && n.grid) return n.grid.split(/\s+/)[0];
+  if (cond && cond.nws && cond.nws.spots && cond.nws.spots[loc.id]) return cond.nws.spots[loc.id];
+  return null;
+}
+
+function seedAfdFromCond() {
+  const offices = cond && cond.nws && cond.nws.offices;
+  if (!offices) return;
+  for (const [code, o] of Object.entries(offices)) if (o && o.sections && !afdByOffice[code]) afdByOffice[code] = o;
+}
+
+function parseAfdSections(text) {
+  const out = {}, order = [];
+  let name = null, buf = [];
+  const flush = () => {
+    if (!name) return;
+    const paras = [];
+    for (const p of buf.join("\n").split(/\n\s*\n/)) {
+      let t = p.replace(/\s+/g, " ").trim().replace(/^Issued \d{3,4} [AP]M \w+ \w+ \w+ \d+ \d{4}\s*/, "");
+      if (t.length > 40) paras.push(t);
+    }
+    if (paras.length && !name.includes("WATCHES") && !AFD_DROP.test(name)) {
+      if (!out[name]) order.push(name);
+      out[name] = paras;
+    }
+  };
+  for (const line of String(text).split(/\n/)) {
+    const m = line.match(/^\.([A-Za-z][A-Za-z0-9 /&\-\(\)\.,']*?)\.{3}\s*(.*)$/);
+    if (m) {
+      flush();
+      name = m[1].replace(/\s*(\/.*|,\s*Issued.*)$/i, "").trim().toUpperCase();
+      buf = [m[2]];
+    } else if (line.trim() === "&&") {
+      flush();
+      name = null;
+      buf = [];
+    } else if (name) buf.push(line);
+  }
+  flush();
+  return order.filter(n => out[n]).map(n => ({name: n.toLowerCase().replace(/\b[a-z]/g, c => c.toUpperCase()), paragraphs: out[n]}));
+}
+
+async function fetchAfd(code) {
+  const listing = await getJSON(`https://api.weather.gov/products/types/AFD/locations/${encodeURIComponent(code)}`, 15000, {Accept:"application/ld+json,application/geo+json"});
+  const items = listing["@graph"] || [];
+  if (!items.length) throw new Error(`${code} has no AFD products`);
+  for (const item of items.slice(0, 6)) {
+    const url = item["@id"];
+    if (!url) continue;
+    const prod = await getJSON(url, 15000, {Accept:"application/ld+json,application/geo+json"});
+    const sections = parseAfdSections(prod.productText || "");
+    if (!sections.length) continue;
+    return {
+      office: code, name: OFFICE_NAMES[code] || code, issued: prod.issuanceTime, sections,
+      url: `https://forecast.weather.gov/product.php?site=NWS&issuedby=${code}&product=AFD&format=txt`,
+    };
+  }
+  throw new Error(`${code}: none of the recent AFDs had a forecast section`);
+}
+
+function ensureAfd(code) {
+  if (!code) return Promise.resolve(null);
+  if (afdByOffice[code] && !afdByOffice[code].failed) return Promise.resolve(afdByOffice[code]);
+  if (afdLoading[code]) return afdLoading[code];
+  for (const loc of LOCATIONS) if (locOffice(loc) === code) renderNws(loc);
+  afdLoading[code] = (async () => {
+    await conditionsGate;
+    seedAfdFromCond();
+    if (afdByOffice[code] && !afdByOffice[code].failed) return afdByOffice[code];
+    try {
+      const o = await fetchAfd(code);
+      afdByOffice[code] = o;
+      return o;
+    } catch (e) {
+      console.warn("AFD unavailable for", code, e.message);
+      afdByOffice[code] = {failed:e, office:code, name:OFFICE_NAMES[code] || code};
+      return null;
+    }
+  })().finally(() => {
+    delete afdLoading[code];
+    for (const loc of LOCATIONS) if (locOffice(loc) === code) renderNws(loc);
+  });
+  return afdLoading[code];
+}
+
+// Each spot uses its own NWS office (gridId / CWA). The AFD is fetched once per office and shared.
 function renderNws(loc) {
   const d = $("nws-" + loc.id), body = d.querySelector(".xb");
-  const code = cond && cond.nws && cond.nws.spots[loc.id], o = code && cond.nws.offices[code];
-  if (!o) {
-    setSummary("nws-" + loc.id, code ? `NWS ${code} · text unavailable` : "unavailable");
-    body.innerHTML = `<p class="meta">The discussion text didn't come through on the last build.${code ? ` <a href="https://forecast.weather.gov/product.php?site=NWS&issuedby=${code}&product=AFD&format=txt" target="_blank" rel="noopener">Read it at weather.gov ↗</a>` : ""}</p>`;
+  if (!d || !body) return;
+  const code = locOffice(loc);
+  const o = code && afdByOffice[code];
+  const title = d.querySelector("summary .t");
+  const name = (o && o.name) || OFFICE_NAMES[code] || code;
+  if (title) title.textContent = name ? `NWS ${name} discussion` : "NWS forecast discussion";
+  if (!code) {
+    setSummary("nws-" + loc.id, nwsState[loc.id] && nwsState[loc.id].failed ? "unavailable" : "waiting for office…");
+    body.innerHTML = `<p class="meta">The page is still resolving this spot's NWS office from the points API.</p>`;
+    return;
+  }
+  if (afdLoading[code] && !o) {
+    setSummary("nws-" + loc.id, `${name} (${code}) · loading…`);
+    body.innerHTML = `<p class="meta">Loading the ${esc(name)} (${esc(code)}) Area Forecast Discussion…</p>`;
+    return;
+  }
+  if (!o || o.failed) {
+    setSummary("nws-" + loc.id, `${name} (${code}) · text unavailable`);
+    body.innerHTML = `<p class="meta">The ${esc(name)} (${esc(code)}) discussion didn't come through.${code ? ` <a href="https://forecast.weather.gov/product.php?site=NWS&issuedby=${code}&product=AFD&format=txt" target="_blank" rel="noopener">Read it at weather.gov ↗</a>` : ""}</p>`;
     return;
   }
   const age = (Date.now() - Date.parse(o.issued)) / HOUR;
   setSummary("nws-" + loc.id, `${o.name} (${code}) · ${dateMT(o.issued)} MT${age > 18 ? " · old" : ""}`);
-  const others = LOCATIONS.filter(l => l.id !== loc.id && cond.nws.spots[l.id] === code).map(l => l.name);
+  const others = LOCATIONS.filter(l => l.id !== loc.id && locOffice(l) === code).map(l => l.name);
   d.ontoggle = () => {
     if (!d.open || body.dataset.done === o.issued) return;
     body.dataset.done = o.issued;
-    body.innerHTML = `<div class="meta">NWS ${esc(o.name)} Area Forecast Discussion, issued ${dateMT(o.issued)} MT${others.length ? ` · same office covers ${esc(others.join(", "))}` : ""}.</div>
+    body.innerHTML = `<div class="meta">NWS ${esc(o.name)} (${esc(code)}) Area Forecast Discussion, issued ${dateMT(o.issued)} MT${others.length ? ` · same office covers ${esc(others.join(", "))}` : ""}.</div>
       ${o.sections.map(sec => `<h5>${esc(sec.name)}</h5>${paras(sec.paragraphs)}`).join("")}
       <div class="src"><a href="${esc(o.url)}" target="_blank" rel="noopener">Source: forecast.weather.gov (${code} AFD) ↗</a></div>`;
   };
@@ -1303,6 +1415,10 @@ async function loadConditions() {
   } catch (e) {
     cond = cond || null;
   }
+  seedAfdFromCond();
+  conditionsReady();
+  const offices = new Set(LOCATIONS.map(locOffice).filter(Boolean));
+  for (const code of offices) ensureAfd(code);
   for (const loc of LOCATIONS) { renderNws(loc); renderAvy(loc); if (windState[loc.id]) renderWind(loc); }
   return !!cond;
 }

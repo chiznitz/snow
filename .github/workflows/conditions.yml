@@ -9,6 +9,7 @@ on:
     branches: [main]
     paths:
       - scripts/conditions.py
+      - scripts/snowmap.py
       - .github/workflows/conditions.yml
 
 permissions:
