@@ -349,11 +349,13 @@ footer .ask{color:var(--muted);margin-top:4px}
   <nav class="jump" id="jump" aria-label="Jump to section"><a href="#glance">Overview</a><a href="#tomer">Tomer</a><a href="#map">Map</a><a href="#cams">Webcams</a></nav>
 
   <h2 class="sec" id="glance">Snow forecast <small>tap a row for the full forecast</small></h2>
+  <div id="glance-sec"><!-- bounds the sticky toggle to the table -->
   <div class="gside" id="glance-side"><div class="seg" role="group" aria-label="Show SNOTEL observations or the forecast"><button type="button" data-side="past" aria-pressed="false">SNOTEL<small>observed · last 7 days</small></button><button type="button" data-side="next" aria-pressed="true">Forecast<small>NWS · next 14 days</small></button></div></div>
   <div class="glance" id="glance-wrap"><table><thead id="glance-head">
     <tr class="grp"><th class="st"></th><th class="g">Now</th><th class="g pa" colspan="4" title="Net change in SNOTEL snow depth over the trailing window; snow settles, so new snow is usually more than shown">SNOTEL · depth change</th><th class="g nx" colspan="5" title="Official NWS snowfall forecast; days 8–14 from NBM or ECMWF">Forecast · NWS</th></tr>
     <tr><th data-k="loc" class="st">Location</th><th data-k="depth" title="Current SNOTEL snow depth">Depth</th><th data-k="p24" class="pa sep">24h</th><th data-k="p48" class="pa">48h</th><th data-k="p72" class="pa">72h</th><th data-k="p7" class="pa">7d</th><th data-k="n24" class="nx sep" title="Next 24 hours from now">24h</th><th data-k="n48" class="nx" title="Next 48 hours from now">48h</th><th data-k="n72" class="nx" title="Next 72 hours from now">72h</th><th data-k="n7" class="nx" title="Next 7 days">7d</th><th data-k="n14" class="nx" title="Next 14 days · NWS through ~7 days, then NBM or ECMWF">14d</th></tr>
   </thead><tbody id="glance-body"></tbody></table></div>
+  </div>
   <div class="legend glance-leg">Snow: <i style="background:var(--s1)"></i>&lt;1" <i style="background:var(--s2)"></i>1–3 <i style="background:var(--s3)"></i>3–6 <i style="background:var(--s4)"></i>6–12 <i style="background:var(--s5)"></i>12–18 <i style="background:var(--s6)"></i>18+ <span><span class="drop" style="margin-left:6px"></span>rain</span><span>bar = median · line = model range</span><span style="margin-left:auto">Tap a header to sort · tap a row to expand</span></div>
 
   <h2 class="sec" id="map">Snowfall map <small>tap the map for a reading</small></h2>
@@ -639,6 +641,7 @@ function setRegion(id, open) {
   const rg = $("r-" + id);
   if (rg) { rg.classList.toggle("shut", !open); rg.setAttribute("aria-expanded", open); }
   for (const tr of document.querySelectorAll(`#glance-body tr.loc[data-r="${id}"]`)) tr.classList.toggle("off", !open);
+  if (open) { const first = LOCATIONS.find(l => l.region === id); if (first) { try { mapFollow(first); } catch (e) { console.error(e); } } }
   if (!open && openId && LOCATIONS.find(l => l.id === openId).region === id) collapseRow();
   if (open && id === "summit") ensureSummitData();
 }
@@ -656,6 +659,7 @@ function expandRow(id, {scroll = false, toggle = false} = {}) {
   det.hidden = false; tr.classList.add("open");
   openId = id; detWin = SORT_WIN[glanceSort.col] || "d3";
   refreshDetail(id);
+  try { mapFollow(loc); } catch (e) { console.error(e); }
   try { history.replaceState(null, "", "#loc-" + id); } catch (_) {}
   if (scroll) window.scrollTo({top:tr.getBoundingClientRect().top + window.pageYOffset - 60, behavior:"smooth"});
 }
@@ -2005,13 +2009,34 @@ const MAP_WINDOWS = [["h24","24H","Next 24 hours"],["h48","48H","Next 48 hours"]
 // [lower bound in inches, color, opacity]; each band runs up to the next band's bound.
 const MAP_BANDS = [[0.1,"#dbeafe",.3],[1,"#7cb8ff",.5],[3,"#3b82f6",.66],[6,"#6d4af2",.74],[12,"#a855f7",.8],[18,"#e040fb",.84],[24,"#f472b6",.87],[36,"#ffe1ef",.9]];
 const MAP_CITIES = [["Durango",37.275,-107.88],["Silverton",37.812,-107.664],["Telluride",37.938,-107.812],["Pagosa Springs",37.269,-107.01],["Cortez",37.349,-108.586],
-  ["Vail",39.643,-106.378],["Frisco",39.575,-106.097],["Breckenridge",39.482,-106.046],
+  ["Vail",39.643,-106.378],["Frisco",39.575,-106.097],["Breckenridge",39.482,-106.046],["Silverthorne",39.632,-106.071],["Leadville",39.251,-106.292],["Georgetown",39.706,-105.697],
   ["Denver",39.739,-104.99],["Steamboat",40.485,-106.832],["Laramie",41.311,-105.591],["Grand Junction",39.064,-108.551],["Salt Lake City",40.761,-111.891],
   ["Logan",41.737,-111.834],["Jackson",43.48,-110.762],["Boise",43.615,-116.202],["McCall",44.911,-116.099],["Reno",39.53,-119.814],["Missoula",46.872,-113.994],
   ["Bozeman",45.677,-111.043],["Albuquerque",35.084,-106.65],["Phoenix",33.448,-112.074],["Cheyenne",41.14,-104.82]];
 let mapData = null, mapBorders = null, mapRead = null;
 const mapState = (() => { try { return {view:"sanjuans", win:"d7", ...JSON.parse(localStorage.getItem("snowMap") || "{}")}; } catch (_) { return {view:"sanjuans", win:"d7"}; } })();
 const saveMapState = () => { try { localStorage.setItem("snowMap", JSON.stringify({view:mapState.view, win:mapState.win})); } catch (_) {} };
+
+// Which map area belongs to a spot: its region's own view, else the first regional view that holds it.
+const REGION_VIEW = {sanjuans:"sanjuans", summit:"summit", nco:"nco", wy:"nco", ut:"utid", id:"utid"};
+const viewHolds = (v, loc) => loc.lat >= v.lat0 && loc.lat <= v.lat1 && loc.lon >= v.lon0 && loc.lon <= v.lon1;
+function viewFor(loc) {
+  if (!mapData) return null;
+  const own = mapData.views.find(v => v.id === REGION_VIEW[loc.region]);
+  const v = own && viewHolds(own, loc) ? own
+    : mapData.views.find(x => x.id !== "west" && viewHolds(x, loc)) || mapData.views.find(x => viewHolds(x, loc));
+  return v ? v.id : null;
+}
+// Opening a region or a spot's card moves the map to that spot's area, so a Summit reader never has
+// to find it in the N. CO pile. A reader who picked the West view keeps it. Nothing is saved here:
+// the area buttons are the reader's own choice and still win on the next visit.
+function mapFollow(loc) {
+  if (!mapData || mapState.view === "west") return;
+  const id = viewFor(loc);
+  if (!id || id === mapState.view) return;
+  mapState.view = id; mapRead = null;
+  renderMap();
+}
 
 const mercY = lat => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
 function mapProj(v, W) {
@@ -2116,21 +2141,35 @@ function renderMap() {
     return {l, x, y, bx:x, by:y, val, txt, w:Math.max(22, txt.length * 8 + 10)};
   });
   const hit = (a, b) => Math.abs(a.bx - b.bx) < (a.w + b.w) / 2 + 2 && Math.abs(a.by - b.by) < 20;
+  let hidden = 0;
   if (v.id === "west") {
     // Too zoomed out to fit every spot: keep the biggest total in each cluster.
     const keep = [];
     for (const s of [...spots].sort((a, b) => (b.val || 0) - (a.val || 0))) if (!keep.some(k => hit(k, s))) keep.push(s);
     spots = spots.filter(s => keep.includes(s));
   } else {
-    for (let it = 0; it < 80; it++) {
-      let moved = false;
-      spots.forEach((a, i) => spots.slice(i + 1).forEach(b => {
-        if (!hit(a, b)) return;
-        moved = true;
-        const dy = b.by - a.by || (b.y >= a.y ? 1 : -1), push = (20 - Math.abs(dy)) / 2 + .5;
-        a.by -= Math.sign(dy) * push; b.by += Math.sign(dy) * push;
-      }));
-      if (!moved) break;
+    // Nudge overlapping pills apart. If a pile can't be spread without dragging pills well away from
+    // their peaks (the 15 Summit spots seen from the N. CO view), keep the biggest total per cluster
+    // instead, as the West view does, and leave the rest to the closer area.
+    const spread = list => {
+      for (let it = 0; it < 80; it++) {
+        let moved = false;
+        list.forEach((a, i) => list.slice(i + 1).forEach(b => {
+          if (!hit(a, b)) return;
+          moved = true;
+          const dy = b.by - a.by || (b.y >= a.y ? 1 : -1), push = (20 - Math.abs(dy)) / 2 + .5;
+          a.by -= Math.sign(dy) * push; b.by += Math.sign(dy) * push;
+        }));
+        if (!moved) break;
+      }
+      return Math.max(0, ...list.map(s => Math.hypot(s.bx - s.x, s.by - s.y)));
+    };
+    if (spread(spots) > 30) {
+      const keep = [];
+      for (const s of [...spots].sort((a, b) => (b.val || 0) - (a.val || 0))) { s.bx = s.x; s.by = s.y; if (!keep.some(k => hit(k, s))) keep.push(s); }
+      hidden = spots.length - keep.length;
+      spots = spots.filter(s => keep.includes(s));
+      spread(spots);
     }
   }
   ctx.strokeStyle = "rgba(255,255,255,.8)"; ctx.fillStyle = "#fff"; ctx.lineWidth = dpr;
@@ -2172,7 +2211,7 @@ function renderMap() {
   note.className = "note" + (age > 30 * HOUR ? " warn" : "");
   note.innerHTML = `<b>${long}</b> from ${mtTime(Date.parse(mapData.start))} MT · median of ${esc(models)}`
     + (mapState.win === "d14" ? " (the only models that reach 14 days)" : "")
-    + `. Yellow numbers are at each spot's elevation; tap one to jump to it. Colors use model terrain, so peaks can read lower than their number.`
+    + `. Yellow numbers are at each spot's elevation; tap one to jump to it.${hidden ? ` ${hidden} overlapping spots are hidden at this zoom; pick a closer area to see them.` : ""} Colors use model terrain, so peaks can read lower than their number.`
     + ` Map ${age > 30 * HOUR ? "is stale — last built" : "rebuilt twice daily · last"} ${mtTime(Date.parse(mapData.generated_at))} MT.`;
 }
 
@@ -2184,6 +2223,7 @@ async function loadSnowMap() {
     ]);
     if (!data || !Array.isArray(data.views) || !data.views.length) throw new Error("snowmap.json has no map data yet.");
     mapData = data; mapBorders = borders;
+    if (openId) { const l = LOCATIONS.find(x => x.id === openId); if (l) mapFollow(l); }
     renderMap();
     return true;
   } catch (e) {
