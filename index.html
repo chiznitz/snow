@@ -91,7 +91,7 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .day .hi{font-size:11px;margin-top:4px;color:#fca5a5}
 .day .lo{font-size:11px;color:var(--dim)}
 @media(min-width:760px){.day .bar{width:60%}.day .barbox{height:96px}}
-.legend{display:flex;gap:4px;align-items:center;font-size:11px;color:var(--dim);margin-top:10px;flex-wrap:wrap}
+.legend{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
 .legend i{display:inline-block;width:18px;height:8px;border-radius:2px}
 
 .skel{position:relative;overflow:hidden;background:#0b1330;border-radius:12px}
@@ -101,7 +101,7 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .error b{display:block;color:#fff;margin-bottom:3px}
 .error button{margin-top:8px;background:#fb7185;color:#2a0a14;border:0;border-radius:999px;padding:6px 14px;font-weight:700;font-size:13px;cursor:pointer}
 
-.jump{position:sticky;top:0;z-index:5;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -14px 4px;padding:8px 14px;
+.jump{position:sticky;top:0;z-index:6;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -14px 4px;padding:8px 14px;
   padding-top:max(8px,env(safe-area-inset-top));background:linear-gradient(var(--bg) 75%,transparent)}
 .jump::-webkit-scrollbar{display:none}
 .jump a{flex:none;color:var(--text);text-decoration:none;font-size:13px;font-weight:600;padding:7px 13px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
@@ -113,11 +113,11 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .glance{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:4px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative}
 .glance::-webkit-scrollbar{display:none}
 .glance>table{border-collapse:separate;border-spacing:0;font-variant-numeric:tabular-nums;min-width:100%}
-#glance-head th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);font-weight:650;text-align:center;padding:6px 5px 4px;white-space:nowrap;cursor:pointer;user-select:none;-webkit-user-select:none}
+#glance-head th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:650;text-align:center;padding:6px 5px 4px;white-space:nowrap;cursor:pointer;user-select:none;-webkit-user-select:none}
 #glance-head th.on{color:var(--ice)}
 #glance-head th.on:after{content:" ↓"}
 #glance-head th.on.asc:after{content:" ↑"}
-#glance-head tr.grp th{font-size:10px;letter-spacing:.08em;color:var(--muted);padding:8px 5px 0;cursor:default;font-weight:600}
+#glance-head tr.grp th{font-size:11px;letter-spacing:.08em;color:#b7c2e4;padding:8px 5px 0;cursor:default;font-weight:650}
 #glance-head tr.grp th.g{border-bottom:1px solid #ffffff14}
 #glance-head th.sep,#glance-body>tr>td.sep{border-left:1px dashed #3a4778}
 #glance-body>tr>td{padding:6px 5px;text-align:center;font-size:13.5px;font-weight:650;border-top:1px solid #ffffff0a;white-space:nowrap}
@@ -126,7 +126,7 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 #glance-body>tr>td.st{font-weight:600;white-space:normal;line-height:1.15;min-width:118px;max-width:150px}
 #glance-body>tr.loc>td small{display:block;font-size:10.5px;color:var(--dim);font-weight:400}
 #glance-body>tr.loc>td.tot small{display:inline;margin-left:2px;font-size:10px}
-#glance-body>tr.rg>td{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ice);font-weight:700;padding:10px 5px 3px 12px;border-top:0;text-align:left;white-space:nowrap}
+#glance-body>tr.rg>td{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ice);font-weight:700;padding:10px 5px 3px 12px;border-top:0;text-align:left;white-space:nowrap}
 #glance-body>tr.rg>td.st{box-shadow:none;background:var(--card)}
 #glance-body>tr.loc{cursor:pointer}
 #glance-body>tr.loc:active>td{filter:brightness(1.15)}
@@ -138,10 +138,29 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 #glance-body>tr>td.dc i.z{background:none;color:#ffffff30;font-weight:500}
 #glance-body>tr>td[data-c="n14"] i{opacity:.8}
 #glance-body>tr>td.dc small{font-size:10px;margin-top:2px}
-.gside{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0b1330;border:1px solid var(--line);border-radius:12px;padding:3px;margin:0 0 8px}
-.gside button{font:inherit;font-size:13px;font-weight:750;color:var(--muted);background:none;border:0;border-radius:9px;padding:7px 0;cursor:pointer}
+.gside{margin:0 0 8px}
+.gside .seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0b1330;border:1px solid var(--line);border-radius:12px;padding:3px}
+.gside button{font:inherit;font-size:13px;font-weight:750;color:var(--muted);background:none;border:0;border-radius:9px;padding:5px 0 4px;cursor:pointer;line-height:1.2}
+.gside button small{display:block;font-size:10.5px;font-weight:500;color:var(--dim);margin-top:1px}
+.gside button[aria-pressed="true"] small{color:#ffffffcc}
 .gside button[aria-pressed="true"]{color:#fff;background:linear-gradient(135deg,#2563eb,#9333ea)}
-@media(max-width:759px){.glance.side-next .pa,.glance.side-past .nx{display:none}#glance-body>tr>td.st{max-width:140px}}
+@media(max-width:759px){
+  .glance.side-next .pa,.glance.side-past .nx{display:none}
+  #glance-body>tr>td.st{max-width:140px}
+  /* Phones: the table fits the screen, so nothing scrolls sideways and the card can stop being a scroll
+     container (clip-path keeps the rounded corners without one). That lets the toggle, the column headers
+     and the region rows stick under the jump bar while the rows scroll, instead of leaving bare numbers
+     once a region is open. Heights come from JS (--jump-h etc.) because the jump bar grows with the notch. */
+  .glance{overflow:visible;clip-path:inset(0 round 18px);padding-top:0}
+  /* The toggle tucks 12px under the jump bar's faded bottom edge so rows can't show through the seam. */
+  .gside{position:sticky;top:calc(var(--jump-h,46px) - 12px);z-index:5;margin:-12px 0 0;padding:12px 0 8px;background:var(--bg)}
+  #glance-head th,#glance-head th.st{position:sticky;top:calc(var(--jump-h,46px) - 12px + var(--gside-h,66px));z-index:4;background:var(--card2);padding:6px 3px 4px}
+  #glance-head th.st{padding-left:12px}
+  #glance-head tr+tr th,#glance-head tr+tr th.st{top:calc(var(--jump-h,46px) - 12px + var(--gside-h,66px) + var(--grp-h,22px))}
+  #glance-body>tr.rg>td{position:sticky;top:calc(var(--jump-h,46px) - 12px + var(--gside-h,66px) + var(--head-h,58px));z-index:2;background:var(--card)}
+  #glance-body>tr.rg>td.st{z-index:3}
+}
+@media(max-width:380px){#glance-body>tr>td{padding:6px 3px}#glance-body>tr>td.st{max-width:122px;padding-right:6px}#glance-body>tr>td.dc i{min-width:24px}}
 #glance-body>tr>td.dc i.x{background:none;color:#ffffff40;font-weight:400}
 #glance-body>tr>td.dc i.s1{color:#0b1330}
 #glance-body>tr>td.dc i.fb{box-shadow:inset 0 0 0 1.5px var(--warn)}
@@ -151,6 +170,14 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 #glance-body>tr.rg.shut .chev{transform:rotate(-90deg)}
 #glance-body>tr.rg .cnt{margin-left:6px;color:var(--dim);font-weight:600;letter-spacing:0}
 #glance-body>tr.rg[data-r="summit"]>td{padding-top:18px;border-top:2px solid #4a5a8a}
+#glance-body>tr.rg[data-r="favs"]>td{color:#facc15}
+/* The star sits over the end of the note line, so the name keeps its full width. */
+#glance-body>tr.loc>td.st small{padding-right:22px}
+.fav{position:absolute;right:2px;bottom:2px;width:26px;height:26px;border:0;background:none;color:var(--dim);font-size:17px;line-height:1;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
+.fav[aria-pressed="true"]{color:#facc15}
+.fav:active{transform:scale(.85)}
+.card .top .fav.big{position:static;transform:none;width:34px;height:34px;font-size:23px;margin-left:4px;flex:none}
+.card .top .fav.big:active{transform:scale(.85)}
 #glance-body:not(.sorted)>tr.loc.off{display:none}
 #glance-body>tr.loc.open>td{background:#ffffff08}
 #glance-body>tr.loc.open>td.st{background:var(--card2);box-shadow:inset 3px 0 0 var(--ice),4px 0 8px -4px #0008}
@@ -329,13 +356,15 @@ footer .ask{color:var(--muted);margin-top:4px}
 
   <nav class="jump" id="jump" aria-label="Jump to section"><a href="#glance">Overview</a><a href="#tomer">Tomer</a><a href="#map">Map</a><a href="#cams">Webcams</a></nav>
 
-  <h2 class="sec" id="glance">Snow forecast <small>past from SNOTEL · next from NWS forecast</small></h2>
-  <div class="gside" id="glance-side" role="group" aria-label="Show past or next"><button type="button" data-side="past" aria-pressed="false">Past</button><button type="button" data-side="next" aria-pressed="true">Next</button></div>
+  <h2 class="sec" id="glance">Snow forecast <small>tap a row for the full forecast</small></h2>
+  <div id="glance-sec"><!-- bounds the sticky toggle to the table -->
+  <div class="gside" id="glance-side"><div class="seg" role="group" aria-label="Show SNOTEL observations or the forecast"><button type="button" data-side="past" aria-pressed="false">SNOTEL<small>observed · last 7 days</small></button><button type="button" data-side="next" aria-pressed="true">Forecast<small>NWS · next 14 days</small></button></div></div>
   <div class="glance" id="glance-wrap"><table><thead id="glance-head">
-    <tr class="grp"><th class="st"></th><th class="g">Now</th><th class="g pa" colspan="4" title="Net change in SNOTEL snow depth over the trailing window">Past · depth change</th><th class="g nx" colspan="5" title="Official NWS snowfall forecast; days 8–14 from NBM or ECMWF">Next · forecast</th></tr>
+    <tr class="grp"><th class="st"></th><th class="g">Now</th><th class="g pa" colspan="4" title="Net change in SNOTEL snow depth over the trailing window; snow settles, so new snow is usually more than shown">SNOTEL · depth change</th><th class="g nx" colspan="5" title="Official NWS snowfall forecast; days 8–14 from NBM or ECMWF">Forecast · NWS</th></tr>
     <tr><th data-k="loc" class="st">Location</th><th data-k="depth" title="Current SNOTEL snow depth">Depth</th><th data-k="p24" class="pa sep">24h</th><th data-k="p48" class="pa">48h</th><th data-k="p72" class="pa">72h</th><th data-k="p7" class="pa">7d</th><th data-k="n24" class="nx sep" title="Next 24 hours from now">24h</th><th data-k="n48" class="nx" title="Next 48 hours from now">48h</th><th data-k="n72" class="nx" title="Next 72 hours from now">72h</th><th data-k="n7" class="nx" title="Next 7 days">7d</th><th data-k="n14" class="nx" title="Next 14 days · NWS through ~7 days, then NBM or ECMWF">14d</th></tr>
   </thead><tbody id="glance-body"></tbody></table></div>
-  <div class="legend glance-leg">Snow: <i style="background:var(--s1)"></i>&lt;1" <i style="background:var(--s2)"></i>1–3 <i style="background:var(--s3)"></i>3–6 <i style="background:var(--s4)"></i>6–12 <i style="background:var(--s5)"></i>12–18 <i style="background:var(--s6)"></i>18+ <span><span class="drop" style="margin-left:6px"></span>rain</span><span>bar = median · line = model range</span><span style="margin-left:auto">Tap a header to sort · tap a row to expand</span></div>
+  </div>
+  <div class="legend glance-leg">Snow: <i style="background:var(--s1)"></i>&lt;1" <i style="background:var(--s2)"></i>1–3 <i style="background:var(--s3)"></i>3–6 <i style="background:var(--s4)"></i>6–12 <i style="background:var(--s5)"></i>12–18 <i style="background:var(--s6)"></i>18+ <span><span class="drop" style="margin-left:6px"></span>rain</span><span>bar = median · line = model range</span><span style="margin-left:auto">Tap a header to sort · tap a row to expand · ☆ pins a spot to the top</span></div>
 
   <h2 class="sec" id="map">Snowfall map <small>tap the map for a reading</small></h2>
   <section class="card smap" id="map-card">
@@ -486,6 +515,11 @@ async function fetchCached(key, url, check = () => {}, snapFn = null) {
       return {data, source:"live"};
     } catch (e) { err = e; }
   }
+  return cachedFallback(key, snapFn, err);
+}
+const cachePut = (key, data) => { try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({t:Date.now(), data})); } catch (_) {} };
+// The newer of the last good response saved on this device and the server snapshot, else rethrow.
+async function cachedFallback(key, snapFn, err) {
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(CACHE_PREFIX + key)); } catch (_) {}
   await snapshotReady;   // a slow live.json shouldn't cost us the fallback
@@ -546,7 +580,7 @@ function errorBox(title, err, retryFn) {
 const ftLabel = loc => `${loc.ft.toLocaleString()} ft`;
 
 const cardHTML = loc => `<section class="card" id="loc-${loc.id}">
-  <div class="top"><div><h3>${esc(locTitle(loc))}</h3><div class="sub">${ftLabel(loc)} · ${esc(loc.note)}</div></div><span class="badge">${loc.triplet ? "SNOTEL " + esc(loc.triplet.split(":")[0]) : "Forecast only"}</span></div>
+  <div class="top"><div><h3>${esc(locTitle(loc))}</h3><div class="sub">${ftLabel(loc)} · ${esc(loc.note)}</div></div><span class="badge">${loc.triplet ? "SNOTEL " + esc(loc.triplet.split(":")[0]) : "Forecast only"}</span>${favBtn(loc, true)}</div>
   <div class="cols"><div class="col">
     <div class="panel dwin" id="fc-${loc.id}"><div class="ptitle">Forecast <span>NWS forecast</span></div><div class="wins" role="group" aria-label="Window"></div><div class="tline"></div><div class="hchart"></div><div class="agree"></div><div class="body"></div></div>
   </div><div class="col">
@@ -563,6 +597,7 @@ const cardHTML = loc => `<section class="card" id="loc-${loc.id}">
 // Each spot is one table row; its card lives in a hidden detail row right beneath it.
 function buildPage() {
   const glance = $("glance-body");
+  glance.insertAdjacentHTML("beforeend", `<tr class="rg${regionOpen.favs ? "" : " shut"}" id="r-favs" data-r="favs" aria-expanded="${!!regionOpen.favs}"${favs.length ? "" : " hidden"}><td class="st"><span class="chev">▾</span>★ My spots<span class="cnt">${favs.length}</span></td><td colspan="10"></td></tr>`);
   for (const r of REGIONS) {
     const locs = LOCATIONS.filter(l => l.region === r.id);
     if (!locs.length) continue;
@@ -570,7 +605,7 @@ function buildPage() {
     glance.insertAdjacentHTML("beforeend", `<tr class="rg${open ? "" : " shut"}" id="r-${r.id}" data-r="${r.id}" aria-expanded="${open}"><td class="st"><span class="chev">▾</span>${esc(r.name)}<span class="cnt">${locs.length}</span></td><td colspan="10"></td></tr>`);
     for (const loc of locs) {
       const na = loc.triplet ? "…" : "—";
-      glance.insertAdjacentHTML("beforeend", `<tr class="loc${open ? "" : " off"}" data-id="${loc.id}" data-r="${r.id}"><td class="st">${esc(locTitle(loc))}<small>${esc(locRowNote(loc))}</small></td>`
+      glance.insertAdjacentHTML("beforeend", `<tr class="loc${open ? "" : " off"}" data-id="${loc.id}" data-r="${r.id}" data-home="${r.id}"><td class="st">${favBtn(loc)}${esc(locTitle(loc))}<small>${esc(locRowNote(loc))}</small></td>`
         + `<td data-c="depth" class="${loc.triplet ? "" : "na"}">${na}</td>`
         + PAST_COLS.map((c, i) => `<td data-c="${c}" class="pa${i === 0 ? " sep" : ""}${loc.triplet ? "" : " na"}">${na}</td>`).join("")
         + NEXT_COLS.map((c, i) => `<td data-c="${c}" class="dc nx${i === 0 ? " sep" : ""}"><i class="x">…</i></td>`).join("") + `</tr>`
@@ -578,6 +613,8 @@ function buildPage() {
     }
   }
   glance.addEventListener("click", e => {
+    const fb = e.target.closest("button.fav");
+    if (fb) { toggleFav(fb.dataset.fav); return; }
     const wb = e.target.closest(".wins button[data-w]");
     if (wb) { detWin = wb.dataset.w; refreshDetail(openId); return; }
     if (e.target.closest("tr.det")) return;
@@ -593,20 +630,94 @@ function buildPage() {
   const gw = () => $("glance-wrap").style.setProperty("--gw", $("glance-wrap").clientWidth + "px");
   gw();
   if (window.ResizeObserver) new ResizeObserver(gw).observe($("glance-wrap"));
+  // Heights for the phone layout's sticky stack: toggle, column headers and region rows under the jump bar.
+  const stickyVars = () => {
+    const s = document.documentElement.style, head = $("glance-head");
+    s.setProperty("--jump-h", $("jump").offsetHeight + "px");
+    s.setProperty("--gside-h", ($("glance-side").offsetHeight - 2) + "px");   // 2px under the toggle hides the seam
+    s.setProperty("--grp-h", head.rows[0].offsetHeight + "px");
+    s.setProperty("--head-h", head.offsetHeight + "px");
+  };
+  stickyVars();
+  if (window.ResizeObserver) { const ro = new ResizeObserver(stickyVars); for (const id of ["jump", "glance-side", "glance-head"]) ro.observe($(id)); }
   glanceOrig = [...glance.children];
+  try { arrangeRows(); } catch (e) { console.error("favorites disabled:", e); }
   try { wireGlanceSort(); } catch (e) { console.error("glance sort disabled:", e); }
-  try { wireGlanceSide(); } catch (e) { console.error("past/next toggle disabled:", e); }
+  try { wireGlanceSide(); } catch (e) { console.error("SNOTEL/forecast toggle disabled:", e); }
 }
 
-const regionOpen = (() => { try { return {sanjuans:true, ...JSON.parse(localStorage.getItem("snowRegions") || "{}")}; } catch (_) { return {sanjuans:true}; } })();
+/* ---------------- Favorites ---------------- */
+// Starred spots sit in a "My spots" group at the top of the table, open by default, so a reader in
+// Summit County or Idaho never digs for their mountain. The list lives on this device; a link with
+// ?fav=id,id (for example ?fav=purg,wolf) adds those spots on another one.
+const byId = id => LOCATIONS.find(l => l.id === id);
+const favs = (() => { try { return JSON.parse(localStorage.getItem("snowFavs") || "[]").filter(byId); } catch (_) { return []; } })();
+try {
+  const q = new URLSearchParams(location.search).get("fav");
+  if (q) {
+    for (const id of q.split(",")) if (byId(id) && !favs.includes(id)) favs.push(id);
+    saveFavs();
+    const u = new URL(location.href); u.searchParams.delete("fav"); history.replaceState(null, "", u.pathname + u.search + u.hash);
+  }
+} catch (_) {}
+const isFav = id => favs.includes(id);
+function saveFavs() { try { localStorage.setItem("snowFavs", JSON.stringify(favs)); } catch (_) {} }
+const favBtn = (loc, big = false) => {
+  const on = isFav(loc.id);
+  return `<button type="button" class="fav${big ? " big" : ""}" data-fav="${loc.id}" aria-pressed="${on}" title="${on ? "Unpin from" : "Pin to"} My spots" aria-label="${on ? "Unpin" : "Pin"} ${esc(loc.name)}">${on ? "★" : "☆"}</button>`;
+};
+
+const regionOpen = (() => { try { return {sanjuans:true, favs:true, ...JSON.parse(localStorage.getItem("snowRegions") || "{}")}; } catch (_) { return {sanjuans:true, favs:true}; } })();
 function setRegion(id, open) {
   regionOpen[id] = open;
   try { localStorage.setItem("snowRegions", JSON.stringify(regionOpen)); } catch (_) {}
   const rg = $("r-" + id);
   if (rg) { rg.classList.toggle("shut", !open); rg.setAttribute("aria-expanded", open); }
   for (const tr of document.querySelectorAll(`#glance-body tr.loc[data-r="${id}"]`)) tr.classList.toggle("off", !open);
-  if (!open && openId && LOCATIONS.find(l => l.id === openId).region === id) collapseRow();
+  if (open) { const first = LOCATIONS.find(l => l.region === id); if (first) { try { mapFollow(first); } catch (e) { console.error(e); } } }
+  if (!open && openId) { const o = document.querySelector(`#glance-body tr.loc[data-id="${openId}"]`); if (o && o.dataset.r === id) collapseRow(); }
   if (open && id === "summit") ensureSummitData();
+}
+
+// Order the table: My spots first, then each region without its starred rows. Rows move rather than
+// copy, so a spot's card and its cells stay unique.
+function arrangeRows() {
+  const rows = glanceOrig;
+  const head = id => rows.find(tr => tr.classList.contains("rg") && tr.dataset.r === id);
+  const pair = id => rows.filter(tr => tr.dataset.id === id);   // the spot row and its detail row
+  const out = [head("favs")];
+  for (const id of favs) out.push(...pair(id));
+  for (const r of REGIONS) {
+    const h = head(r.id);
+    if (!h) continue;
+    out.push(h);
+    for (const loc of LOCATIONS) if (loc.region === r.id && !isFav(loc.id)) out.push(...pair(loc.id));
+  }
+  const count = {};
+  for (const tr of out) {
+    if (!tr || !tr.classList.contains("loc")) continue;
+    const grp = isFav(tr.dataset.id) ? "favs" : tr.dataset.home;
+    tr.dataset.r = grp;
+    tr.classList.toggle("off", !regionOpen[grp]);
+    count[grp] = (count[grp] || 0) + 1;
+  }
+  for (const tr of out) if (tr && tr.classList.contains("rg")) {
+    tr.querySelector(".cnt").textContent = count[tr.dataset.r] || 0;
+    tr.hidden = tr.dataset.r === "favs" && !favs.length;
+  }
+  glanceOrig = out.filter(Boolean);
+  applyGlanceSort();
+}
+function toggleFav(id) {
+  const loc = byId(id);
+  if (!loc) return;
+  const i = favs.indexOf(id);
+  if (i >= 0) favs.splice(i, 1); else favs.push(id);
+  saveFavs();
+  for (const b of document.querySelectorAll(`button.fav[data-fav="${id}"]`)) b.outerHTML = favBtn(loc, b.classList.contains("big"));
+  if (i < 0 && !regionOpen.favs) setRegion("favs", true);
+  arrangeRows();
+  if (i < 0 && isSummit(loc)) ensureSummitData();
 }
 
 let openId = null, detWin = "d3";
@@ -617,11 +728,12 @@ function expandRow(id, {scroll = false, toggle = false} = {}) {
   if (!loc || !tr || !det) return;
   if (toggle && openId === id) { collapseRow(); return; }
   if (openId && openId !== id) collapseRow(false);
-  if (!regionOpen[loc.region]) setRegion(loc.region, true);
+  if (!regionOpen[tr.dataset.r]) setRegion(tr.dataset.r, true);
   if (isSummit(loc)) ensureSummitData();
   det.hidden = false; tr.classList.add("open");
   openId = id; detWin = SORT_WIN[glanceSort.col] || "d3";
   refreshDetail(id);
+  try { mapFollow(loc); } catch (e) { console.error(e); }
   try { history.replaceState(null, "", "#loc-" + id); } catch (_) {}
   if (scroll) window.scrollTo({top:tr.getBoundingClientRect().top + window.pageYOffset - 60, behavior:"smooth"});
 }
@@ -1009,19 +1121,60 @@ const checkForecast = j => {
   if (!j.daily || !Array.isArray(j.daily.time) || !j.daily.time.length) throw new Error("Open-Meteo response had no daily forecast.");
 };
 
+function forecastPending(loc) {
+  if (fcState[loc.id]) return;
+  panelBody("fc", loc).innerHTML = `<div class="skel" style="height:24px"></div>`;
+  for (const c of NEXT_COLS) if (!nwsOk(loc) && !(hrState[loc.id] && HOURLY_COLS.includes(c))) setCell(loc.id, c, `<i class="x">…</i>`);
+}
+const snapForecast = loc => snapshot && snapshot.forecast && snapshot.forecast[loc.id];
+
 async function loadForecast(loc) {
-  const body = panelBody("fc", loc);
-  if (!fcState[loc.id]) {
-    body.innerHTML = `<div class="skel" style="height:24px"></div>`;
-    for (const c of NEXT_COLS) if (!nwsOk(loc) && !(hrState[loc.id] && HOURLY_COLS.includes(c))) setCell(loc.id, c, `<i class="x">…</i>`);
-  }
+  forecastPending(loc);
   try {
-    const res = await fetchCached("fc:" + loc.id, forecastURL(loc), checkForecast, () => snapshot && snapshot.forecast && snapshot.forecast[loc.id]);
+    const res = await fetchCached("fc:" + loc.id, forecastURL(loc), checkForecast, () => snapForecast(loc));
     return applyForecast(loc, res);
   } catch (e) {
     forecastFail(loc, e);
     return false;
   }
+}
+
+// One Open-Meteo request for a whole group of spots: comma-separated coordinates come back as one
+// record per spot, each the same shape as a single call. A page load is then one call instead of one
+// per spot, which is what kept tripping the per-IP burst limit (429) for everyone on carrier NAT.
+// Each record is cached under the spot's own key, so the per-spot fallback path is unchanged.
+const forecastBatchURL = locs => "https://api.open-meteo.com/v1/forecast"
+  + `?latitude=${locs.map(fcLat).join(",")}&longitude=${locs.map(fcLon).join(",")}&elevation=${locs.map(l => l.m).join(",")}`
+  + "&daily=snowfall_sum,rain_sum,temperature_2m_max,temperature_2m_min"
+  + `&models=${[...MODELS, ...SHORT_MODELS].map(m => m[0]).join(",")}`
+  + "&forecast_days=16&timezone=America%2FDenver&precipitation_unit=inch&temperature_unit=fahrenheit";
+async function loadForecasts(locs) {
+  if (!locs.length) return [];
+  if (locs.length === 1) return [await loadForecast(locs[0])];
+  for (const loc of locs) forecastPending(loc);
+  let data = null, err = null;
+  for (let attempt = 0; attempt < 2 && !data; attempt++) {
+    if (attempt) await new Promise(r => setTimeout(r, 1500));
+    try {
+      const d = await getJSON(forecastBatchURL(locs));
+      if (d && d.error) throw new Error(d.reason || "Open-Meteo returned an error.");
+      if (!Array.isArray(d) || d.length !== locs.length) throw new Error("Open-Meteo returned the wrong number of forecasts.");
+      d.forEach(checkForecast);
+      data = d;
+    } catch (e) { err = e; }
+  }
+  return Promise.all(locs.map(async (loc, i) => {
+    let res;
+    if (data) {
+      cachePut("fc:" + loc.id, data[i]);
+      liveArrived.add("fc:" + loc.id);
+      res = {data:data[i], source:"live"};
+    } else {
+      try { res = await cachedFallback("fc:" + loc.id, () => snapForecast(loc), err); }
+      catch (e) { forecastFail(loc, e); return false; }
+    }
+    return applyForecast(loc, res);
+  }));
 }
 
 function forecastFail(loc, e) {
@@ -1877,7 +2030,9 @@ const WEBCAMS = [
   {id:"abasincams", name:"A-Basin", page:"https://www.arapahoebasin.com/mountain-cams/",
    note:"A-Basin's cameras stay on arapahoebasin.com and are not embeddable here.", cams:[]},
 ];
-const camState = {resort:"purg", cam:0, live:false};
+// A reader with starred spots and no saved camera starts on the first starred spot that has one.
+const LOC_CAM = {purg:"purg", wolf:"wolf", brundage:"brundage", vailmtn:"vailcams", vail:"vailcams", coppermtn:"coppercams", copper:"coppercams", breck:"breckcams", keystone:"keystonecams", abasin:"abasincams", vailpass:"cdot"};
+const camState = {resort:favs.map(id => LOC_CAM[id]).find(Boolean) || "purg", cam:0, live:false};
 try { Object.assign(camState, JSON.parse(localStorage.getItem("snowCam") || "{}"), {live:false}); } catch (e) { /* ignore bad saved state */ }
 const camSrc = c => `${c.img}${c.img.includes("?") ? "&" : "?"}t=${Math.floor(Date.now() / 300000)}`;
 
@@ -1930,13 +2085,36 @@ const MAP_WINDOWS = [["h24","24H","Next 24 hours"],["h48","48H","Next 48 hours"]
 // [lower bound in inches, color, opacity]; each band runs up to the next band's bound.
 const MAP_BANDS = [[0.1,"#dbeafe",.3],[1,"#7cb8ff",.5],[3,"#3b82f6",.66],[6,"#6d4af2",.74],[12,"#a855f7",.8],[18,"#e040fb",.84],[24,"#f472b6",.87],[36,"#ffe1ef",.9]];
 const MAP_CITIES = [["Durango",37.275,-107.88],["Silverton",37.812,-107.664],["Telluride",37.938,-107.812],["Pagosa Springs",37.269,-107.01],["Cortez",37.349,-108.586],
-  ["Vail",39.643,-106.378],["Frisco",39.575,-106.097],["Breckenridge",39.482,-106.046],
+  ["Vail",39.643,-106.378],["Frisco",39.575,-106.097],["Breckenridge",39.482,-106.046],["Silverthorne",39.632,-106.071],["Leadville",39.251,-106.292],["Georgetown",39.706,-105.697],
   ["Denver",39.739,-104.99],["Steamboat",40.485,-106.832],["Laramie",41.311,-105.591],["Grand Junction",39.064,-108.551],["Salt Lake City",40.761,-111.891],
   ["Logan",41.737,-111.834],["Jackson",43.48,-110.762],["Boise",43.615,-116.202],["McCall",44.911,-116.099],["Reno",39.53,-119.814],["Missoula",46.872,-113.994],
   ["Bozeman",45.677,-111.043],["Albuquerque",35.084,-106.65],["Phoenix",33.448,-112.074],["Cheyenne",41.14,-104.82]];
 let mapData = null, mapBorders = null, mapRead = null;
+const mapSaved = (() => { try { return !!localStorage.getItem("snowMap"); } catch (_) { return false; } })();
+let mapFavDone = false;
 const mapState = (() => { try { return {view:"sanjuans", win:"d7", ...JSON.parse(localStorage.getItem("snowMap") || "{}")}; } catch (_) { return {view:"sanjuans", win:"d7"}; } })();
 const saveMapState = () => { try { localStorage.setItem("snowMap", JSON.stringify({view:mapState.view, win:mapState.win})); } catch (_) {} };
+
+// Which map area belongs to a spot: its region's own view, else the first regional view that holds it.
+const REGION_VIEW = {sanjuans:"sanjuans", summit:"summit", nco:"nco", wy:"nco", ut:"utid", id:"utid"};
+const viewHolds = (v, loc) => loc.lat >= v.lat0 && loc.lat <= v.lat1 && loc.lon >= v.lon0 && loc.lon <= v.lon1;
+function viewFor(loc) {
+  if (!mapData) return null;
+  const own = mapData.views.find(v => v.id === REGION_VIEW[loc.region]);
+  const v = own && viewHolds(own, loc) ? own
+    : mapData.views.find(x => x.id !== "west" && viewHolds(x, loc)) || mapData.views.find(x => viewHolds(x, loc));
+  return v ? v.id : null;
+}
+// Opening a region or a spot's card moves the map to that spot's area, so a Summit reader never has
+// to find it in the N. CO pile. A reader who picked the West view keeps it. Nothing is saved here:
+// the area buttons are the reader's own choice and still win on the next visit.
+function mapFollow(loc) {
+  if (!mapData || mapState.view === "west") return;
+  const id = viewFor(loc);
+  if (!id || id === mapState.view) return;
+  mapState.view = id; mapRead = null;
+  renderMap();
+}
 
 const mercY = lat => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
 function mapProj(v, W) {
@@ -2041,21 +2219,35 @@ function renderMap() {
     return {l, x, y, bx:x, by:y, val, txt, w:Math.max(22, txt.length * 8 + 10)};
   });
   const hit = (a, b) => Math.abs(a.bx - b.bx) < (a.w + b.w) / 2 + 2 && Math.abs(a.by - b.by) < 20;
+  let hidden = 0;
   if (v.id === "west") {
     // Too zoomed out to fit every spot: keep the biggest total in each cluster.
     const keep = [];
     for (const s of [...spots].sort((a, b) => (b.val || 0) - (a.val || 0))) if (!keep.some(k => hit(k, s))) keep.push(s);
     spots = spots.filter(s => keep.includes(s));
   } else {
-    for (let it = 0; it < 80; it++) {
-      let moved = false;
-      spots.forEach((a, i) => spots.slice(i + 1).forEach(b => {
-        if (!hit(a, b)) return;
-        moved = true;
-        const dy = b.by - a.by || (b.y >= a.y ? 1 : -1), push = (20 - Math.abs(dy)) / 2 + .5;
-        a.by -= Math.sign(dy) * push; b.by += Math.sign(dy) * push;
-      }));
-      if (!moved) break;
+    // Nudge overlapping pills apart. If a pile can't be spread without dragging pills well away from
+    // their peaks (the 15 Summit spots seen from the N. CO view), keep the biggest total per cluster
+    // instead, as the West view does, and leave the rest to the closer area.
+    const spread = list => {
+      for (let it = 0; it < 80; it++) {
+        let moved = false;
+        list.forEach((a, i) => list.slice(i + 1).forEach(b => {
+          if (!hit(a, b)) return;
+          moved = true;
+          const dy = b.by - a.by || (b.y >= a.y ? 1 : -1), push = (20 - Math.abs(dy)) / 2 + .5;
+          a.by -= Math.sign(dy) * push; b.by += Math.sign(dy) * push;
+        }));
+        if (!moved) break;
+      }
+      return Math.max(0, ...list.map(s => Math.hypot(s.bx - s.x, s.by - s.y)));
+    };
+    if (spread(spots) > 30) {
+      const keep = [];
+      for (const s of [...spots].sort((a, b) => (b.val || 0) - (a.val || 0))) { s.bx = s.x; s.by = s.y; if (!keep.some(k => hit(k, s))) keep.push(s); }
+      hidden = spots.length - keep.length;
+      spots = spots.filter(s => keep.includes(s));
+      spread(spots);
     }
   }
   ctx.strokeStyle = "rgba(255,255,255,.8)"; ctx.fillStyle = "#fff"; ctx.lineWidth = dpr;
@@ -2097,7 +2289,7 @@ function renderMap() {
   note.className = "note" + (age > 30 * HOUR ? " warn" : "");
   note.innerHTML = `<b>${long}</b> from ${mtTime(Date.parse(mapData.start))} MT · median of ${esc(models)}`
     + (mapState.win === "d14" ? " (the only models that reach 14 days)" : "")
-    + `. Yellow numbers are at each spot's elevation; tap one to jump to it. Colors use model terrain, so peaks can read lower than their number.`
+    + `. Yellow numbers are at each spot's elevation; tap one to jump to it.${hidden ? ` ${hidden} overlapping spots are hidden at this zoom; pick a closer area to see them.` : ""} Colors use model terrain, so peaks can read lower than their number.`
     + ` Map ${age > 30 * HOUR ? "is stale — last built" : "rebuilt twice daily · last"} ${mtTime(Date.parse(mapData.generated_at))} MT.`;
 }
 
@@ -2109,6 +2301,15 @@ async function loadSnowMap() {
     ]);
     if (!data || !Array.isArray(data.views) || !data.views.length) throw new Error("snowmap.json has no map data yet.");
     mapData = data; mapBorders = borders;
+    // No saved area yet but starred spots: open on the area most of them are in.
+    if (!mapSaved && favs.length && !mapFavDone) {
+      mapFavDone = true;
+      const n = {};
+      for (const id of favs) { const v = viewFor(byId(id)); if (v) n[v] = (n[v] || 0) + 1; }
+      const best = Object.keys(n).sort((a, b) => n[b] - n[a])[0];
+      if (best) mapState.view = best;
+    }
+    if (openId) { const l = LOCATIONS.find(x => x.id === openId); if (l) mapFollow(l); }
     renderMap();
     return true;
   } catch (e) {
@@ -2144,7 +2345,10 @@ new ResizeObserver(() => { const w = $("map-box").clientWidth; if (w && w !== ma
 /* ---------------- Boot ---------------- */
 
 let loading = false, lastLoad = 0, firstLoad = true;
-const SNAP_FRESH = 2 * HOUR;   // skip live Open-Meteo calls when the server snapshot is this recent
+// Skip live Open-Meteo calls when the server snapshot is this recent. live.yml is scheduled every
+// 2 h, but GitHub starts cron jobs up to ~50 min late, so a 2 h window left most visitors just past
+// it and sending their own calls (and hitting 429s); 3 h covers the drift.
+const SNAP_FRESH = 3 * HOUR;
 const fmtClock = ms => new Date(ms).toLocaleTimeString("en-US", {timeZone:TZ, hour:"numeric", minute:"2-digit"});
 
 // Step 1: render everything we can from the committed snapshot. Same-origin, so this is fast and
@@ -2175,11 +2379,10 @@ function ensureSummitData(force = false) {
   const locs = summitLocs();
   const fresh = !force && snapAge() < SNAP_FRESH;
   const jobs = [];
-  for (const loc of locs) {
-    if (force || !nwsState[loc.id]) jobs.push(loadNws(loc));
-    // Snapshot can be "fresh" for the original spots while still missing Summit.
-    if (force || !fcState[loc.id]) jobs.push(loadForecast(loc));
-  }
+  for (const loc of locs) if (force || !nwsState[loc.id]) jobs.push(loadNws(loc));
+  // Snapshot can be "fresh" for the original spots while still missing Summit.
+  const need = locs.filter(loc => force || !fcState[loc.id]);
+  if (need.length) jobs.push(loadForecasts(need));
   if (force || locs.some(l => !windState[l.id])) jobs.push(loadWind(locs));
   if (force || locs.some(l => !hrState[l.id])) jobs.push(loadHourly(locs));
   if (!jobs.length) return Promise.resolve(true);
@@ -2207,9 +2410,9 @@ async function loadAll(force = false) {
   // Summit Open-Meteo stays off until that section is opened — friends refresh a lot.
   jobs.push(...core.map(loc => loadNws(loc)));
   // A snapshot without the hourly section (older live.json) still needs the live hourly call.
-  if (!fresh) jobs.push(...core.map(loc => loadForecast(loc)), loadWind(core));
+  if (!fresh) jobs.push(loadForecasts(core), loadWind(core));
   if (!fresh || !(snapshot && snapshot.hourly)) jobs.push(loadHourly(core));
-  if (regionOpen.summit || summitWanted) jobs.push(ensureSummitData(force));
+  if (regionOpen.summit || summitWanted || favs.some(id => isSummit(byId(id)))) jobs.push(ensureSummitData(force));
   let done = 0;
   const label = fresh ? `Forecast from ${fmtClock(snapTime())} MT build · checking SNOTEL…` : "Updating live data…";
   stamp.textContent = label;

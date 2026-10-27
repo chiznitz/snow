@@ -25,6 +25,9 @@ FORECAST_DAYS = 15  # 360 h: enough for a 14-day window starting at any hour tod
 VIEWS = [
     {"id": "west", "name": "West", "lon0": -125.0, "lon1": -102.0, "lat0": 31.0, "lat1": 49.5, "step": 0.5},
     {"id": "sanjuans", "name": "San Juans", "lon0": -109.4, "lon1": -105.6, "lat0": 36.6, "lat1": 38.7, "step": 0.15},
+    # Summit County, Vail and the Front Range passes sit in a box small enough that the N. CO view
+    # piles their 15 labels on top of each other; a finer grid of their own fixes both.
+    {"id": "summit", "name": "Summit / I-70", "lon0": -106.65, "lon1": -105.55, "lat0": 39.2, "lat1": 40.0, "step": 0.05},
     {"id": "nco", "name": "N. CO / WY", "lon0": -109.0, "lon1": -104.6, "lat0": 39.3, "lat1": 42.0, "step": 0.15},
     {"id": "utid", "name": "UT / ID", "lon0": -117.6, "lon1": -110.0, "lat0": 40.4, "lat1": 46.0, "step": 0.25},
 ]
