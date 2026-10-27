@@ -51,20 +51,41 @@ def main():
     now_ms = int(time.time() * 1000)
     out = {"generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "forecast": {}, "errors": []}
 
-    for pid, lat, lon, m in POINTS:
-        url = ("https://api.open-meteo.com/v1/forecast"
-               f"?latitude={lat}&longitude={lon}&elevation={m}"
-               "&daily=snowfall_sum,rain_sum,temperature_2m_max,temperature_2m_min"
+    daily_q = ("&daily=snowfall_sum,rain_sum,temperature_2m_max,temperature_2m_min"
                f"&models={MODELS}"
                "&forecast_days=16&timezone=America%2FDenver&precipitation_unit=inch&temperature_unit=fahrenheit")
-        try:
-            j = get(url)
-            if j.get("error") or not j.get("daily", {}).get("time"):
-                raise RuntimeError(j.get("reason") or "no daily data")
-            out["forecast"][pid] = j
-        except Exception as e:
-            out["errors"].append(f"forecast {pid}: {type(e).__name__}: {e}")
-            time.sleep(1.2)
+
+    def keep_forecast(pid, j):
+        if j.get("error") or not j.get("daily", {}).get("time"):
+            raise RuntimeError(j.get("reason") or "no daily data")
+        out["forecast"][pid] = j
+
+    # One request for every spot: Open-Meteo returns a record per coordinate, in order and in the
+    # same shape as a single call, which is what the page expects under forecast[id].
+    try:
+        recs = get("https://api.open-meteo.com/v1/forecast"
+                   f"?latitude={','.join(str(p[1]) for p in POINTS)}&longitude={','.join(str(p[2]) for p in POINTS)}"
+                   f"&elevation={','.join(str(p[3]) for p in POINTS)}" + daily_q)
+        if isinstance(recs, dict):
+            if recs.get("error"):
+                raise RuntimeError(recs.get("reason") or "Open-Meteo error")
+            recs = [recs]
+        if len(recs) != len(POINTS):
+            raise RuntimeError(f"expected {len(POINTS)} forecasts, got {len(recs)}")
+        for (pid, *_), j in zip(POINTS, recs):
+            try:
+                keep_forecast(pid, j)
+            except Exception as e:
+                out["errors"].append(f"forecast {pid}: {type(e).__name__}: {e}")
+    except Exception as e:
+        # Fall back to one call per spot so a bad batch can't empty the snapshot.
+        out["errors"].append(f"forecast batch: {type(e).__name__}: {e}")
+        for pid, lat, lon, m in POINTS:
+            try:
+                keep_forecast(pid, get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&elevation={m}" + daily_q))
+            except Exception as e2:
+                out["errors"].append(f"forecast {pid}: {type(e2).__name__}: {e2}")
+                time.sleep(1.2)
 
     out["nws"] = {}
     for pid, lat, lon, m in POINTS:

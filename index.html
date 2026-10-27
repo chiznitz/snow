@@ -486,6 +486,11 @@ async function fetchCached(key, url, check = () => {}, snapFn = null) {
       return {data, source:"live"};
     } catch (e) { err = e; }
   }
+  return cachedFallback(key, snapFn, err);
+}
+const cachePut = (key, data) => { try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({t:Date.now(), data})); } catch (_) {} };
+// The newer of the last good response saved on this device and the server snapshot, else rethrow.
+async function cachedFallback(key, snapFn, err) {
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(CACHE_PREFIX + key)); } catch (_) {}
   await snapshotReady;   // a slow live.json shouldn't cost us the fallback
@@ -1009,19 +1014,60 @@ const checkForecast = j => {
   if (!j.daily || !Array.isArray(j.daily.time) || !j.daily.time.length) throw new Error("Open-Meteo response had no daily forecast.");
 };
 
+function forecastPending(loc) {
+  if (fcState[loc.id]) return;
+  panelBody("fc", loc).innerHTML = `<div class="skel" style="height:24px"></div>`;
+  for (const c of NEXT_COLS) if (!nwsOk(loc) && !(hrState[loc.id] && HOURLY_COLS.includes(c))) setCell(loc.id, c, `<i class="x">…</i>`);
+}
+const snapForecast = loc => snapshot && snapshot.forecast && snapshot.forecast[loc.id];
+
 async function loadForecast(loc) {
-  const body = panelBody("fc", loc);
-  if (!fcState[loc.id]) {
-    body.innerHTML = `<div class="skel" style="height:24px"></div>`;
-    for (const c of NEXT_COLS) if (!nwsOk(loc) && !(hrState[loc.id] && HOURLY_COLS.includes(c))) setCell(loc.id, c, `<i class="x">…</i>`);
-  }
+  forecastPending(loc);
   try {
-    const res = await fetchCached("fc:" + loc.id, forecastURL(loc), checkForecast, () => snapshot && snapshot.forecast && snapshot.forecast[loc.id]);
+    const res = await fetchCached("fc:" + loc.id, forecastURL(loc), checkForecast, () => snapForecast(loc));
     return applyForecast(loc, res);
   } catch (e) {
     forecastFail(loc, e);
     return false;
   }
+}
+
+// One Open-Meteo request for a whole group of spots: comma-separated coordinates come back as one
+// record per spot, each the same shape as a single call. A page load is then one call instead of one
+// per spot, which is what kept tripping the per-IP burst limit (429) for everyone on carrier NAT.
+// Each record is cached under the spot's own key, so the per-spot fallback path is unchanged.
+const forecastBatchURL = locs => "https://api.open-meteo.com/v1/forecast"
+  + `?latitude=${locs.map(fcLat).join(",")}&longitude=${locs.map(fcLon).join(",")}&elevation=${locs.map(l => l.m).join(",")}`
+  + "&daily=snowfall_sum,rain_sum,temperature_2m_max,temperature_2m_min"
+  + `&models=${[...MODELS, ...SHORT_MODELS].map(m => m[0]).join(",")}`
+  + "&forecast_days=16&timezone=America%2FDenver&precipitation_unit=inch&temperature_unit=fahrenheit";
+async function loadForecasts(locs) {
+  if (!locs.length) return [];
+  if (locs.length === 1) return [await loadForecast(locs[0])];
+  for (const loc of locs) forecastPending(loc);
+  let data = null, err = null;
+  for (let attempt = 0; attempt < 2 && !data; attempt++) {
+    if (attempt) await new Promise(r => setTimeout(r, 1500));
+    try {
+      const d = await getJSON(forecastBatchURL(locs));
+      if (d && d.error) throw new Error(d.reason || "Open-Meteo returned an error.");
+      if (!Array.isArray(d) || d.length !== locs.length) throw new Error("Open-Meteo returned the wrong number of forecasts.");
+      d.forEach(checkForecast);
+      data = d;
+    } catch (e) { err = e; }
+  }
+  return Promise.all(locs.map(async (loc, i) => {
+    let res;
+    if (data) {
+      cachePut("fc:" + loc.id, data[i]);
+      liveArrived.add("fc:" + loc.id);
+      res = {data:data[i], source:"live"};
+    } else {
+      try { res = await cachedFallback("fc:" + loc.id, () => snapForecast(loc), err); }
+      catch (e) { forecastFail(loc, e); return false; }
+    }
+    return applyForecast(loc, res);
+  }));
 }
 
 function forecastFail(loc, e) {
@@ -2144,7 +2190,10 @@ new ResizeObserver(() => { const w = $("map-box").clientWidth; if (w && w !== ma
 /* ---------------- Boot ---------------- */
 
 let loading = false, lastLoad = 0, firstLoad = true;
-const SNAP_FRESH = 2 * HOUR;   // skip live Open-Meteo calls when the server snapshot is this recent
+// Skip live Open-Meteo calls when the server snapshot is this recent. live.yml is scheduled every
+// 2 h, but GitHub starts cron jobs up to ~50 min late, so a 2 h window left most visitors just past
+// it and sending their own calls (and hitting 429s); 3 h covers the drift.
+const SNAP_FRESH = 3 * HOUR;
 const fmtClock = ms => new Date(ms).toLocaleTimeString("en-US", {timeZone:TZ, hour:"numeric", minute:"2-digit"});
 
 // Step 1: render everything we can from the committed snapshot. Same-origin, so this is fast and
@@ -2175,11 +2224,10 @@ function ensureSummitData(force = false) {
   const locs = summitLocs();
   const fresh = !force && snapAge() < SNAP_FRESH;
   const jobs = [];
-  for (const loc of locs) {
-    if (force || !nwsState[loc.id]) jobs.push(loadNws(loc));
-    // Snapshot can be "fresh" for the original spots while still missing Summit.
-    if (force || !fcState[loc.id]) jobs.push(loadForecast(loc));
-  }
+  for (const loc of locs) if (force || !nwsState[loc.id]) jobs.push(loadNws(loc));
+  // Snapshot can be "fresh" for the original spots while still missing Summit.
+  const need = locs.filter(loc => force || !fcState[loc.id]);
+  if (need.length) jobs.push(loadForecasts(need));
   if (force || locs.some(l => !windState[l.id])) jobs.push(loadWind(locs));
   if (force || locs.some(l => !hrState[l.id])) jobs.push(loadHourly(locs));
   if (!jobs.length) return Promise.resolve(true);
@@ -2207,7 +2255,7 @@ async function loadAll(force = false) {
   // Summit Open-Meteo stays off until that section is opened — friends refresh a lot.
   jobs.push(...core.map(loc => loadNws(loc)));
   // A snapshot without the hourly section (older live.json) still needs the live hourly call.
-  if (!fresh) jobs.push(...core.map(loc => loadForecast(loc)), loadWind(core));
+  if (!fresh) jobs.push(loadForecasts(core), loadWind(core));
   if (!fresh || !(snapshot && snapshot.hourly)) jobs.push(loadHourly(core));
   if (regionOpen.summit || summitWanted) jobs.push(ensureSummitData(force));
   let done = 0;
