@@ -140,7 +140,9 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 #glance-body>tr>td.dc small{font-size:10px;margin-top:2px}
 .gside{margin:0 0 8px}
 .gside .seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0b1330;border:1px solid var(--line);border-radius:12px;padding:3px}
-.gside button{font:inherit;font-size:13px;font-weight:750;color:var(--muted);background:none;border:0;border-radius:9px;padding:7px 0;cursor:pointer}
+.gside button{font:inherit;font-size:13px;font-weight:750;color:var(--muted);background:none;border:0;border-radius:9px;padding:5px 0 4px;cursor:pointer;line-height:1.2}
+.gside button small{display:block;font-size:10.5px;font-weight:500;color:var(--dim);margin-top:1px}
+.gside button[aria-pressed="true"] small{color:#ffffffcc}
 .gside button[aria-pressed="true"]{color:#fff;background:linear-gradient(135deg,#2563eb,#9333ea)}
 @media(max-width:759px){
   .glance.side-next .pa,.glance.side-past .nx{display:none}
@@ -154,7 +156,7 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
   .gside{position:sticky;top:calc(var(--jump-h,46px) - 12px);z-index:5;margin:-12px 0 0;padding:12px 0 8px;background:var(--bg)}
   #glance-head th,#glance-head th.st{position:sticky;top:calc(var(--jump-h,46px) - 12px + var(--gside-h,66px));z-index:4;background:var(--card2);padding:6px 3px 4px}
   #glance-head th.st{padding-left:12px}
-  #glance-head tr+tr th{top:calc(var(--jump-h,46px) - 12px + var(--gside-h,66px) + var(--grp-h,22px))}
+  #glance-head tr+tr th,#glance-head tr+tr th.st{top:calc(var(--jump-h,46px) - 12px + var(--gside-h,66px) + var(--grp-h,22px))}
   #glance-body>tr.rg>td{position:sticky;top:calc(var(--jump-h,46px) - 12px + var(--gside-h,66px) + var(--head-h,58px));z-index:2;background:var(--card)}
   #glance-body>tr.rg>td.st{z-index:3}
 }
@@ -346,10 +348,10 @@ footer .ask{color:var(--muted);margin-top:4px}
 
   <nav class="jump" id="jump" aria-label="Jump to section"><a href="#glance">Overview</a><a href="#tomer">Tomer</a><a href="#map">Map</a><a href="#cams">Webcams</a></nav>
 
-  <h2 class="sec" id="glance">Snow forecast <small>past from SNOTEL · next from NWS forecast</small></h2>
-  <div class="gside" id="glance-side"><div class="seg" role="group" aria-label="Show past or next"><button type="button" data-side="past" aria-pressed="false">Past</button><button type="button" data-side="next" aria-pressed="true">Next</button></div></div>
+  <h2 class="sec" id="glance">Snow forecast <small>tap a row for the full forecast</small></h2>
+  <div class="gside" id="glance-side"><div class="seg" role="group" aria-label="Show SNOTEL observations or the forecast"><button type="button" data-side="past" aria-pressed="false">SNOTEL<small>observed · last 7 days</small></button><button type="button" data-side="next" aria-pressed="true">Forecast<small>NWS · next 14 days</small></button></div></div>
   <div class="glance" id="glance-wrap"><table><thead id="glance-head">
-    <tr class="grp"><th class="st"></th><th class="g">Now</th><th class="g pa" colspan="4" title="Net change in SNOTEL snow depth over the trailing window">Past · depth change</th><th class="g nx" colspan="5" title="Official NWS snowfall forecast; days 8–14 from NBM or ECMWF">Next · forecast</th></tr>
+    <tr class="grp"><th class="st"></th><th class="g">Now</th><th class="g pa" colspan="4" title="Net change in SNOTEL snow depth over the trailing window; snow settles, so new snow is usually more than shown">SNOTEL · depth change</th><th class="g nx" colspan="5" title="Official NWS snowfall forecast; days 8–14 from NBM or ECMWF">Forecast · NWS</th></tr>
     <tr><th data-k="loc" class="st">Location</th><th data-k="depth" title="Current SNOTEL snow depth">Depth</th><th data-k="p24" class="pa sep">24h</th><th data-k="p48" class="pa">48h</th><th data-k="p72" class="pa">72h</th><th data-k="p7" class="pa">7d</th><th data-k="n24" class="nx sep" title="Next 24 hours from now">24h</th><th data-k="n48" class="nx" title="Next 48 hours from now">48h</th><th data-k="n72" class="nx" title="Next 72 hours from now">72h</th><th data-k="n7" class="nx" title="Next 7 days">7d</th><th data-k="n14" class="nx" title="Next 14 days · NWS through ~7 days, then NBM or ECMWF">14d</th></tr>
   </thead><tbody id="glance-body"></tbody></table></div>
   <div class="legend glance-leg">Snow: <i style="background:var(--s1)"></i>&lt;1" <i style="background:var(--s2)"></i>1–3 <i style="background:var(--s3)"></i>3–6 <i style="background:var(--s4)"></i>6–12 <i style="background:var(--s5)"></i>12–18 <i style="background:var(--s6)"></i>18+ <span><span class="drop" style="margin-left:6px"></span>rain</span><span>bar = median · line = model range</span><span style="margin-left:auto">Tap a header to sort · tap a row to expand</span></div>
@@ -619,7 +621,7 @@ function buildPage() {
   const stickyVars = () => {
     const s = document.documentElement.style, head = $("glance-head");
     s.setProperty("--jump-h", $("jump").offsetHeight + "px");
-    s.setProperty("--gside-h", $("glance-side").offsetHeight + "px");
+    s.setProperty("--gside-h", ($("glance-side").offsetHeight - 2) + "px");   // 2px under the toggle hides the seam
     s.setProperty("--grp-h", head.rows[0].offsetHeight + "px");
     s.setProperty("--head-h", head.offsetHeight + "px");
   };
@@ -627,7 +629,7 @@ function buildPage() {
   if (window.ResizeObserver) { const ro = new ResizeObserver(stickyVars); for (const id of ["jump", "glance-side", "glance-head"]) ro.observe($(id)); }
   glanceOrig = [...glance.children];
   try { wireGlanceSort(); } catch (e) { console.error("glance sort disabled:", e); }
-  try { wireGlanceSide(); } catch (e) { console.error("past/next toggle disabled:", e); }
+  try { wireGlanceSide(); } catch (e) { console.error("SNOTEL/forecast toggle disabled:", e); }
 }
 
 const regionOpen = (() => { try { return {sanjuans:true, ...JSON.parse(localStorage.getItem("snowRegions") || "{}")}; } catch (_) { return {sanjuans:true}; } })();
