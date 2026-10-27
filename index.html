@@ -91,7 +91,7 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .day .hi{font-size:11px;margin-top:4px;color:#fca5a5}
 .day .lo{font-size:11px;color:var(--dim)}
 @media(min-width:760px){.day .bar{width:60%}.day .barbox{height:96px}}
-.legend{display:flex;gap:4px;align-items:center;font-size:11px;color:var(--dim);margin-top:10px;flex-wrap:wrap}
+.legend{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
 .legend i{display:inline-block;width:18px;height:8px;border-radius:2px}
 
 .skel{position:relative;overflow:hidden;background:#0b1330;border-radius:12px}
@@ -101,7 +101,7 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .error b{display:block;color:#fff;margin-bottom:3px}
 .error button{margin-top:8px;background:#fb7185;color:#2a0a14;border:0;border-radius:999px;padding:6px 14px;font-weight:700;font-size:13px;cursor:pointer}
 
-.jump{position:sticky;top:0;z-index:5;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -14px 4px;padding:8px 14px;
+.jump{position:sticky;top:0;z-index:6;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -14px 4px;padding:8px 14px;
   padding-top:max(8px,env(safe-area-inset-top));background:linear-gradient(var(--bg) 75%,transparent)}
 .jump::-webkit-scrollbar{display:none}
 .jump a{flex:none;color:var(--text);text-decoration:none;font-size:13px;font-weight:600;padding:7px 13px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
@@ -113,11 +113,11 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 .glance{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:4px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative}
 .glance::-webkit-scrollbar{display:none}
 .glance>table{border-collapse:separate;border-spacing:0;font-variant-numeric:tabular-nums;min-width:100%}
-#glance-head th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);font-weight:650;text-align:center;padding:6px 5px 4px;white-space:nowrap;cursor:pointer;user-select:none;-webkit-user-select:none}
+#glance-head th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:650;text-align:center;padding:6px 5px 4px;white-space:nowrap;cursor:pointer;user-select:none;-webkit-user-select:none}
 #glance-head th.on{color:var(--ice)}
 #glance-head th.on:after{content:" ↓"}
 #glance-head th.on.asc:after{content:" ↑"}
-#glance-head tr.grp th{font-size:10px;letter-spacing:.08em;color:var(--muted);padding:8px 5px 0;cursor:default;font-weight:600}
+#glance-head tr.grp th{font-size:11px;letter-spacing:.08em;color:#b7c2e4;padding:8px 5px 0;cursor:default;font-weight:650}
 #glance-head tr.grp th.g{border-bottom:1px solid #ffffff14}
 #glance-head th.sep,#glance-body>tr>td.sep{border-left:1px dashed #3a4778}
 #glance-body>tr>td{padding:6px 5px;text-align:center;font-size:13.5px;font-weight:650;border-top:1px solid #ffffff0a;white-space:nowrap}
@@ -126,7 +126,7 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 #glance-body>tr>td.st{font-weight:600;white-space:normal;line-height:1.15;min-width:118px;max-width:150px}
 #glance-body>tr.loc>td small{display:block;font-size:10.5px;color:var(--dim);font-weight:400}
 #glance-body>tr.loc>td.tot small{display:inline;margin-left:2px;font-size:10px}
-#glance-body>tr.rg>td{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ice);font-weight:700;padding:10px 5px 3px 12px;border-top:0;text-align:left;white-space:nowrap}
+#glance-body>tr.rg>td{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ice);font-weight:700;padding:10px 5px 3px 12px;border-top:0;text-align:left;white-space:nowrap}
 #glance-body>tr.rg>td.st{box-shadow:none;background:var(--card)}
 #glance-body>tr.loc{cursor:pointer}
 #glance-body>tr.loc:active>td{filter:brightness(1.15)}
@@ -138,10 +138,27 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 #glance-body>tr>td.dc i.z{background:none;color:#ffffff30;font-weight:500}
 #glance-body>tr>td[data-c="n14"] i{opacity:.8}
 #glance-body>tr>td.dc small{font-size:10px;margin-top:2px}
-.gside{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0b1330;border:1px solid var(--line);border-radius:12px;padding:3px;margin:0 0 8px}
+.gside{margin:0 0 8px}
+.gside .seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0b1330;border:1px solid var(--line);border-radius:12px;padding:3px}
 .gside button{font:inherit;font-size:13px;font-weight:750;color:var(--muted);background:none;border:0;border-radius:9px;padding:7px 0;cursor:pointer}
 .gside button[aria-pressed="true"]{color:#fff;background:linear-gradient(135deg,#2563eb,#9333ea)}
-@media(max-width:759px){.glance.side-next .pa,.glance.side-past .nx{display:none}#glance-body>tr>td.st{max-width:140px}}
+@media(max-width:759px){
+  .glance.side-next .pa,.glance.side-past .nx{display:none}
+  #glance-body>tr>td.st{max-width:140px}
+  /* Phones: the table fits the screen, so nothing scrolls sideways and the card can stop being a scroll
+     container (clip-path keeps the rounded corners without one). That lets the toggle, the column headers
+     and the region rows stick under the jump bar while the rows scroll, instead of leaving bare numbers
+     once a region is open. Heights come from JS (--jump-h etc.) because the jump bar grows with the notch. */
+  .glance{overflow:visible;clip-path:inset(0 round 18px);padding-top:0}
+  /* The toggle tucks 12px under the jump bar's faded bottom edge so rows can't show through the seam. */
+  .gside{position:sticky;top:calc(var(--jump-h,46px) - 12px);z-index:5;margin:-12px 0 0;padding:12px 0 8px;background:var(--bg)}
+  #glance-head th,#glance-head th.st{position:sticky;top:calc(var(--jump-h,46px) - 12px + var(--gside-h,66px));z-index:4;background:var(--card2);padding:6px 3px 4px}
+  #glance-head th.st{padding-left:12px}
+  #glance-head tr+tr th{top:calc(var(--jump-h,46px) - 12px + var(--gside-h,66px) + var(--grp-h,22px))}
+  #glance-body>tr.rg>td{position:sticky;top:calc(var(--jump-h,46px) - 12px + var(--gside-h,66px) + var(--head-h,58px));z-index:2;background:var(--card)}
+  #glance-body>tr.rg>td.st{z-index:3}
+}
+@media(max-width:380px){#glance-body>tr>td{padding:6px 3px}#glance-body>tr>td.st{max-width:122px;padding-right:6px}#glance-body>tr>td.dc i{min-width:24px}}
 #glance-body>tr>td.dc i.x{background:none;color:#ffffff40;font-weight:400}
 #glance-body>tr>td.dc i.s1{color:#0b1330}
 #glance-body>tr>td.dc i.fb{box-shadow:inset 0 0 0 1.5px var(--warn)}
@@ -330,7 +347,7 @@ footer .ask{color:var(--muted);margin-top:4px}
   <nav class="jump" id="jump" aria-label="Jump to section"><a href="#glance">Overview</a><a href="#tomer">Tomer</a><a href="#map">Map</a><a href="#cams">Webcams</a></nav>
 
   <h2 class="sec" id="glance">Snow forecast <small>past from SNOTEL · next from NWS forecast</small></h2>
-  <div class="gside" id="glance-side" role="group" aria-label="Show past or next"><button type="button" data-side="past" aria-pressed="false">Past</button><button type="button" data-side="next" aria-pressed="true">Next</button></div>
+  <div class="gside" id="glance-side"><div class="seg" role="group" aria-label="Show past or next"><button type="button" data-side="past" aria-pressed="false">Past</button><button type="button" data-side="next" aria-pressed="true">Next</button></div></div>
   <div class="glance" id="glance-wrap"><table><thead id="glance-head">
     <tr class="grp"><th class="st"></th><th class="g">Now</th><th class="g pa" colspan="4" title="Net change in SNOTEL snow depth over the trailing window">Past · depth change</th><th class="g nx" colspan="5" title="Official NWS snowfall forecast; days 8–14 from NBM or ECMWF">Next · forecast</th></tr>
     <tr><th data-k="loc" class="st">Location</th><th data-k="depth" title="Current SNOTEL snow depth">Depth</th><th data-k="p24" class="pa sep">24h</th><th data-k="p48" class="pa">48h</th><th data-k="p72" class="pa">72h</th><th data-k="p7" class="pa">7d</th><th data-k="n24" class="nx sep" title="Next 24 hours from now">24h</th><th data-k="n48" class="nx" title="Next 48 hours from now">48h</th><th data-k="n72" class="nx" title="Next 72 hours from now">72h</th><th data-k="n7" class="nx" title="Next 7 days">7d</th><th data-k="n14" class="nx" title="Next 14 days · NWS through ~7 days, then NBM or ECMWF">14d</th></tr>
@@ -598,6 +615,16 @@ function buildPage() {
   const gw = () => $("glance-wrap").style.setProperty("--gw", $("glance-wrap").clientWidth + "px");
   gw();
   if (window.ResizeObserver) new ResizeObserver(gw).observe($("glance-wrap"));
+  // Heights for the phone layout's sticky stack: toggle, column headers and region rows under the jump bar.
+  const stickyVars = () => {
+    const s = document.documentElement.style, head = $("glance-head");
+    s.setProperty("--jump-h", $("jump").offsetHeight + "px");
+    s.setProperty("--gside-h", $("glance-side").offsetHeight + "px");
+    s.setProperty("--grp-h", head.rows[0].offsetHeight + "px");
+    s.setProperty("--head-h", head.offsetHeight + "px");
+  };
+  stickyVars();
+  if (window.ResizeObserver) { const ro = new ResizeObserver(stickyVars); for (const id of ["jump", "glance-side", "glance-head"]) ro.observe($(id)); }
   glanceOrig = [...glance.children];
   try { wireGlanceSort(); } catch (e) { console.error("glance sort disabled:", e); }
   try { wireGlanceSide(); } catch (e) { console.error("past/next toggle disabled:", e); }
