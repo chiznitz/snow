@@ -170,6 +170,14 @@ h2.sec small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--di
 #glance-body>tr.rg.shut .chev{transform:rotate(-90deg)}
 #glance-body>tr.rg .cnt{margin-left:6px;color:var(--dim);font-weight:600;letter-spacing:0}
 #glance-body>tr.rg[data-r="summit"]>td{padding-top:18px;border-top:2px solid #4a5a8a}
+#glance-body>tr.rg[data-r="favs"]>td{color:#facc15}
+/* The star sits over the end of the note line, so the name keeps its full width. */
+#glance-body>tr.loc>td.st small{padding-right:22px}
+.fav{position:absolute;right:2px;bottom:2px;width:26px;height:26px;border:0;background:none;color:var(--dim);font-size:17px;line-height:1;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
+.fav[aria-pressed="true"]{color:#facc15}
+.fav:active{transform:scale(.85)}
+.card .top .fav.big{position:static;transform:none;width:34px;height:34px;font-size:23px;margin-left:4px;flex:none}
+.card .top .fav.big:active{transform:scale(.85)}
 #glance-body:not(.sorted)>tr.loc.off{display:none}
 #glance-body>tr.loc.open>td{background:#ffffff08}
 #glance-body>tr.loc.open>td.st{background:var(--card2);box-shadow:inset 3px 0 0 var(--ice),4px 0 8px -4px #0008}
@@ -356,7 +364,7 @@ footer .ask{color:var(--muted);margin-top:4px}
     <tr><th data-k="loc" class="st">Location</th><th data-k="depth" title="Current SNOTEL snow depth">Depth</th><th data-k="p24" class="pa sep">24h</th><th data-k="p48" class="pa">48h</th><th data-k="p72" class="pa">72h</th><th data-k="p7" class="pa">7d</th><th data-k="n24" class="nx sep" title="Next 24 hours from now">24h</th><th data-k="n48" class="nx" title="Next 48 hours from now">48h</th><th data-k="n72" class="nx" title="Next 72 hours from now">72h</th><th data-k="n7" class="nx" title="Next 7 days">7d</th><th data-k="n14" class="nx" title="Next 14 days · NWS through ~7 days, then NBM or ECMWF">14d</th></tr>
   </thead><tbody id="glance-body"></tbody></table></div>
   </div>
-  <div class="legend glance-leg">Snow: <i style="background:var(--s1)"></i>&lt;1" <i style="background:var(--s2)"></i>1–3 <i style="background:var(--s3)"></i>3–6 <i style="background:var(--s4)"></i>6–12 <i style="background:var(--s5)"></i>12–18 <i style="background:var(--s6)"></i>18+ <span><span class="drop" style="margin-left:6px"></span>rain</span><span>bar = median · line = model range</span><span style="margin-left:auto">Tap a header to sort · tap a row to expand</span></div>
+  <div class="legend glance-leg">Snow: <i style="background:var(--s1)"></i>&lt;1" <i style="background:var(--s2)"></i>1–3 <i style="background:var(--s3)"></i>3–6 <i style="background:var(--s4)"></i>6–12 <i style="background:var(--s5)"></i>12–18 <i style="background:var(--s6)"></i>18+ <span><span class="drop" style="margin-left:6px"></span>rain</span><span>bar = median · line = model range</span><span style="margin-left:auto">Tap a header to sort · tap a row to expand · ☆ pins a spot to the top</span></div>
 
   <h2 class="sec" id="map">Snowfall map <small>tap the map for a reading</small></h2>
   <section class="card smap" id="map-card">
@@ -572,7 +580,7 @@ function errorBox(title, err, retryFn) {
 const ftLabel = loc => `${loc.ft.toLocaleString()} ft`;
 
 const cardHTML = loc => `<section class="card" id="loc-${loc.id}">
-  <div class="top"><div><h3>${esc(locTitle(loc))}</h3><div class="sub">${ftLabel(loc)} · ${esc(loc.note)}</div></div><span class="badge">${loc.triplet ? "SNOTEL " + esc(loc.triplet.split(":")[0]) : "Forecast only"}</span></div>
+  <div class="top"><div><h3>${esc(locTitle(loc))}</h3><div class="sub">${ftLabel(loc)} · ${esc(loc.note)}</div></div><span class="badge">${loc.triplet ? "SNOTEL " + esc(loc.triplet.split(":")[0]) : "Forecast only"}</span>${favBtn(loc, true)}</div>
   <div class="cols"><div class="col">
     <div class="panel dwin" id="fc-${loc.id}"><div class="ptitle">Forecast <span>NWS forecast</span></div><div class="wins" role="group" aria-label="Window"></div><div class="tline"></div><div class="hchart"></div><div class="agree"></div><div class="body"></div></div>
   </div><div class="col">
@@ -589,6 +597,7 @@ const cardHTML = loc => `<section class="card" id="loc-${loc.id}">
 // Each spot is one table row; its card lives in a hidden detail row right beneath it.
 function buildPage() {
   const glance = $("glance-body");
+  glance.insertAdjacentHTML("beforeend", `<tr class="rg${regionOpen.favs ? "" : " shut"}" id="r-favs" data-r="favs" aria-expanded="${!!regionOpen.favs}"${favs.length ? "" : " hidden"}><td class="st"><span class="chev">▾</span>★ My spots<span class="cnt">${favs.length}</span></td><td colspan="10"></td></tr>`);
   for (const r of REGIONS) {
     const locs = LOCATIONS.filter(l => l.region === r.id);
     if (!locs.length) continue;
@@ -596,7 +605,7 @@ function buildPage() {
     glance.insertAdjacentHTML("beforeend", `<tr class="rg${open ? "" : " shut"}" id="r-${r.id}" data-r="${r.id}" aria-expanded="${open}"><td class="st"><span class="chev">▾</span>${esc(r.name)}<span class="cnt">${locs.length}</span></td><td colspan="10"></td></tr>`);
     for (const loc of locs) {
       const na = loc.triplet ? "…" : "—";
-      glance.insertAdjacentHTML("beforeend", `<tr class="loc${open ? "" : " off"}" data-id="${loc.id}" data-r="${r.id}"><td class="st">${esc(locTitle(loc))}<small>${esc(locRowNote(loc))}</small></td>`
+      glance.insertAdjacentHTML("beforeend", `<tr class="loc${open ? "" : " off"}" data-id="${loc.id}" data-r="${r.id}" data-home="${r.id}"><td class="st">${favBtn(loc)}${esc(locTitle(loc))}<small>${esc(locRowNote(loc))}</small></td>`
         + `<td data-c="depth" class="${loc.triplet ? "" : "na"}">${na}</td>`
         + PAST_COLS.map((c, i) => `<td data-c="${c}" class="pa${i === 0 ? " sep" : ""}${loc.triplet ? "" : " na"}">${na}</td>`).join("")
         + NEXT_COLS.map((c, i) => `<td data-c="${c}" class="dc nx${i === 0 ? " sep" : ""}"><i class="x">…</i></td>`).join("") + `</tr>`
@@ -604,6 +613,8 @@ function buildPage() {
     }
   }
   glance.addEventListener("click", e => {
+    const fb = e.target.closest("button.fav");
+    if (fb) { toggleFav(fb.dataset.fav); return; }
     const wb = e.target.closest(".wins button[data-w]");
     if (wb) { detWin = wb.dataset.w; refreshDetail(openId); return; }
     if (e.target.closest("tr.det")) return;
@@ -630,11 +641,33 @@ function buildPage() {
   stickyVars();
   if (window.ResizeObserver) { const ro = new ResizeObserver(stickyVars); for (const id of ["jump", "glance-side", "glance-head"]) ro.observe($(id)); }
   glanceOrig = [...glance.children];
+  try { arrangeRows(); } catch (e) { console.error("favorites disabled:", e); }
   try { wireGlanceSort(); } catch (e) { console.error("glance sort disabled:", e); }
   try { wireGlanceSide(); } catch (e) { console.error("SNOTEL/forecast toggle disabled:", e); }
 }
 
-const regionOpen = (() => { try { return {sanjuans:true, ...JSON.parse(localStorage.getItem("snowRegions") || "{}")}; } catch (_) { return {sanjuans:true}; } })();
+/* ---------------- Favorites ---------------- */
+// Starred spots sit in a "My spots" group at the top of the table, open by default, so a reader in
+// Summit County or Idaho never digs for their mountain. The list lives on this device; a link with
+// ?fav=id,id (for example ?fav=purg,wolf) adds those spots on another one.
+const byId = id => LOCATIONS.find(l => l.id === id);
+const favs = (() => { try { return JSON.parse(localStorage.getItem("snowFavs") || "[]").filter(byId); } catch (_) { return []; } })();
+try {
+  const q = new URLSearchParams(location.search).get("fav");
+  if (q) {
+    for (const id of q.split(",")) if (byId(id) && !favs.includes(id)) favs.push(id);
+    saveFavs();
+    const u = new URL(location.href); u.searchParams.delete("fav"); history.replaceState(null, "", u.pathname + u.search + u.hash);
+  }
+} catch (_) {}
+const isFav = id => favs.includes(id);
+function saveFavs() { try { localStorage.setItem("snowFavs", JSON.stringify(favs)); } catch (_) {} }
+const favBtn = (loc, big = false) => {
+  const on = isFav(loc.id);
+  return `<button type="button" class="fav${big ? " big" : ""}" data-fav="${loc.id}" aria-pressed="${on}" title="${on ? "Unpin from" : "Pin to"} My spots" aria-label="${on ? "Unpin" : "Pin"} ${esc(loc.name)}">${on ? "★" : "☆"}</button>`;
+};
+
+const regionOpen = (() => { try { return {sanjuans:true, favs:true, ...JSON.parse(localStorage.getItem("snowRegions") || "{}")}; } catch (_) { return {sanjuans:true, favs:true}; } })();
 function setRegion(id, open) {
   regionOpen[id] = open;
   try { localStorage.setItem("snowRegions", JSON.stringify(regionOpen)); } catch (_) {}
@@ -642,8 +675,49 @@ function setRegion(id, open) {
   if (rg) { rg.classList.toggle("shut", !open); rg.setAttribute("aria-expanded", open); }
   for (const tr of document.querySelectorAll(`#glance-body tr.loc[data-r="${id}"]`)) tr.classList.toggle("off", !open);
   if (open) { const first = LOCATIONS.find(l => l.region === id); if (first) { try { mapFollow(first); } catch (e) { console.error(e); } } }
-  if (!open && openId && LOCATIONS.find(l => l.id === openId).region === id) collapseRow();
+  if (!open && openId) { const o = document.querySelector(`#glance-body tr.loc[data-id="${openId}"]`); if (o && o.dataset.r === id) collapseRow(); }
   if (open && id === "summit") ensureSummitData();
+}
+
+// Order the table: My spots first, then each region without its starred rows. Rows move rather than
+// copy, so a spot's card and its cells stay unique.
+function arrangeRows() {
+  const rows = glanceOrig;
+  const head = id => rows.find(tr => tr.classList.contains("rg") && tr.dataset.r === id);
+  const pair = id => rows.filter(tr => tr.dataset.id === id);   // the spot row and its detail row
+  const out = [head("favs")];
+  for (const id of favs) out.push(...pair(id));
+  for (const r of REGIONS) {
+    const h = head(r.id);
+    if (!h) continue;
+    out.push(h);
+    for (const loc of LOCATIONS) if (loc.region === r.id && !isFav(loc.id)) out.push(...pair(loc.id));
+  }
+  const count = {};
+  for (const tr of out) {
+    if (!tr || !tr.classList.contains("loc")) continue;
+    const grp = isFav(tr.dataset.id) ? "favs" : tr.dataset.home;
+    tr.dataset.r = grp;
+    tr.classList.toggle("off", !regionOpen[grp]);
+    count[grp] = (count[grp] || 0) + 1;
+  }
+  for (const tr of out) if (tr && tr.classList.contains("rg")) {
+    tr.querySelector(".cnt").textContent = count[tr.dataset.r] || 0;
+    tr.hidden = tr.dataset.r === "favs" && !favs.length;
+  }
+  glanceOrig = out.filter(Boolean);
+  applyGlanceSort();
+}
+function toggleFav(id) {
+  const loc = byId(id);
+  if (!loc) return;
+  const i = favs.indexOf(id);
+  if (i >= 0) favs.splice(i, 1); else favs.push(id);
+  saveFavs();
+  for (const b of document.querySelectorAll(`button.fav[data-fav="${id}"]`)) b.outerHTML = favBtn(loc, b.classList.contains("big"));
+  if (i < 0 && !regionOpen.favs) setRegion("favs", true);
+  arrangeRows();
+  if (i < 0 && isSummit(loc)) ensureSummitData();
 }
 
 let openId = null, detWin = "d3";
@@ -654,7 +728,7 @@ function expandRow(id, {scroll = false, toggle = false} = {}) {
   if (!loc || !tr || !det) return;
   if (toggle && openId === id) { collapseRow(); return; }
   if (openId && openId !== id) collapseRow(false);
-  if (!regionOpen[loc.region]) setRegion(loc.region, true);
+  if (!regionOpen[tr.dataset.r]) setRegion(tr.dataset.r, true);
   if (isSummit(loc)) ensureSummitData();
   det.hidden = false; tr.classList.add("open");
   openId = id; detWin = SORT_WIN[glanceSort.col] || "d3";
@@ -1956,7 +2030,9 @@ const WEBCAMS = [
   {id:"abasincams", name:"A-Basin", page:"https://www.arapahoebasin.com/mountain-cams/",
    note:"A-Basin's cameras stay on arapahoebasin.com and are not embeddable here.", cams:[]},
 ];
-const camState = {resort:"purg", cam:0, live:false};
+// A reader with starred spots and no saved camera starts on the first starred spot that has one.
+const LOC_CAM = {purg:"purg", wolf:"wolf", brundage:"brundage", vailmtn:"vailcams", vail:"vailcams", coppermtn:"coppercams", copper:"coppercams", breck:"breckcams", keystone:"keystonecams", abasin:"abasincams", vailpass:"cdot"};
+const camState = {resort:favs.map(id => LOC_CAM[id]).find(Boolean) || "purg", cam:0, live:false};
 try { Object.assign(camState, JSON.parse(localStorage.getItem("snowCam") || "{}"), {live:false}); } catch (e) { /* ignore bad saved state */ }
 const camSrc = c => `${c.img}${c.img.includes("?") ? "&" : "?"}t=${Math.floor(Date.now() / 300000)}`;
 
@@ -2014,6 +2090,8 @@ const MAP_CITIES = [["Durango",37.275,-107.88],["Silverton",37.812,-107.664],["T
   ["Logan",41.737,-111.834],["Jackson",43.48,-110.762],["Boise",43.615,-116.202],["McCall",44.911,-116.099],["Reno",39.53,-119.814],["Missoula",46.872,-113.994],
   ["Bozeman",45.677,-111.043],["Albuquerque",35.084,-106.65],["Phoenix",33.448,-112.074],["Cheyenne",41.14,-104.82]];
 let mapData = null, mapBorders = null, mapRead = null;
+const mapSaved = (() => { try { return !!localStorage.getItem("snowMap"); } catch (_) { return false; } })();
+let mapFavDone = false;
 const mapState = (() => { try { return {view:"sanjuans", win:"d7", ...JSON.parse(localStorage.getItem("snowMap") || "{}")}; } catch (_) { return {view:"sanjuans", win:"d7"}; } })();
 const saveMapState = () => { try { localStorage.setItem("snowMap", JSON.stringify({view:mapState.view, win:mapState.win})); } catch (_) {} };
 
@@ -2223,6 +2301,14 @@ async function loadSnowMap() {
     ]);
     if (!data || !Array.isArray(data.views) || !data.views.length) throw new Error("snowmap.json has no map data yet.");
     mapData = data; mapBorders = borders;
+    // No saved area yet but starred spots: open on the area most of them are in.
+    if (!mapSaved && favs.length && !mapFavDone) {
+      mapFavDone = true;
+      const n = {};
+      for (const id of favs) { const v = viewFor(byId(id)); if (v) n[v] = (n[v] || 0) + 1; }
+      const best = Object.keys(n).sort((a, b) => n[b] - n[a])[0];
+      if (best) mapState.view = best;
+    }
     if (openId) { const l = LOCATIONS.find(x => x.id === openId); if (l) mapFollow(l); }
     renderMap();
     return true;
@@ -2326,7 +2412,7 @@ async function loadAll(force = false) {
   // A snapshot without the hourly section (older live.json) still needs the live hourly call.
   if (!fresh) jobs.push(loadForecasts(core), loadWind(core));
   if (!fresh || !(snapshot && snapshot.hourly)) jobs.push(loadHourly(core));
-  if (regionOpen.summit || summitWanted) jobs.push(ensureSummitData(force));
+  if (regionOpen.summit || summitWanted || favs.some(id => isSummit(byId(id)))) jobs.push(ensureSummitData(force));
   let done = 0;
   const label = fresh ? `Forecast from ${fmtClock(snapTime())} MT build · checking SNOTEL…` : "Updating live data…";
   stamp.textContent = label;
