@@ -25,10 +25,10 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
   with a yellow "Live data unavailable" note on the affected card. No single fetch can block the page, and
   non-critical build steps are wrapped so one failure can't blank it. When you add a location, add its SNOTEL
   triplet to `TRIPLETS` in `scripts/live.py` too.
-- **Chris Tomer:** `.github/workflows/tomer.yml` runs `scripts/tomer.py` each morning (14:15 and 15:15 UTC) and on
-  manual dispatch. It reads his channel RSS, tries to fetch the newest video's transcript, and writes `tomer.json`.
-  Optional repo secrets: `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` (AI summary instead of keyword extraction),
-  `YT_PROXY_URL` (residential proxy) or `YT_COOKIES` (cookies.txt) if YouTube blocks the runner.
+- **Chris Tomer:** `.github/workflows/tomer.yml` runs `scripts/tomer.py` hourly through late morning Mountain Time
+  and on manual dispatch. It reads his channel RSS, takes the newest daily forecast video, and writes `tomer.json`
+  from Tomer's own video description (YouTube blocks caption fetches from GitHub runners). Optional repo secrets
+  `YT_PROXY_URL` or `YT_COOKIES` if you want the runner to retry captions.
 - **Snowfall map:** `.github/workflows/snowmap.yml` runs `scripts/snowmap.py` twice a day (11:40 and 23:40 UTC)
   and on manual dispatch. It samples Open-Meteo's hourly snowfall (median of NBM, ECMWF and GFS) on a grid for
   each map area (West at 0.5°, San Juans and N. CO / WY at 0.15°, Summit / I-70 at 0.05°, UT / ID at 0.25°) and
@@ -75,8 +75,9 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
   one line (loaded aspects, wind, storm) with the full sentences and the cross-check under "Details".
 - **Webcams:** still images (cache-busted every 5 min) with optional live players, defined in `WEBCAMS` in
   `index.html`. Purgatory and Wolf Creek use Brownrice, Telluride uses ipcamlive, Grand Targhee uses SeeJH stills
-  (its streams block embedding), and Brundage serves its own JPGs. Purgatory's Verkada base stream is locked to
-  purgatory.ski, so it is linked rather than embedded.
+  (its streams block embedding), Brundage serves its own JPGs, and I-70 Vail Pass uses public COtrip stills
+  (`cocam.carsprogram.org/Snapshots/…`). Purgatory's Verkada base stream is locked to purgatory.ski, so it is
+  linked rather than embedded.
 
 | Region | Location | SNOTEL |
 |---|---|---|
