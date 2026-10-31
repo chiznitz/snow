@@ -1,41 +1,38 @@
 {
-  "generated_at": "2026-10-30T17:16:38+00:00",
+  "generated_at": "2026-10-31T17:16:29+00:00",
   "video": {
-    "id": "SeQPiZKoc5o",
-    "title": "Mountain Weather Update 10/30, Meteorologist Chris Tomer",
-    "url": "https://www.youtube.com/watch?v=SeQPiZKoc5o",
-    "published": "2026-10-30T14:16:21+00:00",
-    "thumbnail": "https://i.ytimg.com/vi/SeQPiZKoc5o/hqdefault.jpg"
+    "id": "Cy8oo4IqfLY",
+    "title": "Mountain Weather Update 10/31, Meteorologist Chris Tomer",
+    "url": "https://www.youtube.com/watch?v=Cy8oo4IqfLY",
+    "published": "2026-10-31T16:20:46+00:00",
+    "thumbnail": "https://i.ytimg.com/vi/Cy8oo4IqfLY/hqdefault.jpg"
   },
-  "description": "Remnant Vance moisture 10/30-10/31 (4-Corners only), then a larger storm system 11/1-11/2 with moderate to heavy mountain snow with bullseyes around the high Wasatch, Brian Head, AZ Snowbowl, and the CO San Juan range.  Heavy rain at lower elevations and some flooding.  Next storm system 11/6-11/7.",
+  "description": "Storm system developing 10/31-11/2 with Pineapple Express and heavy snow accumulation.  Flash flooding at lower elevations.  2nd storm system 11/4-11/7 with additional snow accumulation.",
   "transcript": {
     "status": "unavailable",
     "source": null,
     "chars": 0,
     "errors": [
-      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=SeQPiZKoc5o! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
-      "yt-dlp: RuntimeError: ERROR: [youtube] SeQPiZKoc5o: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
+      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=Cy8oo4IqfLY! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
+      "yt-dlp: RuntimeError: ERROR: [youtube] Cy8oo4IqfLY: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
     ]
   },
   "summary": {
     "method": "extractive",
-    "headline": "Remnant Vance moisture 10/30-10/31 (4-Corners only), then a larger storm system 11/1-11/2 with moderate to heavy mountain snow with bullseyes around the high Wasatch, Brian Head, AZ Snowbowl, and the CO San Juan range.",
+    "headline": "Storm system developing 10/31-11/2 with Pineapple Express and heavy snow accumulation.",
     "storms": [
       {
-        "when": "Oct 30–31",
-        "start": "2026-10-30",
-        "end": "2026-10-31",
-        "text": "Remnant Vance moisture 10/30-10/31 (4-Corners only), then a larger storm system 11/1-11/2 with moderate to heavy mountain snow with bullseyes around the high Wasatch, Brian Head, AZ Snowbowl, and the CO San Juan range.",
-        "states": [
-          "Arizona",
-          "Colorado"
-        ]
+        "when": "Oct 31–Nov 2",
+        "start": "2026-10-31",
+        "end": "2026-11-02",
+        "text": "Storm system developing 10/31-11/2 with Pineapple Express and heavy snow accumulation.",
+        "states": []
       },
       {
-        "when": "Nov 6–7",
-        "start": "2026-11-06",
+        "when": "Nov 4–7",
+        "start": "2026-11-04",
         "end": "2026-11-07",
-        "text": "Next storm system 11/6-11/7.",
+        "text": "2nd storm system 11/4-11/7 with additional snow accumulation.",
         "states": []
       }
     ],
