@@ -30,6 +30,7 @@ STATIONS = [
     {"id": "columbus", "name": "Columbus Basin", "triplet": "904:CO:SNTL", "lat": 37.4415, "lon": -108.0520},
     {"id": "spud", "name": "Spud Mountain", "triplet": "780:CO:SNTL", "lat": 37.7108, "lon": -107.8104},
     {"id": "molas", "name": "Molas Pass", "triplet": "632:CO:SNTL", "lat": 37.74929, "lon": -107.68933},
+    {"id": "redmtn", "name": "Red Mountain Pass", "triplet": "713:CO:SNTL", "lat": 37.8857, "lon": -107.6724},
     {"id": "stump", "name": "Stump Lakes", "triplet": "797:CO:SNTL", "lat": 37.47647, "lon": -107.63348},
     {"id": "rabbit", "name": "Rabbit Ears", "triplet": "709:CO:SNTL", "lat": 40.36735, "lon": -106.74118},
     {"id": "nfrench", "name": "North French Creek", "triplet": "668:WY:SNTL", "lat": 41.33087, "lon": -106.37558},

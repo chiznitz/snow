@@ -85,6 +85,7 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
 | San Juans | Columbus Basin | 904:CO:SNTL |
 | San Juans | Spud Mountain | 780:CO:SNTL |
 | San Juans | Molas Pass | 632:CO:SNTL (Molas Lake) |
+| San Juans | Red Mountain Pass | 713:CO:SNTL |
 | San Juans | Stump Lakes | 797:CO:SNTL |
 | San Juans | Purgatory | forecast only |
 | San Juans | Wolf Creek | forecast only |

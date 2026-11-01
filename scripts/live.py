@@ -22,7 +22,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "live.json")
 UA = "chiznitz-snow (github.com/chiznitz/snow)"
 MODELS = "ncep_nbm_conus,ecmwf_ifs025,gfs_seamless,ncep_hrrr_conus"
-TRIPLETS = ["1060:CO:SNTL", "904:CO:SNTL", "780:CO:SNTL", "632:CO:SNTL", "797:CO:SNTL", "709:CO:SNTL",
+TRIPLETS = ["1060:CO:SNTL", "904:CO:SNTL", "780:CO:SNTL", "632:CO:SNTL", "713:CO:SNTL", "797:CO:SNTL", "709:CO:SNTL",
             "668:WY:SNTL", "317:WY:SNTL", "823:UT:SNTL", "439:ID:SNTL", "370:ID:SNTL",
             "842:CO:SNTL", "415:CO:SNTL", "485:CO:SNTL", "531:CO:SNTL", "505:CO:SNTL",
             "602:CO:SNTL", "935:CO:SNTL", "1120:CO:SNTL"]
