@@ -1,53 +1,35 @@
 {
-  "generated_at": "2026-11-02T15:19:26+00:00",
+  "generated_at": "2026-11-03T15:16:44+00:00",
   "video": {
-    "id": "5m_P4zKCruw",
-    "title": "Mountain Weather Update 11/2, Meteorologist Chris Tomer",
-    "url": "https://www.youtube.com/watch?v=5m_P4zKCruw",
-    "published": "2026-11-02T15:09:19+00:00",
-    "thumbnail": "https://i.ytimg.com/vi/5m_P4zKCruw/hqdefault.jpg"
+    "id": "T-tKJtDdF9c",
+    "title": "Mountain Weather Update 11/3, Meteorologist Chris Tomer",
+    "url": "https://www.youtube.com/watch?v=T-tKJtDdF9c",
+    "published": "2026-11-03T14:18:07+00:00",
+    "thumbnail": "https://i.ytimg.com/vi/T-tKJtDdF9c/hqdefault.jpg"
   },
-  "description": "Leftover snow 11/2 in UT and especially CO/WY above 8-9K.  Next storm system is tiny 11/4 in UT/CO.  Larger storm system possible on/after 11/11.",
+  "description": "Fast moving storm system 11/4 for CA/UT/CO with light snow accumulations then it's a waiting game.  Major pattern shift into the PNW/BC with potential 100-inch setup at peak levels (highest elevations).  Rain/Snow line will be critical.",
   "transcript": {
     "status": "unavailable",
     "source": null,
     "chars": 0,
     "errors": [
-      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=5m_P4zKCruw! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
-      "yt-dlp: RuntimeError: ERROR: [youtube] 5m_P4zKCruw: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
+      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=T-tKJtDdF9c! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
+      "yt-dlp: RuntimeError: ERROR: [youtube] T-tKJtDdF9c: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
     ]
   },
   "summary": {
     "method": "extractive",
-    "headline": "Leftover snow 11/2 in UT and especially CO/WY above 8-9K.",
+    "headline": "Fast moving storm system 11/4 for CA/UT/CO with light snow accumulations then it's a waiting game.",
     "storms": [
-      {
-        "when": "Nov 2",
-        "start": "2026-11-02",
-        "end": "2026-11-02",
-        "text": "Leftover snow 11/2 in UT and especially CO/WY above 8-9K.",
-        "states": [
-          "Utah",
-          "Colorado",
-          "Wyoming"
-        ]
-      },
       {
         "when": "Nov 4",
         "start": "2026-11-04",
         "end": "2026-11-04",
-        "text": "Next storm system is tiny 11/4 in UT/CO.",
+        "text": "Fast moving storm system 11/4 for CA/UT/CO with light snow accumulations then it's a waiting game.",
         "states": [
           "Utah",
           "Colorado"
         ]
-      },
-      {
-        "when": "Nov 11",
-        "start": "2026-11-11",
-        "end": "2026-11-11",
-        "text": "Larger storm system possible on/after 11/11.",
-        "states": []
       }
     ],
     "amounts": [],
