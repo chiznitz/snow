@@ -1,31 +1,45 @@
 {
-  "generated_at": "2026-11-04T14:18:28+00:00",
+  "generated_at": "2026-11-04T15:18:01+00:00",
   "video": {
-    "id": "T-tKJtDdF9c",
-    "title": "Mountain Weather Update 11/3, Meteorologist Chris Tomer",
-    "url": "https://www.youtube.com/watch?v=T-tKJtDdF9c",
-    "published": "2026-11-03T14:18:07+00:00",
-    "thumbnail": "https://i.ytimg.com/vi/T-tKJtDdF9c/hqdefault.jpg"
+    "id": "cMfa6G1aJs4",
+    "title": "Mountain Weather Update 11/4, Meteorologist Chris Tomer",
+    "url": "https://www.youtube.com/watch?v=cMfa6G1aJs4",
+    "published": "2026-11-04T14:52:51+00:00",
+    "thumbnail": "https://i.ytimg.com/vi/cMfa6G1aJs4/hqdefault.jpg"
   },
-  "description": "Fast moving storm system 11/4 for CA/UT/CO with light snow accumulations then it's a waiting game.  Major pattern shift into the PNW/BC with potential 100-inch setup at peak levels (highest elevations).  Rain/Snow line will be critical.",
+  "description": "Atmospheric River setup 11/5-11/15 for PNW/BC then eventually CA Sierra.  Rain/snow lines will be critical with mid-mountain and higher receiving most of the snow accumulation and rain at lower elevations.  This pattern might affect Interior Rockies on/after 11/13 with snow accumulation.  \nSmall, fast moving area of low pressure crosses UT/CO 11/4-11/5 with light to moderate snow accumulation.",
   "transcript": {
     "status": "unavailable",
     "source": null,
     "chars": 0,
     "errors": [
-      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=T-tKJtDdF9c! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
-      "yt-dlp: RuntimeError: ERROR: [youtube] T-tKJtDdF9c: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
+      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=cMfa6G1aJs4! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
+      "yt-dlp: RuntimeError: ERROR: [youtube] cMfa6G1aJs4: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
     ]
   },
   "summary": {
     "method": "extractive",
-    "headline": "Fast moving storm system 11/4 for CA/UT/CO with light snow accumulations then it's a waiting game.",
+    "headline": "Atmospheric River setup 11/5-11/15 for PNW/BC then eventually CA Sierra.",
     "storms": [
       {
-        "when": "Nov 4",
+        "when": "Nov 5–15",
+        "start": "2026-11-05",
+        "end": "2026-11-15",
+        "text": "Atmospheric River setup 11/5-11/15 for PNW/BC then eventually CA Sierra.",
+        "states": []
+      },
+      {
+        "when": "Nov 13",
+        "start": "2026-11-13",
+        "end": "2026-11-13",
+        "text": "This pattern might affect Interior Rockies on/after 11/13 with snow accumulation.",
+        "states": []
+      },
+      {
+        "when": "Nov 4–5",
         "start": "2026-11-04",
-        "end": "2026-11-04",
-        "text": "Fast moving storm system 11/4 for CA/UT/CO with light snow accumulations then it's a waiting game.",
+        "end": "2026-11-05",
+        "text": "Small, fast moving area of low pressure crosses UT/CO 11/4-11/5 with light to moderate snow accumulation.",
         "states": [
           "Utah",
           "Colorado"
