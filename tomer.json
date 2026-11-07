@@ -1,31 +1,31 @@
 {
-  "generated_at": "2026-11-06T15:17:13+00:00",
+  "generated_at": "2026-11-07T18:17:14+00:00",
   "video": {
-    "id": "fcwXJE7ACnA",
-    "title": "Mountain Weather Update 11/6, Meteorologist Chris Tomer",
-    "url": "https://www.youtube.com/watch?v=fcwXJE7ACnA",
-    "published": "2026-11-06T14:31:36+00:00",
-    "thumbnail": "https://i.ytimg.com/vi/fcwXJE7ACnA/hqdefault.jpg"
+    "id": "RFp3fDZiYmU",
+    "title": "Mountain Weather Update 11/7, Meteorologist Chris Tomer",
+    "url": "https://www.youtube.com/watch?v=RFp3fDZiYmU",
+    "published": "2026-11-07T17:33:23+00:00",
+    "thumbnail": "https://i.ytimg.com/vi/RFp3fDZiYmU/hqdefault.jpg"
   },
-  "description": "Major storm cycle for PNW/BC through 11/15 with heavy high elevation snow accumulation and rain at lower elevations.  This is a moderate/strong intensity atmospheric river.  It's a waiting game for the Intermountain West.  The pattern might break on/after 11/16.",
+  "description": "Big storm cycle continues PNW/BC through 11/14 (next storm system hits tonight).  Temps are warm so you'll have to be at mid-mountain or higher for snow accumulation.  \nPattern might not break south until on/after 11/17.  Long, warm wait for the Intermountain West.",
   "transcript": {
     "status": "unavailable",
     "source": null,
     "chars": 0,
     "errors": [
-      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=fcwXJE7ACnA! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
-      "yt-dlp: RuntimeError: ERROR: [youtube] fcwXJE7ACnA: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
+      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=RFp3fDZiYmU! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
+      "yt-dlp: RuntimeError: ERROR: [youtube] RFp3fDZiYmU: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
     ]
   },
   "summary": {
     "method": "extractive",
-    "headline": "Major storm cycle for PNW/BC through 11/15 with heavy high elevation snow accumulation and rain at lower elevations.",
+    "headline": "Big storm cycle continues PNW/BC through 11/14 (next storm system hits tonight).",
     "storms": [
       {
-        "when": "Nov 15",
-        "start": "2026-11-15",
-        "end": "2026-11-15",
-        "text": "Major storm cycle for PNW/BC through 11/15 with heavy high elevation snow accumulation and rain at lower elevations.",
+        "when": "Nov 14",
+        "start": "2026-11-14",
+        "end": "2026-11-14",
+        "text": "Big storm cycle continues PNW/BC through 11/14 (next storm system hits tonight).",
         "states": []
       }
     ],
