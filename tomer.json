@@ -1,34 +1,26 @@
 {
-  "generated_at": "2026-11-19T16:18:24+00:00",
+  "generated_at": "2026-11-20T15:17:31+00:00",
   "video": {
-    "id": "ULXDnXz8sEo",
-    "title": "Mountain Weather Update 11/19, Meteorologist Chris Tomer",
-    "url": "https://www.youtube.com/watch?v=ULXDnXz8sEo",
-    "published": "2026-11-19T15:12:36+00:00",
-    "thumbnail": "https://i.ytimg.com/vi/ULXDnXz8sEo/hqdefault.jpg"
+    "id": "Ha9GSJAl5IE",
+    "title": "Mountain Weather Update 11/20, Meteorologist Chris Tomer",
+    "url": "https://www.youtube.com/watch?v=Ha9GSJAl5IE",
+    "published": "2026-11-20T15:05:59+00:00",
+    "thumbnail": "https://i.ytimg.com/vi/Ha9GSJAl5IE/hqdefault.jpg"
   },
-  "description": "Parade of storm systems through 11/28.  Colder temps will help with snow efficiency across the Interior Rockies.",
+  "description": "Active storm track through end of November across the West with several storm systems lined-up.",
   "transcript": {
     "status": "unavailable",
     "source": null,
     "chars": 0,
     "errors": [
-      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=ULXDnXz8sEo! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
-      "yt-dlp: RuntimeError: ERROR: [youtube] ULXDnXz8sEo: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
+      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=Ha9GSJAl5IE! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
+      "yt-dlp: RuntimeError: ERROR: [youtube] Ha9GSJAl5IE: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
     ]
   },
   "summary": {
     "method": "extractive",
-    "headline": "Parade of storm systems through 11/28.",
-    "storms": [
-      {
-        "when": "Nov 28",
-        "start": "2026-11-28",
-        "end": "2026-11-28",
-        "text": "Parade of storm systems through 11/28.",
-        "states": []
-      }
-    ],
+    "headline": "Active storm track through end of November across the West with several storm systems lined-up.",
+    "storms": [],
     "amounts": [],
     "snow_levels": [],
     "confidence": null,
