@@ -24,7 +24,7 @@ FORECAST_DAYS = 15  # 360 h: enough for a 14-day window starting at any hour tod
 # Each view has its own grid; regional views are sampled finer so the mountains show up.
 VIEWS = [
     {"id": "west", "name": "West", "lon0": -125.0, "lon1": -102.0, "lat0": 31.0, "lat1": 49.5, "step": 0.5},
-    {"id": "sanjuans", "name": "San Juans", "lon0": -109.4, "lon1": -105.6, "lat0": 36.6, "lat1": 38.7, "step": 0.15},
+    {"id": "sanjuans", "name": "San Juans", "lon0": -109.4, "lon1": -105.6, "lat0": 36.6, "lat1": 39.15, "step": 0.15},
     # Summit County, Vail and the Front Range passes sit in a box small enough that the N. CO view
     # piles their 15 labels on top of each other; a finer grid of their own fixes both.
     {"id": "summit", "name": "Summit / I-70", "lon0": -106.65, "lon1": -105.55, "lat0": 39.2, "lat1": 40.0, "step": 0.05},
@@ -40,6 +40,8 @@ POINTS = [
     ("molas", 37.74929, -107.68933, 3236), ("redmtn", 37.8857, -107.6724, 3371),
     ("stump", 37.47647, -107.63348, 3423),
     ("purg", 37.6150, -107.8540, 3292), ("wolf", 37.4747, -106.7932, 3353),
+    ("wolfsummit", 37.47903, -106.80234, 3331),
+    ("butte", 38.8944, -107.0133, 3106), ("parkcone", 38.81982, -106.58962, 2926),
     ("rabbit", 40.36735, -106.74118, 2862), ("nfrench", 41.33087, -106.37558, 3094),
     ("battle", 41.05402, -107.26674, 2274), ("tonygrove", 41.89833, -111.62957, 2576),
     ("deadwood", 44.54492, -115.56386, 2131), ("brundage", 45.0050, -116.1540, 2329),

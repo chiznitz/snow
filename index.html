@@ -402,6 +402,7 @@ footer .ask{color:var(--muted);margin-top:4px}
 "use strict";
 const REGIONS = [
   {id:"sanjuans", name:"San Juans", sub:"Durango area"},
+  {id:"cbg", name:"Crested Butte & Gunnison", sub:"East River · Taylor Park"},
   {id:"summit", name:"Summit County & Vail", sub:"I-70 · Tenmile · Gore"},
   {id:"nco", name:"Northern Colorado", sub:"Park Range"},
   {id:"wy", name:"Wyoming", sub:"Snowy Range · Sierra Madre"},
@@ -422,6 +423,9 @@ const LOCATIONS = [
   {id:"stump", region:"sanjuans", name:"Stump Lakes", note:"Weminuche", ft:11230, lat:37.47647, lon:-107.63348, triplet:"797:CO:SNTL"},
   {id:"purg", region:"sanjuans", name:"Purgatory", note:"Ski area · top of Lift 8 · forecast only", ft:10800, m:3292, lat:37.6150, lon:-107.8540},
   {id:"wolf", region:"sanjuans", name:"Wolf Creek", note:"Ski area · forecast only", ft:11001, m:3353, lat:37.4747, lon:-106.7932},
+  {id:"wolfsummit", region:"sanjuans", name:"Wolf Creek Summit", note:"Wolf Creek Pass", ft:10930, m:3331, lat:37.47903, lon:-106.80234, triplet:"874:CO:SNTL"},
+  {id:"butte", region:"cbg", name:"Butte", note:"Crested Butte", ft:10190, m:3106, lat:38.89435, lon:-106.95327, triplet:"380:CO:SNTL", fcLat:38.8944, fcLon:-107.0133},
+  {id:"parkcone", region:"cbg", name:"Park Cone", note:"Taylor Park / Gunnison", ft:9600, m:2926, lat:38.81982, lon:-106.58962, triplet:"680:CO:SNTL"},
   {id:"rabbit", region:"nco", name:"Rabbit Ears", note:"Rabbit Ears Pass · Steamboat", ft:9390, lat:40.36735, lon:-106.74118, triplet:"709:CO:SNTL"},
   {id:"nfrench", region:"wy", name:"North French Creek", note:"Snowy Range", ft:10150, lat:41.33087, lon:-106.37558, triplet:"668:WY:SNTL"},
   {id:"battle", region:"wy", name:"Battle Mountain", note:"Sierra Madre", ft:7460, lat:41.05402, lon:-107.26674, triplet:"317:WY:SNTL"},
@@ -2032,7 +2036,7 @@ const WEBCAMS = [
    note:"A-Basin's cameras stay on arapahoebasin.com and are not embeddable here.", cams:[]},
 ];
 // A reader with starred spots and no saved camera starts on the first starred spot that has one.
-const LOC_CAM = {purg:"purg", wolf:"wolf", brundage:"brundage", vailmtn:"vailcams", vail:"vailcams", coppermtn:"coppercams", copper:"coppercams", breck:"breckcams", keystone:"keystonecams", abasin:"abasincams", vailpass:"cdot"};
+const LOC_CAM = {purg:"purg", wolf:"wolf", wolfsummit:"wolf", brundage:"brundage", vailmtn:"vailcams", vail:"vailcams", coppermtn:"coppercams", copper:"coppercams", breck:"breckcams", keystone:"keystonecams", abasin:"abasincams", vailpass:"cdot"};
 const camState = {resort:favs.map(id => LOC_CAM[id]).find(Boolean) || "purg", cam:0, live:false};
 try { Object.assign(camState, JSON.parse(localStorage.getItem("snowCam") || "{}"), {live:false}); } catch (e) { /* ignore bad saved state */ }
 const camSrc = c => `${c.img}${c.img.includes("?") ? "&" : "?"}t=${Math.floor(Date.now() / 300000)}`;
@@ -2085,7 +2089,7 @@ setInterval(() => { if (document.visibilityState === "visible" && !camState.live
 const MAP_WINDOWS = [["h24","24H","Next 24 hours"],["h48","48H","Next 48 hours"],["d3","3D","Next 3 days"],["d7","7D","Next 7 days"],["d14","14D","Next 14 days"]];
 // [lower bound in inches, color, opacity]; each band runs up to the next band's bound.
 const MAP_BANDS = [[0.1,"#dbeafe",.3],[1,"#7cb8ff",.5],[3,"#3b82f6",.66],[6,"#6d4af2",.74],[12,"#a855f7",.8],[18,"#e040fb",.84],[24,"#f472b6",.87],[36,"#ffe1ef",.9]];
-const MAP_CITIES = [["Durango",37.275,-107.88],["Silverton",37.812,-107.664],["Telluride",37.938,-107.812],["Pagosa Springs",37.269,-107.01],["Cortez",37.349,-108.586],
+const MAP_CITIES = [["Durango",37.275,-107.88],["Silverton",37.812,-107.664],["Telluride",37.938,-107.812],["Pagosa Springs",37.269,-107.01],["Crested Butte",38.870,-106.988],["Gunnison",38.545,-106.925],["Cortez",37.349,-108.586],
   ["Vail",39.643,-106.378],["Frisco",39.575,-106.097],["Breckenridge",39.482,-106.046],["Silverthorne",39.632,-106.071],["Leadville",39.251,-106.292],["Georgetown",39.706,-105.697],
   ["Denver",39.739,-104.99],["Steamboat",40.485,-106.832],["Laramie",41.311,-105.591],["Grand Junction",39.064,-108.551],["Salt Lake City",40.761,-111.891],
   ["Logan",41.737,-111.834],["Jackson",43.48,-110.762],["Boise",43.615,-116.202],["McCall",44.911,-116.099],["Reno",39.53,-119.814],["Missoula",46.872,-113.994],
@@ -2097,7 +2101,7 @@ const mapState = (() => { try { return {view:"sanjuans", win:"d7", ...JSON.parse
 const saveMapState = () => { try { localStorage.setItem("snowMap", JSON.stringify({view:mapState.view, win:mapState.win})); } catch (_) {} };
 
 // Which map area belongs to a spot: its region's own view, else the first regional view that holds it.
-const REGION_VIEW = {sanjuans:"sanjuans", summit:"summit", nco:"nco", wy:"nco", ut:"utid", id:"utid"};
+const REGION_VIEW = {sanjuans:"sanjuans", cbg:"sanjuans", summit:"summit", nco:"nco", wy:"nco", ut:"utid", id:"utid"};
 const viewHolds = (v, loc) => loc.lat >= v.lat0 && loc.lat <= v.lat1 && loc.lon >= v.lon0 && loc.lon <= v.lon1;
 function viewFor(loc) {
   if (!mapData) return null;
