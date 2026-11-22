@@ -408,6 +408,7 @@ const REGIONS = [
   {id:"wy", name:"Wyoming", sub:"Snowy Range · Sierra Madre"},
   {id:"ut", name:"Utah", sub:"Bear River Range"},
   {id:"id", name:"Idaho", sub:"West Central Mtns · McCall"},
+  {id:"seak", name:"Southeast Alaska", sub:"Hyder · Salmon Glacier"},
 ];
 // lat/lon is the station (or peak) on the map and in SNOTEL metadata.
 // fcLat/fcLon, when set, is the NWS + Open-Meteo lookup so the grid cell matches loc.ft.
@@ -451,6 +452,7 @@ const LOCATIONS = [
   {id:"breck", region:"summit", name:"Breckenridge", note:"Ski area · Imperial Express · forecast only", ft:12840, lat:39.4765, lon:-106.0730, fcLat:39.4482, fcLon:-106.1096},
   {id:"keystone", region:"summit", name:"Keystone", note:"Ski area · Outback / Bergman · forecast only", ft:12400, lat:39.5580, lon:-105.9180, fcLat:39.5297, fcLon:-105.8813},
   {id:"abasin", region:"summit", name:"Arapahoe Basin", note:"Ski area · Zuma / East Wall · forecast only", ft:12450, lat:39.6360, lon:-105.8720, fcLat:39.6360, fcLon:-105.8512},
+  {id:"hyder", region:"seak", name:"Hyder / Salmon Glacier", note:"BC border · forecast only", ft:5446, m:1660, lat:56.174, lon:-130.48},
 ].map(l => ({...l, m: l.m || Math.round(l.ft * 0.3048)}));
 const isSummit = loc => loc.region === "summit";
 const coreLocs = () => LOCATIONS.filter(l => !isSummit(l));
@@ -1361,8 +1363,8 @@ const rainMatters = (r, snow) => r >= 0.1 && r > snow / 10;
 function renderForecast(body, fc) {
   const t = document.querySelector(`#fc-${fc.loc.id} .ptitle span`);
   if (t) {
-    const long = fc.srcAt && fc.srcAt.some(s => s && s !== "NWS");
-    t.textContent = long ? "NWS forecast · days 8–14 NBM/ECMWF" : "NWS forecast";
+    const extra = [...new Set((fc.srcAt || []).filter(s => s && s !== "NWS"))];
+    t.textContent = extra.length ? `NWS forecast · days 8–14 ${extra.join("/")}` : "NWS forecast";
   }
   const fmtCell = v => v == null ? `<td class="na">—</td>` : `<td style="${v >= 0.05 ? `color:${snowColor(v)}` : ""}">${esc(fmtIn(v))}"</td>`;
   const winTotal = (m, a, b) => { const seg = m.snow.slice(a, b); return seg.length === b - a && seg.every(v => v != null) ? seg.reduce((x, y) => x + y, 0) : null; };
@@ -1384,7 +1386,7 @@ const ASPECT = {north:"N", northeast:"NE", east:"E", southeast:"SE", south:"S", 
 const paras = (list, cls = "") => (list || []).map(p => `<p${cls ? ` class="${cls}"` : ""}>${esc(p)}</p>`).join("");
 const dateMT = iso => new Date(iso).toLocaleString("en-US", {timeZone:TZ, month:"short", day:"numeric", hour:"numeric", minute:"2-digit"});
 const OFFICE_NAMES = {GJT:"Grand Junction", BOU:"Boulder / Denver", PUB:"Pueblo", CYS:"Cheyenne",
-  RIW:"Riverton", SLC:"Salt Lake City", BOI:"Boise", PIH:"Pocatello", MSO:"Missoula"};
+  RIW:"Riverton", SLC:"Salt Lake City", BOI:"Boise", PIH:"Pocatello", MSO:"Missoula", AJK:"Juneau"};
 const AFD_DROP = /^(AVIATION|FIRE WEATHER|MARINE|HYDROLOGY|CLIMATE|EQUIPMENT|PRELIMINARY POINT)/;
 const afdByOffice = {};
 const afdLoading = {};

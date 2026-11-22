@@ -26,7 +26,8 @@ OUT = os.path.join(ROOT, "conditions.json")
 UA = "chiznitz-snow (github.com/chiznitz/snow)"
 NWS_HEADERS = {"User-Agent": UA, "Accept": "application/geo+json"}
 OFFICE_NAMES = {"GJT": "Grand Junction", "BOU": "Boulder / Denver", "PUB": "Pueblo", "CYS": "Cheyenne",
-                "RIW": "Riverton", "SLC": "Salt Lake City", "BOI": "Boise", "PIH": "Pocatello", "MSO": "Missoula"}
+                "RIW": "Riverton", "SLC": "Salt Lake City", "BOI": "Boise", "PIH": "Pocatello", "MSO": "Missoula",
+                "AJK": "Juneau"}
 PREFERRED = ["LONG TERM", "EXTENDED", "DISCUSSION", "KEY MESSAGES", "SHORT TERM"]
 DROP_SECTIONS = ("AVIATION", "FIRE WEATHER", "MARINE", "HYDROLOGY", "CLIMATE", "EQUIPMENT", "PRELIMINARY POINT")
 ADMIN = re.compile(r"\b(warnings?|advisor(y|ies)|headlines?|no changes|on track|previous discussion|see .* for details)\b", re.I)

@@ -54,7 +54,7 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
   device). `#loc-<id>` in the URL opens that card on load.
   **Favorites:** the ☆ on a row or card pins that spot into a "My spots" group at the top of the table (rows
   move there rather than copy, so each spot's card stays unique). The list is saved on the device
-  (`snowFavs`); `?fav=purg,wolf` or `?fav=butte,schofield,parkcone` in a shared link adds those spots on another device. A starred Summit spot
+  (`snowFavs`); `?fav=purg,wolf` or `?fav=hyder` in a shared link adds those spots on another device. A starred Summit spot
   loads that region's data on page load, and a first visit with starred spots starts the webcams on the first
   starred resort that has one.
   The card's 24H / 48H / 72H / 7D / 14D control drives one chart: hourly bars (median of the global models, faint
@@ -108,5 +108,6 @@ Sites are defined in the `REGIONS` / `LOCATIONS` arrays in `index.html`. Each lo
 | Summit County & Vail | Jackwhacker Gulch | 935:CO:SNTL |
 | Summit County & Vail | Elliot Ridge | 1120:CO:SNTL |
 | Summit County & Vail | Red Sandstone Rd, Vail Pass, Vail, Copper, Breckenridge, Keystone, Arapahoe Basin | forecast only |
+| Southeast Alaska | Hyder / Salmon Glacier | forecast only |
 
 Units are read from Open-Meteo's `daily_units`; with `precipitation_unit=inch` snowfall already comes back in inches.
