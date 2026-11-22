@@ -34,6 +34,7 @@ STATIONS = [
     {"id": "stump", "name": "Stump Lakes", "triplet": "797:CO:SNTL", "lat": 37.47647, "lon": -107.63348},
     {"id": "wolfsummit", "name": "Wolf Creek Summit", "triplet": "874:CO:SNTL", "lat": 37.47903, "lon": -106.80234},
     {"id": "butte", "name": "Butte", "triplet": "380:CO:SNTL", "lat": 38.8944, "lon": -107.0133},
+    {"id": "schofield", "name": "Schofield Pass", "triplet": "737:CO:SNTL", "lat": 38.9947, "lon": -107.0293},
     {"id": "parkcone", "name": "Park Cone", "triplet": "680:CO:SNTL", "lat": 38.81982, "lon": -106.58962},
     {"id": "rabbit", "name": "Rabbit Ears", "triplet": "709:CO:SNTL", "lat": 40.36735, "lon": -106.74118},
     {"id": "nfrench", "name": "North French Creek", "triplet": "668:WY:SNTL", "lat": 41.33087, "lon": -106.37558},
