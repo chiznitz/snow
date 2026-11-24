@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T13:17:45+00:00",
+  "generated_at": "2026-11-24T14:18:09+00:00",
   "video": {
     "id": "F3gaBYKydUI",
     "title": "Mountain Weather Update 11/23, Meteorologist Chris Tomer",
@@ -13,8 +13,8 @@
     "source": null,
     "chars": 0,
     "errors": [
-      "youtube-transcript-api: VideoUnplayable: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=F3gaBYKydUI! This is most likely caused by: The video is unplayable for the following reason: This content isn’t available. If you are sure that the described cause is not responsible for this error and that a transcript should be retrievable, please create an issue at https://github.com/jdepoix/youtube-transcript-api/is",
-      "yt-dlp: RuntimeError: ERROR: [youtube] F3gaBYKydUI: Video unavailable. This content isn’t available."
+      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=F3gaBYKydUI! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
+      "yt-dlp: RuntimeError: ERROR: [youtube] F3gaBYKydUI: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
     ]
   },
   "summary": {
