@@ -1,31 +1,31 @@
 {
-  "generated_at": "2026-11-27T16:18:57+00:00",
+  "generated_at": "2026-11-28T16:17:12+00:00",
   "video": {
-    "id": "qcVmbhiXgxE",
-    "title": "Mountain Weather Update 11/27, Meteorologist Chris Tomer",
-    "url": "https://www.youtube.com/watch?v=qcVmbhiXgxE",
-    "published": "2026-11-27T14:54:00+00:00",
-    "thumbnail": "https://i.ytimg.com/vi/qcVmbhiXgxE/hqdefault.jpg"
+    "id": "9h5ie6_wRmw",
+    "title": "Mountain Weather Update 11/28, Meteorologist Chris Tomer",
+    "url": "https://www.youtube.com/watch?v=9h5ie6_wRmw",
+    "published": "2026-11-28T15:33:24+00:00",
+    "thumbnail": "https://i.ytimg.com/vi/9h5ie6_wRmw/hqdefault.jpg"
   },
-  "description": "Opening day at Jackson Hole, WY with heavy snow inbound next 24 hours.  This NW Flow moves into the Central and Northern Mountains of Colorado through 11/28.  Wasatch gets clipped.  Active storm track through 12/8.",
+  "description": "NW Flow nailing parts of Colorado, Utah, and Wyoming 11/28.  Then 2-3 additional storm systems through 12/8.",
   "transcript": {
     "status": "unavailable",
     "source": null,
     "chars": 0,
     "errors": [
-      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=qcVmbhiXgxE! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
-      "yt-dlp: RuntimeError: ERROR: [youtube] qcVmbhiXgxE: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
+      "youtube-transcript-api: RequestBlocked: Could not retrieve a transcript for the video https://www.youtube.com/watch?v=9h5ie6_wRmw! This is most likely caused by: YouTube is blocking requests from your IP. This usually is due to one of the following reasons: - You have done too many requests and your IP has been blocked by YouTube - You are doing requests from an IP belonging to a cloud provider (like AWS, Google Cloud Platform, Azure, e",
+      "yt-dlp: RuntimeError: ERROR: [youtube] 9h5ie6_wRmw: Sign in to confirm you’re not a bot. This helps protect our community. Use --cookies-from-browser or --cookies for the authentication. See https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp for how to manually pass cookies. Also see https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies for tips on effectively exporting YouTu"
     ]
   },
   "summary": {
     "method": "extractive",
-    "headline": "Opening day at Jackson Hole, WY with heavy snow inbound next 24 hours.",
+    "headline": "NW Flow nailing parts of Colorado, Utah, and Wyoming 11/28.",
     "storms": [
       {
         "when": "Dec 8",
         "start": "2026-12-08",
         "end": "2026-12-08",
-        "text": "Active storm track through 12/8.",
+        "text": "Then 2-3 additional storm systems through 12/8.",
         "states": []
       }
     ],
